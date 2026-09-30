@@ -9,6 +9,11 @@ A personal, non-commercial project: public with no sign-in, owner-funded with at
 stored on the server, for a general audience of adults and older teens, hosted on Vercel. The model is the
 cheapest one that gives the best visualization outcomes. There is no formal expert review or user study.
 
+> **Phase 0 update (2026-09-30):** decisions made after this plan was approved live in
+> [`docs/decisions/`](decisions/). ADR 0001 selects `gpt-6-luna`, and ADR 0003 records the streaming findings
+> that refine §3.5. Where an ADR and this plan disagree, the ADR wins. For example, the plan says to watch
+> for chunks carrying several tokens, but the probe found OpenAI sends exactly one token per delta.
+
 ## Decisions at a glance
 - **Hybrid timing.**
   - The real reply streams normally, alongside a thin live strip that shows only observed events.

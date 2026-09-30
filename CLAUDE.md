@@ -1,9 +1,19 @@
 # CLAUDE.md
 
-> **Project status: pre-implementation.** This repository contains planning documents only. There is no
-> application code, `package.json`, dependency, or script yet. Items marked **PROVISIONAL** are proposals,
-> not decisions. When one is decided, record an ADR in `docs/decisions/` and update this file. Never
-> describe planned files or commands as if they already exist.
+@AGENTS.md
+
+> **Project status: Phase 0 (foundations).**
+>
+> **What exists:**
+> - The Next.js scaffold and tooling.
+> - The live capability probe (`scripts/probe/`) and its results (`docs/probe/`, `fixtures/probe/`).
+> - A gated streaming spike (`/spike`, `/api/spike/*`).
+> - ADRs 0001–0005.
+>
+> **No product features exist yet.** Everything else in this file describes intended structure.
+>
+> Items marked **PROVISIONAL** are proposals, not decisions. When one is decided, record an ADR in
+> `docs/decisions/` and update this file. Never describe planned files or commands as if they already exist.
 
 ## 1. Purpose & audience
 "Token by Token" is an interactive website that explains how large language
@@ -87,6 +97,9 @@ Unlabeled data must not render.
 - **A2. No invented numbers on the user's real tokens.** If the configured model can't return logprobs, the
   options and pick chapters switch to the recorded sample conversation, and the user's tokens show "not
   available".
+  - Some text arrives with no logprob entries even when logprobs are on (observed for some emoji). When a reply
+    contains such text, the final logprob list can be empty.
+  - Label those characters "OpenAI returned no alternatives for these characters". Never fill them in.
 - **A3. Model self-explanations.**
   - Never present a model-generated explanation as the model's actual reasoning.
   - Never ship an "ask the model why it said that" feature presented as introspection.
@@ -119,6 +132,10 @@ Unlabeled data must not render.
   to "probably wrong".
 - **A13. Token IDs are always Calculated.** The API returns strings and bytes, not IDs. Name the tokenizer as
   "assumed". Show reconciliation with the counts OpenAI reports; never silently correct them.
+  - `usage.output_tokens` counts tokens that are never returned as text. The count is per model (4 for
+    gpt-6-luna) and is recorded in the capability registry.
+  - Present the gap as an explained difference ("OpenAI counted 44; 40 are visible"), not as an error.
+  - Always encode with special-token strings treated as ordinary text, because users can type `<|endoftext|>`.
 - **A14. Cached tokens.** Describe them as "saved intermediate results for an identical start of the request
   (often this app's shared instructions)". Say explicitly that this doesn't give the model memory.
 
@@ -148,15 +165,15 @@ Facts were verified on 2026-09-29. Re-verify before relying on details.
 | Framework | Next.js ≥16.3.8, App Router, TypeScript strict, Node runtime (Edge is deprecated); `proxy.ts`, not `middleware.ts` | Decided |
 | LLM API | OpenAI Responses API through the official `openai` SDK, behind a server-only adapter | Decided |
 | Vercel AI SDK | Not used: logprobs arrive only at finish, and we own the protocol | Decided |
-| Model | **Rule: the cheapest model that passes every visualization check.** Checks: streamed top-20 logprobs; `reasoning_tokens == 0`; temperature and top_p accepted; tokenizer round-trip ≥99%; no retirement within ~6 months; acceptable replies. Candidates, in cost order: `gpt-6-luna` (effort `none`), `gpt-4o-mini`, `gpt-5.4-nano` (effort `none`), `gpt-4.1-mini`. Settings: temperature 1, top_p 1, `top_logprobs: 20`, `store: false` | Rule decided; model PROVISIONAL until the Phase 0 probe |
-| Tokenizer | `LocalTokenizer` interface; `gpt-tokenizer` (`o200k_base`), server-side | PROVISIONAL |
+| Model | **`gpt-6-luna` with `reasoning.effort: "none"`**, temperature 1, top_p 1, `top_logprobs: 20`, `store: false`. This is the cheapest candidate, and it passed every automatic check in the 2026-09-30 probe. Fallbacks, in cost order: `gpt-4o-mini`, `gpt-5.4-nano`, `gpt-4.1-mini` (see ADR 0001). | Decided (ADR 0001) |
+| Tokenizer | `LocalTokenizer` interface; `gpt-tokenizer` (`o200k_base`), server-side. The probe found every output token of every candidate to be one `o200k_base` token, with input counts within 1 token. | Decided (ADR 0001) |
 | Visualization | SVG/HTML rendered as pure functions of `(step, progress)` from our own clock; d3-scale/shape/interpolate; Canvas 2D for dense views; Three.js/R3F post-MVP, lazy-loaded, optional | PROVISIONAL |
 | UI | Tailwind CSS 4 with CSS-variable tokens; shadcn/ui on Base UI; Motion only for UI chrome outside the timeline | PROVISIONAL |
 | State | Zustand vanilla stores (conversation, preferences); a pure playback machine and clock exposed through `useSyncExternalStore` | PROVISIONAL |
 | Budget | $20/month: an OpenAI hard cap at the organization level (split into production $17 and development $3 if project caps exist); an app ledger of about $0.55/day; fall back to the sample conversation when it runs out | Decided |
 | Limits | Hobby's single WAF rule; in-handler per-session and per-IP quotas and a one-stream lock; an Upstash Redis (free tier) micro-dollar ledger; BotID Basic | PROVISIONAL |
 | Hosting | Vercel Hobby (personal, non-commercial project); a custom domain once purchased | Decided |
-| Tests | Vitest 5, Testing Library, fast-check, Playwright, @axe-core/playwright | PROVISIONAL |
+| Tests | Vitest 5 and Playwright are installed (Chromium). Testing Library is installed. fast-check and @axe-core/playwright get added with the first tests that need them (Phase 1). | Decided |
 
 **Data flow. Don't break these boundaries.**
 
@@ -179,7 +196,18 @@ PlaybackScript → PlaybackClock → stage views`
 - **Supported controls only.** The UI shows only controls the configured model supports, read from the
   capability registry in `src/server/config`.
 
-## 5. Planned repository layout (nothing below exists yet)
+## 5. Repository layout
+**Exists now (Phase 0):**
+```
+src/app/            layout, placeholder home page, globals.css
+src/app/spike/      streaming spike page (diagnostic; 404 unless SPIKE_ENABLED=1)
+src/app/api/spike/  spike routes: stream/ (synthetic SSE), openai/ (real relay, needs x-spike-token)
+scripts/probe/      live capability probe (candidates, prompts, api, analysis + tests, report)
+fixtures/probe/     sanitized recorded streams per model (written only by the probe)
+docs/               PLAN.md · decisions/ (ADRs) · probe/ (capability report, quality files)
+e2e/                Playwright smoke tests
+```
+**Planned (nothing below exists yet):**
 ```
 src/app/          pages; api/chat/route.ts (thin)
 src/server/       chat/ · openai/adapter.ts · tokenizer/ · budget/ · limits/ · signing/ · config.ts
@@ -190,10 +218,10 @@ src/playback/     machine · clock · controller · compile/
 src/stages/       contract · registry · <stage-id>/{build,View,describe} · illustrative/
 src/components/   provenance/ · chat/ · viz/
 content/          stages/*.mdx (Simple/Detailed/Technical) · glossary · claims.md
-fixtures/         sanitized recorded streams and TraceLogs (written only by scripts/)
-scripts/          probe-capabilities.ts · record-fixture.ts
-e2e/  docs/ (PLAN.md · decisions/)
+fixtures/         TraceLogs for the trace and playback tests
+scripts/          record-fixture.ts
 ```
+The spike code gets removed or folded into `/api/chat` during Phase 1.
 Import boundaries are enforced with ESLint `no-restricted-imports` (see `docs/PLAN.md` §3.3). Client code
 never imports `src/server/**`, which is enforced by `server-only`.
 
@@ -443,18 +471,30 @@ Simple-depth chapters group them:
 9. Never commit secrets. Never deploy or publish without the owner's explicit approval.
 
 ## 14. Commands
-None exist yet. Phase 0 creates `package.json` and defines at least:
-- `dev`
-- `build`
-- `start`
-- `lint`
-- `typecheck`
-- `test`
-- `test:e2e`
-- `probe` (requires `OPENAI_API_KEY`; never run in CI on PRs)
+Node.js 24 is required. If you use nvm-windows: `nvm use 24.19.0`. Copy `.env.example` to `.env.local` and
+fill in the values.
 
-Document the exact commands here once they work. Note that `next lint` was removed in Next.js 16, so lint
-with ESLint directly.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Dev server at http://localhost:3000 |
+| `npm run build` / `npm start` | Production build and server |
+| `npm run lint` | ESLint flat config (`next lint` was removed in Next.js 16) |
+| `npm run typecheck` | `next typegen` (route types), then `tsc --noEmit` |
+| `npm test` | Vitest unit tests (`src/**/*.test.ts(x)`, `scripts/**/*.test.mts`) |
+| `npm run test:e2e` | Playwright against a production build on port 3200. First run: `npx playwright install chromium` |
+| `npm run probe` | Live capability probe. Needs `OPENAI_API_KEY` in `.env.local` and costs about 1–2¢. Never run it in CI. |
+
+`probe` options:
+- `--models=a,b` runs a subset.
+- `--skip-quality` skips the reply-quality prompts.
+- `--max-usd=0.10` sets the budget guard.
+- `--stop-at-first-pass` stops at the first passing model.
+
+**Streaming spike:** run `SPIKE_ENABLED=1 SPIKE_TOKEN=<random> npm run dev`, then open `/spike`. Server-side
+results print as `[spike …]` log lines.
+
+Scripts in `scripts/` are `.mts` files that Node 24 runs directly, with no build step. Use `import type` for
+type-only imports, and include the `.mts` extension on relative imports.
 
 ## 15. Decisions and open items (keep in sync with `docs/PLAN.md` §6)
 **Decided (2026-09-30):**
@@ -468,8 +508,18 @@ with ESLint directly.
 - Identity: the name "Token by Token"; a Matrix-inspired "digital-rain terminal" style; a dark theme (default)
   plus a light theme; an English interface; provider-neutral copy.
 
+**Phase 0 results (2026-09-30):** ADRs 0001–0005 and `docs/probe/2026-09-30-capability-report.md`.
+- The model is `gpt-6-luna` (the owner approved its reply quality).
+- Reported logprobs are raw scores, independent of temperature.
+- OpenAI streams one token per delta event.
+- Some emoji come back without logprobs.
+- Output usage includes hidden tokens (4 per reply for gpt-6-luna).
+- Client disconnects abort upstream on the local Node server. Vercel is not yet verified.
+
 **Open (proceeding on defaults):**
-- The final model (the Phase 0 probe decides).
+- Pin Next.js to 16.3.8 or later (the security release; not yet published on 2026-09-30) before any public
+  deploy.
+- Verify the streaming spike on a Vercel preview.
 - The label vocabulary (default: four labels plus What-if).
 - Exact palette values and fonts (Phase 2 design tokens, checked for contrast).
 - How deep the formulas go (default: at Technical depth, collapsed).
@@ -477,7 +527,9 @@ with ESLint directly.
 - The domain (not yet bought).
 
 ## 16. Framework agent docs
-`create-next-app` and `next dev` (16.3+) generate a version-matched `AGENTS.md`.
+`create-next-app` and `next dev` (16.3+) generate a version-matched `AGENTS.md`, which is imported at the top of
+this file.
+- Its instruction to read `node_modules/next/dist/docs/` before writing Next.js code is part of this project's
+  workflow (§13, step 2).
 - This `CLAUDE.md` remains the source of truth for the project.
-- Treat `AGENTS.md` as the framework reference, and import it with `@AGENTS.md` if useful.
 - Never let a generated `CLAUDE.md` overwrite this file.
