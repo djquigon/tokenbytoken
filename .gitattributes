@@ -1,0 +1,3 @@
+# Keep LF line endings in the repository and working tree on every platform
+# (Vercel builds on Linux; fixtures and snapshots must compare byte-for-byte).
+* text=auto eol=lf
