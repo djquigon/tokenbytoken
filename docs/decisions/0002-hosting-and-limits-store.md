@@ -19,6 +19,16 @@ lock, and the daily budget ledger need a shared store.
   projects capped at $17 and $3 if project caps are available. The app ledger allows about $0.55/day.
 
 ## Consequences
+- **Streaming routes must opt in to request cancellation.** Measured on a Vercel Preview in Chrome on
+  2026-09-30.
+  - **Without cancellation, Vercel never tells a function the client left.** After the page stopped at 10
+    events, the synthetic stream still sent all 40, and the OpenAI relay ran to completion (331 deltas),
+    billing the whole reply.
+  - **With `"supportsCancellation": true` on the route's path in `vercel.json`, it works.** `request.signal`
+    fired on disconnect, and the OpenAI request was aborted 7 ms later.
+  - **Vercel then terminates the function.** So the budget ledger settlement, lock release, and metadata
+    log for `/api/chat` must run in `after()` (or `waitUntil`), or they are lost.
+  - OpenAI reports no usage for an aborted response, so the ledger settles those turns with an estimate.
 - **Framework preset.** It is pinned in `vercel.json` (`"framework": "nextjs"`). The project was imported
   while the repo held only docs, so Vercel had picked "Other". The first real build then failed after a
   successful `next build`, looking for a static `public` output directory.
@@ -30,8 +40,19 @@ lock, and the daily budget ledger need a shared store.
 
 ## Open verification
 - Upstash free-tier limits (commands per day, storage) against expected traffic: check in Phase 1.
-- Whether a client disconnect reaches the route handler on Vercel (`request.signal` and
-  `ReadableStream.cancel()`): the Phase 0 streaming spike (`/spike`) answers this on a preview deployment.
+- Streaming in Safari and iOS Safari. Chrome is verified; Safari's 1 KB buffering is already handled with
+  a padding comment. Optional: check once the chat exists.
+
+## Resolved
+- **Disconnects on Vercel** (2026-09-30, `/spike` on a Preview):
+  - Detected only when `supportsCancellation` is enabled; see Consequences.
+  - With it, `request.signal` fires, and `ReadableStream.cancel()` is not needed.
+- **Streaming on Vercel.** Delivery was progressive: arrivals were spread over ~1.5–1.9 s against the same
+  span of sending. Chrome's network reads carried mostly one event, occasionally two.
+
+## Sources (cancellation, checked 2026-09-30)
+- Cancel requests: https://vercel.com/docs/functions/functions-api-reference#cancel-requests
+- `functions` key and `supportsCancellation`: https://vercel.com/docs/project-configuration/vercel-json#functions
 
 ## Sources (checked 2026-09-29)
 - Vercel limits and Fluid compute: https://vercel.com/docs/functions/limitations

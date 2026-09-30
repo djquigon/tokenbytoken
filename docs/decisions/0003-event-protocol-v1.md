@@ -43,7 +43,16 @@
    hit the cache warmed by an earlier shakedown run. This confirms that a cache badge must never imply
    per-user memory (`CLAUDE.md` A14).
 
+7. **Stopping a reply, measured on a Vercel Preview.**
+   - A disconnect reaches the function only with `supportsCancellation` enabled (see ADR 0002).
+   - With it, the server detected the stop and aborted the OpenAI request within about 10 ms.
+   - The aborted response ended without a terminal event and without usage.
+   - The server had already relayed 18 deltas when the page stopped at 10, because tokens were in flight.
+   - So a stopped turn's cost is an estimate: relayed tokens plus a small in-flight margin. `end` is never
+     sent for it.
+
 ## Consequences
 - The Phase 1 trace reducer and alignment tests use `fixtures/probe/*/stream-basic.json` and
   `stream-unicode.json` as contract fixtures, including the emoji-gap case.
-- The spike must still confirm, on Vercel, that disconnects propagate and that responses aren't buffered.
+- `/api/chat` must be covered by `supportsCancellation` in `vercel.json`, with its cleanup in `after()`
+  (ADR 0002).

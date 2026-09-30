@@ -358,6 +358,13 @@ Simple-depth chapters group them:
   - `max_output_tokens`.
   - A budget ledger that reserves before each call and settles after it. Assume aborted tokens are billed.
     If the ledger store is unreachable, fail closed.
+- **Disconnects on Vercel:** every streaming route must be listed in `vercel.json` `functions` with
+  `"supportsCancellation": true`.
+  - Without it, Vercel never signals a client disconnect, and OpenAI keeps generating (and billing) after a
+    Stop. This was measured in Phase 0.
+  - With it, Vercel terminates the function on disconnect, so ledger settlement, lock release, and metadata
+    logging must run in `after()` from `next/server`.
+  - Forward `request.signal` to the SDK's `signal` so the upstream request is aborted.
 - **Generation requests**
   - Use `store: false`, `truncation: "disabled"`, and `safety_identifier` set to an HMAC of the anonymous
     session ID (never an IP address or personal data).
@@ -514,12 +521,14 @@ type-only imports, and include the `.mts` extension on relative imports.
 - OpenAI streams one token per delta event.
 - Some emoji come back without logprobs.
 - Output usage includes hidden tokens (4 per reply for gpt-6-luna).
-- Client disconnects abort upstream on the local Node server. Vercel is not yet verified.
+- On Vercel, streaming is progressive (verified in Chrome).
+- A Stop aborts the OpenAI request within about 10 ms, but only for routes with `supportsCancellation`
+  (ADR 0002).
 
 **Open (proceeding on defaults):**
 - Pin Next.js to 16.3.8 or later (the security release; not yet published on 2026-09-30) before any public
-  deploy.
-- Verify the streaming spike on a Vercel preview.
+  launch.
+- Optional: check streaming in Safari and iOS Safari. Padding is already in place.
 - The label vocabulary (default: four labels plus What-if).
 - Exact palette values and fonts (Phase 2 design tokens, checked for contrast).
 - How deep the formulas go (default: at Technical depth, collapsed).
