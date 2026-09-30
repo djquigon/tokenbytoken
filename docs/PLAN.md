@@ -21,7 +21,7 @@ cheapest one that gives the best visualization outcomes. There is no formal expe
 ## Decisions at a glance
 - **Hybrid timing.**
   - The real reply streams normally, alongside a thin live strip that shows only observed events.
-  - When the reply finishes, a guided walkthrough of about 2.5 minutes is *offered*, paced by reading time (ADR 0007; first planned at about 90 seconds). It replays the recorded trace at a pace people can follow.
+  - When the reply finishes, a guided walkthrough is *offered*, paced by reading time: about 2.5 minutes at 1×, and about 5 at the default half speed (ADR 0007; first planned at about 90 seconds). It replays the recorded trace at a pace people can follow.
 - **Real data wherever it exists.**
   - Real messages, real token strings, and the real top‑20 next-token options (logprobs) for every token in the reply.
   - The network's internals appear only as labeled examples.
@@ -103,7 +103,7 @@ Every view is anchored to the user's own conversation. Views of the model's insi
    2. A waiting timer, captioned: *"waiting for the first text. This includes network travel, OpenAI's queue, and the model processing your conversation. We can't see how that time splits."*
    3. First text arrives.
    4. Text and tokens keep arriving.
-4. **Offer.** When the reply ends, the walkthrough panel shows a static **Hook** card built from real data: *"Your reply was 212 tokens. At every token there were options. Here's a close call…"*. It has two buttons: **Play (≈ 2.5 min)** and **Skip**. Autoplay is off by default and can be turned on as a preference.
+4. **Offer.** When the reply ends, the walkthrough panel shows a static **Hook** card built from real data: *"Your reply was 212 tokens. At every token there were options. Here's a close call…"*. It has two buttons: **Play (≈ 5 min at the default half speed)** and **Skip**. Autoplay is off by default and can be turned on as a preference.
 5. **Walkthrough.** Six short chapters, seven from the second turn on. The user can:
    - play, pause, step, and scrub;
    - change speed, replay, and jump to any chapter;

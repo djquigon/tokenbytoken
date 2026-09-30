@@ -641,8 +641,11 @@ type-only imports, and include the `.mts` extension on relative imports.
   - the player, chapter bar, step mode, and focus-scoped shortcuts;
   - the token card, five deep dives, and the Transcript view.
 - The live strip, the recorded sample conversation (`/sample`), and the landing page with its token rain.
-- Walkthroughs are paced by reading time: about 2.5 min for a first reply and about 3 min with the
+- Walkthroughs are paced by reading time: about 2.5 min at 1× for a first reply and about 3 min with the
   follow-up chapter. The plan's ~90 s left too little time to read.
+- The default playback speed is 0.5× (owner, 2026-09-30: 1× felt too fast), so a walkthrough takes about
+  5–6 min unless the viewer speeds it up. The offer shows the time at the current speed. Preferences store
+  only settings a viewer chose, so a changed default reaches everyone who never picked one.
 - Tested by 29 end-to-end tests (axe included) and the unit suite. The speed targets are met on a
   throttled phone profile.
 - The sample recording cost about $0.00011. Early visual checks accidentally reached the real API, about

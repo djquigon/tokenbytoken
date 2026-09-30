@@ -1,6 +1,9 @@
 // Viewer preferences: theme, effects, motion, walkthrough depth and speed, shortcuts. Stored in this
 // browser only (localStorage), validated on load, and mirrored onto <html> as data attributes so CSS can
 // react before React hydrates (see THEME_INIT_SCRIPT).
+//
+// Only the settings a viewer actually chose are stored, so a changed default reaches everyone who never
+// picked that setting.
 
 import { z } from 'zod';
 import { createStore } from 'zustand/vanilla';
@@ -18,7 +21,8 @@ const prefsSchema = z.object({
   /** "system" follows prefers-reduced-motion; the others override it. */
   motion: z.enum(['system', 'reduce', 'full']).catch('system'),
   depth: z.enum(DEPTHS).catch('simple'),
-  speed: z.union([z.literal(0.5), z.literal(1), z.literal(2), z.literal(4)]).catch(1),
+  /** Half speed by default (owner, 2026-09-30): full speed felt too fast to follow. */
+  speed: z.union([z.literal(0.5), z.literal(1), z.literal(2), z.literal(4)]).catch(0.5),
   /** The walkthrough is offered, never started automatically, unless the viewer opts in. */
   autoplay: z.boolean().catch(false),
   shortcuts: z.boolean().catch(true),
@@ -38,12 +42,25 @@ export type Speed = Preferences['speed'];
 
 export const DEFAULT_PREFS: Preferences = prefsSchema.parse({});
 
-function readStored(): Preferences {
+const FIELDS = Object.keys(prefsSchema.shape) as (keyof Preferences)[];
+/** The stored format: 2 keeps only chosen settings; format 1 (no marker) stored every setting. */
+const FORMAT = 2;
+
+/** The settings this viewer chose, read from storage and validated one by one. */
+export function readChosen(storage: Pick<Storage, 'getItem'>): Partial<Preferences> {
   try {
-    const raw = window.localStorage.getItem(PREFS_KEY);
-    return raw ? prefsSchema.parse({ ...DEFAULT_PREFS, ...JSON.parse(raw) }) : DEFAULT_PREFS;
+    const raw = JSON.parse(storage.getItem(PREFS_KEY) ?? '{}') as Record<string, unknown>;
+    const chosen: Record<string, unknown> = {};
+    for (const key of FIELDS) {
+      if (!(key in raw)) continue;
+      const parsed = prefsSchema.shape[key].safeParse(raw[key]);
+      if (parsed.success) chosen[key] = parsed.data;
+    }
+    // Format 1 stored every setting, so a speed of 1 there was the old default, not a choice.
+    if (raw.v !== FORMAT && chosen.speed === 1) delete chosen.speed;
+    return chosen as Partial<Preferences>;
   } catch {
-    return DEFAULT_PREFS;
+    return {};
   }
 }
 
@@ -61,31 +78,35 @@ export interface PrefsState extends Preferences {
   set(patch: Partial<Preferences>): void;
 }
 
+/** What this viewer chose; kept in memory too, so choices last the page view when storage is unavailable. */
+let chosen: Partial<Preferences> = {};
+
 export const prefsStore = createStore<PrefsState>()((set, get) => ({
   ...DEFAULT_PREFS,
   hydrated: false,
   hydrate() {
     if (get().hydrated) return;
-    const stored = readStored();
-    set({ ...stored, hydrated: true });
-    apply(stored);
+    try {
+      chosen = readChosen(window.localStorage);
+    } catch {
+      chosen = {};
+    }
+    const prefs = prefsSchema.parse(chosen);
+    set({ ...prefs, hydrated: true });
+    apply(prefs);
   },
   set(patch) {
-    const next = prefsSchema.parse({ ...pick(get()), ...patch });
+    chosen = { ...chosen, ...patch };
+    const next = prefsSchema.parse(chosen);
     set(next);
     apply(next);
     try {
-      window.localStorage.setItem(PREFS_KEY, JSON.stringify(next));
+      window.localStorage.setItem(PREFS_KEY, JSON.stringify({ v: FORMAT, ...chosen }));
     } catch {
       // storage unavailable: the choice lasts for this page view
     }
   },
 }));
-
-function pick(s: PrefsState): Preferences {
-  const { theme, effects, motion, depth, speed, autoplay, shortcuts, keys, liveStrip, tourSeen } = s;
-  return { theme, effects, motion, depth, speed, autoplay, shortcuts, keys, liveStrip, tourSeen };
-}
 
 /**
  * Runs in <head> before first paint so the page never flashes the wrong theme. Kept tiny and defensive:

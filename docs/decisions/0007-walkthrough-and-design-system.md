@@ -37,8 +37,10 @@ the Matrix-inspired design system. Building it forced several decisions the plan
 ### Pacing and playback
 - **Reading-time pacing replaces the plan's ~90 s target.** Each step lasts at least its reading time
   (230 wpm plus 1.5 s). The target is 150 s, with a hard cap of 240 s. The plan's 90 s left about 3.5 s
-  per step, less than it takes to read the captions. Walkthroughs run about 2.5 min for a first reply and
-  about 3 min with the follow-up chapter. The montage stays capped at 8 s.
+  per step, less than it takes to read the captions. Walkthroughs run about 2.5 min at 1× for a first reply
+  and about 3 min with the follow-up chapter. The montage stays capped at 8 s.
+  - **Update, 2026-09-30 (owner):** the default speed is 0.5×, because 1× felt too fast. That makes the
+    default about 5–6 min, and the offer shows the time at the current speed.
 - **Moving while stopped shows a step complete.** Moving there while playing plays it from its start, and
   Play replays a completed step. The offer shows the Hook complete, as a static card.
 - **Progress (`--p`) is written to the panel element, not the per-step stage.** A step change made while

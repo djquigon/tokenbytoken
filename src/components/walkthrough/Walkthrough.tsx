@@ -312,7 +312,7 @@ export const Walkthrough = memo(function Walkthrough({
               dispatch({ type: 'play' });
             }}
           >
-            <PlayIcon /> {snapshot.stepMode ? 'Start the walkthrough' : `Play the walkthrough (${minutes(script.totalMs)})`}
+            <PlayIcon /> {snapshot.stepMode ? 'Start the walkthrough' : `Play the walkthrough (${minutes(script.totalMs / speed)})`}
           </button>
           <button type="button" className="btn" onClick={skip}>
             Skip
