@@ -91,10 +91,14 @@ return 1
 export class RedisLimitsStore implements LimitsStore {
   readonly kind = 'redis';
 
-  constructor(private readonly runner: ScriptRunner) {}
+  /** @param namespace The deployment environment, so Preview and Production never share keys. */
+  constructor(
+    private readonly runner: ScriptRunner,
+    private readonly namespace: string,
+  ) {}
 
   async admit(req: AdmitRequest, policy: LimitsPolicy): Promise<AdmitResult> {
-    const keys = admissionKeys(req);
+    const keys = admissionKeys(req, this.namespace);
     const result = await this.runner.exec(
       ADMIT_LUA,
       [keys.lock, keys.sessionDay, keys.ipMinute, keys.ipDay, keys.budgetGlobal, keys.budgetIp, keys.reservation],

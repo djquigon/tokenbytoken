@@ -24,6 +24,9 @@ export class MemoryLimitsStore implements LimitsStore {
   readonly kind = 'memory';
   private readonly data = new Map<string, Entry>();
 
+  /** @param namespace Separates environments that share a store (see admissionKeys). */
+  constructor(private readonly namespace = 'local') {}
+
   private live(key: string, nowMs: number): Entry | undefined {
     const e = this.data.get(key);
     if (e && e.expiresAt <= nowMs) {
@@ -47,7 +50,7 @@ export class MemoryLimitsStore implements LimitsStore {
 
   async admit(req: AdmitRequest, policy: LimitsPolicy): Promise<AdmitResult> {
     const now = req.nowMs;
-    const keys = admissionKeys(req);
+    const keys = admissionKeys(req, this.namespace);
     const lock = this.live(keys.lock, now);
     if (lock) return { ok: false, reason: 'concurrent_request', retryAfterSec: Math.max(1, Math.ceil((lock.expiresAt - now) / 1000)) };
     this.data.set(keys.lock, { value: req.requestId, expiresAt: now + policy.lockTtlMs });

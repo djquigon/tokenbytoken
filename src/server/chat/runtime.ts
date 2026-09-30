@@ -61,9 +61,11 @@ export function chatHandler(): Handler {
 
   // The in-memory store shares nothing between serverless instances, so deployments need Redis.
   const redis = redisFromEnv(env);
+  // Upstash's free tier has one database, shared by Preview and Production: keys are namespaced by environment.
+  const namespace = env.VERCEL_ENV ?? 'local';
   let store: LimitsStore | null = null;
   if (env.LIMITS_STORE === 'memory' && !deployed) store = new MemoryLimitsStore();
-  else if (redis) store = new RedisLimitsStore(upstashRunner(redis));
+  else if (redis) store = new RedisLimitsStore(upstashRunner(redis), namespace);
   else if (!deployed && env.LIMITS_STORE !== 'redis') store = new MemoryLimitsStore();
   if (!store) missing.push('Upstash Redis (UPSTASH_REDIS_REST_URL/TOKEN or KV_REST_API_URL/TOKEN)');
 

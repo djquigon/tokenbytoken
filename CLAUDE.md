@@ -391,8 +391,11 @@ Simple-depth chapters group them:
     development secret is used.
   - Upstash (`KV_REST_API_URL`/`KV_REST_API_TOKEN` from the Vercel Marketplace, or the `UPSTASH_REDIS_REST_*`
     names). Required on Vercel.
-  - When any of these is missing, `/api/chat` fails closed with `service_unavailable`. The in-memory limits
-    store is for local runs only and is refused on Vercel deployments.
+  - When any of these is missing or invalid, `/api/chat` fails closed with `service_unavailable`. The log
+    names the variable and the rule it broke, never its value. The in-memory limits store is for local runs
+    only and is refused on Vercel deployments.
+  - Redis keys are prefixed with `VERCEL_ENV`, because Preview and Production share Upstash's single free
+    database.
 - **Moderation:** every new user message, and any earlier one not followed by a signed reply, goes to
   `omni-moderation-latest` before generation. If the check fails, the request fails closed.
 - **BotID** runs only on Vercel preview and production deployments (`checkBotId()` can't verify anywhere
@@ -572,18 +575,19 @@ type-only imports, and include the `.mts` extension on relative imports.
 - `/api/chat` runs the full guard pipeline and streams protocol v1.
 - The trace aligns tokens by bytes, labels emoji gaps, reconciles counts, and finds close calls.
 - The chat UI has Stop, retry, every error state, and the Trace Inspector.
-- Tested with 148 unit, property, component, and type tests, 15 end-to-end tests including axe, and a live
+- Tested with 149 unit, property, component, and type tests, 15 end-to-end tests including axe, and a live
   local run against OpenAI (about $0.0001).
 - Moderation adds about 0.9–1.5 s before the first token. The owner chose to keep it before generation,
   so flagged text never reaches the model.
 - The chat page loads about 320 KB of gzipped JavaScript.
+- Verified on a Vercel Preview: Upstash, BotID under the CSP, signed follow-ups, and Stop (ADR 0006).
 
 **Open (proceeding on defaults):**
-- Pin Next.js to 16.3.8 or later (the security release; not yet published on 2026-09-30) before any public
-  launch.
-- Before production, on a Preview deployment:
-  - Create the Upstash database (Vercel Marketplace) and set `HISTORY_SIGNING_SECRET`.
-  - Check the Lua scripts, BotID under the CSP, and Stop on `/api/chat`.
+- **Production launch checklist** (owner approval required):
+  1. Pin Next.js to 16.3.8 or later. It's the security release, and wasn't published as of 2026-09-30.
+  2. Set Production variables: `OPENAI_API_KEY` (the production project's key), a `HISTORY_SIGNING_SECRET`
+     different from Preview's, and the Upstash connection for Production (the same database is fine).
+  3. Deploy, then repeat the Preview checks: a question, a follow-up, and a Stop.
 - Get the chat page under its 250 KB budget in Phase 2 (for example, `zod/mini` in the browser).
 - Optional: check streaming in Safari and iOS Safari. Padding is already in place.
 - The label vocabulary (default: four labels plus What-if).

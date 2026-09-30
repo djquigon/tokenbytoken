@@ -77,17 +77,25 @@ export const nextUtcMidnight = (nowMs: number) => {
 
 export const secondsUntil = (targetMs: number, nowMs: number) => Math.max(1, Math.ceil((targetMs - nowMs) / 1000));
 
-export function admissionKeys(req: Pick<AdmitRequest, 'requestId' | 'sessionKey' | 'ipKey' | 'nowMs'>): AdmissionKeys {
+/**
+ * Keys for one request. `namespace` separates deployment environments: Upstash's free tier has one
+ * database, so Preview and Production share it but must never share limits or the budget.
+ */
+export function admissionKeys(
+  req: Pick<AdmitRequest, 'requestId' | 'sessionKey' | 'ipKey' | 'nowMs'>,
+  namespace: string,
+): AdmissionKeys {
   const day = utcDay(req.nowMs);
   const minute = Math.floor(req.nowMs / 60_000);
+  const ns = `tbt:${namespace}`;
   return {
-    lock: `tbt:lock:s:${req.sessionKey}`,
-    sessionDay: `tbt:rl:s:${req.sessionKey}:d:${day}`,
-    ipMinute: `tbt:rl:i:${req.ipKey}:m:${minute}`,
-    ipDay: `tbt:rl:i:${req.ipKey}:d:${day}`,
-    budgetGlobal: `tbt:budget:g:${day}`,
-    budgetIp: `tbt:budget:i:${req.ipKey}:${day}`,
-    reservation: `tbt:res:${req.requestId}`,
+    lock: `${ns}:lock:s:${req.sessionKey}`,
+    sessionDay: `${ns}:rl:s:${req.sessionKey}:d:${day}`,
+    ipMinute: `${ns}:rl:i:${req.ipKey}:m:${minute}`,
+    ipDay: `${ns}:rl:i:${req.ipKey}:d:${day}`,
+    budgetGlobal: `${ns}:budget:g:${day}`,
+    budgetIp: `${ns}:budget:i:${req.ipKey}:${day}`,
+    reservation: `${ns}:res:${req.requestId}`,
   };
 }
 

@@ -21,6 +21,8 @@ const policy: LimitsPolicy = {
 };
 
 const NOW = Date.UTC(2026, 8, 30, 12, 0, 0);
+const NAMESPACE = 'test';
+const keysOf = (r: Parameters<typeof admissionKeys>[0]) => admissionKeys(r, NAMESPACE);
 const req = (i: number, over: Partial<{ session: string; ip: string; reserve: number; now: number }> = {}) => ({
   requestId: `req-${i}`,
   sessionKey: over.session ?? `s${i}`,
@@ -41,7 +43,7 @@ const implementations: [name: string, make: () => Promise<Harness>, runs: { prop
   [
     'memory',
     async () => {
-      const store = new MemoryLimitsStore();
+      const store = new MemoryLimitsStore(NAMESPACE);
       return { store, charged: (k, n) => store.charged(k, n), at: () => undefined, close: () => undefined };
     },
     { property: 100, day: 20 },
@@ -52,7 +54,7 @@ const implementations: [name: string, make: () => Promise<Harness>, runs: { prop
       const fake = new FakeRedis();
       fake.now = NOW;
       const runner = await luaRunner(fake);
-      return { store: new RedisLimitsStore(runner), charged: (k) => fake.number(k), at: (ms) => void (fake.now = ms), close: () => runner.close() };
+      return { store: new RedisLimitsStore(runner, NAMESPACE), charged: (k) => fake.number(k), at: (ms) => void (fake.now = ms), close: () => runner.close() };
     },
     { property: 25, day: 3 },
   ],
@@ -64,7 +66,7 @@ describe.each(implementations)('%s limits store', (_name, make, runs) => {
     expect((await store.admit(req(1, { session: 'a' }), policy)).ok).toBe(true);
     at(NOW + 15_000);
     expect(await store.admit(req(2, { session: 'a', now: NOW + 15_000 }), policy)).toEqual({ ok: false, reason: 'concurrent_request', retryAfterSec: 60 });
-    await store.settle({ requestId: 'req-1', keys: admissionKeys(req(1, { session: 'a' })), reservedMicroUsd: 1_000, actualMicroUsd: 10, nowMs: NOW });
+    await store.settle({ requestId: 'req-1', keys: keysOf(req(1, { session: 'a' })), reservedMicroUsd: 1_000, actualMicroUsd: 10, nowMs: NOW });
     expect((await store.admit(req(3, { session: 'a' }), policy)).ok).toBe(true);
     close();
   });
@@ -125,7 +127,7 @@ describe.each(implementations)('%s limits store', (_name, make, runs) => {
     expect((await store.admit(req(1, { ip: 'x' }), shares)).ok).toBe(true);
     expect((await store.admit(req(2, { ip: 'x' }), shares)).ok).toBe(true);
     expect(await store.admit(req(3, { ip: 'x' }), shares)).toMatchObject({ ok: false, reason: 'daily_budget_exhausted', scope: 'ip' });
-    expect(charged(admissionKeys(req(0)).budgetGlobal, NOW)).toBe(2_000);
+    expect(charged(keysOf(req(0)).budgetGlobal, NOW)).toBe(2_000);
     expect((await store.admit(req(4, { ip: 'y' }), shares)).ok).toBe(true);
     close();
   });
@@ -167,7 +169,7 @@ describe.each(implementations)('%s limits store', (_name, make, runs) => {
           );
           await scheduler.waitAll();
           await Promise.all(tasks);
-          expect(charged(admissionKeys(req(0)).budgetGlobal, NOW)).toBeLessThanOrEqual(8_000);
+          expect(charged(keysOf(req(0)).budgetGlobal, NOW)).toBeLessThanOrEqual(8_000);
           close();
         },
       ),
@@ -209,5 +211,24 @@ describe.each(implementations)('%s limits store', (_name, make, runs) => {
       }),
       { numRuns: runs.day },
     );
+  });
+});
+
+describe('environments sharing one Redis database', () => {
+  it('keep separate budgets, limits, and locks', async () => {
+    const fake = new FakeRedis();
+    fake.now = NOW;
+    const runner = await luaRunner(fake);
+    const preview = new RedisLimitsStore(runner, 'preview');
+    const production = new RedisLimitsStore(runner, 'production');
+    const tight = { ...policy, dailyBudgetMicroUsd: 1_500, sessionPerDay: 1 };
+    // Preview uses up its budget and its session's daily request...
+    expect((await preview.admit(req(1, { session: 'same-tab' }), tight)).ok).toBe(true);
+    expect(await preview.admit(req(2, { session: 'other-tab' }), tight)).toMatchObject({ reason: 'daily_budget_exhausted' });
+    // ...and Production, with the same session and IP hashes, is unaffected.
+    expect((await production.admit(req(3, { session: 'same-tab' }), tight)).ok).toBe(true);
+    expect(fake.number(admissionKeys(req(0), 'preview').budgetGlobal)).toBe(1_000);
+    expect(fake.number(admissionKeys(req(0), 'production').budgetGlobal)).toBe(1_000);
+    runner.close();
   });
 });

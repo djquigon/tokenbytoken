@@ -41,9 +41,6 @@ lock, and the daily budget ledger need a shared store.
 ## Open verification
 - Streaming in Safari and iOS Safari. Chrome is verified; Safari's 1 KB buffering is already handled with
   a padding comment. Optional: check once the chat exists.
-- **Upstash:** create the database through the Vercel Marketplace, then check the real Lua scripts on a
-  Preview deployment (ADR 0006).
-- **BotID:** check it together with the CSP on a Preview deployment (ADR 0006).
 
 ## Resolved in Phase 1 (2026-09-30)
 - **Upstash free tier:**
@@ -59,6 +56,13 @@ lock, and the daily budget ledger need a shared store.
   - Basic is free on Hobby.
   - `checkBotId()` returns human under `next dev` but throws under a local `next start`, so the app runs it
     in development mode unless it is on a Vercel preview or production deployment.
+- **Verified on a Preview deployment (2026-09-30):**
+  - Upstash, connected through the Marketplace, ran the admission and settlement Lua scripts.
+  - BotID passed real page requests under the CSP.
+  - `supportsCancellation` on `/api/chat` delivered the disconnect, and the OpenAI stream ended 8 ms later.
+- **One database for every environment.** The free tier has one database, so Preview and Production share
+  it. Every key is prefixed with `VERCEL_ENV` (`tbt:preview:…`, `tbt:production:…`), so each environment
+  has its own limits and daily budget.
 
 ## Resolved
 - **Disconnects on Vercel** (2026-09-30, `/spike` on a Preview):

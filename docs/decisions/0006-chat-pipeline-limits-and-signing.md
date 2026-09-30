@@ -96,10 +96,16 @@ a request must happen before streaming starts (ADR 0003).
   databases are archived after 30 days without activity.
 - **Bundle:** the chat page loads about 320 KB of gzipped JavaScript, mostly React, zod, and the Markdown
   stack. Phase 2 must get it under 250 KB, for example by using `zod/mini` on the client.
-- **Open: to verify on a Preview deployment before production:**
-  - The Upstash database, connected through the Vercel Marketplace, running the real Lua scripts.
-  - BotID working under the CSP.
-  - `supportsCancellation` on `/api/chat`, which is already listed in `vercel.json`.
+- **Verified on a Preview deployment (2026-09-30).** It ran with Upstash, BotID, and the CSP on, and all
+  three turns were logged:
+  - A question: 13 tokens, with usage of 17 (13 plus the 4 hidden), settled from usage at 18 µ$.
+  - A follow-up: the input grew from 92 to 118 tokens, so the signed first reply was accepted; 20 µ$.
+  - A Stop: detected at 2,792 ms, with the OpenAI stream ending 8 ms later; settled as a 135 µ$ estimate.
+- **Environments share one Upstash database** (the free tier has one), so every key is prefixed with the
+  environment. Preview and Production each get their own limits and $0.55/day. The OpenAI project caps
+  bound the combined spend.
+- **Deployment lesson:** Vercel applies variable changes only to new deployments, and pushing a commit
+  that is already deployed to another branch doesn't build a new Preview.
 
 ## Sources (checked 2026-09-30)
 - BotID: https://vercel.com/docs/botid/get-started and https://vercel.com/docs/botid/local-development-behavior
