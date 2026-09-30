@@ -1,0 +1,207 @@
+{
+  "candidate": {
+    "id": "gpt-5.4-nano",
+    "reasoningEffort": "none",
+    "price": {
+      "input": 0.2,
+      "cachedInput": 0.02,
+      "output": 1.25
+    },
+    "shutdown": null,
+    "notes": "Effort defaults to none. Logprobs documented for the GPT-5.4 family, not nano specifically."
+  },
+  "available": true,
+  "resolvedModel": "gpt-5.4-nano-2026-03-17",
+  "error": null,
+  "skippedForBudget": false,
+  "checks": {
+    "streamedLogprobs": {
+      "pass": true,
+      "detail": "top_logprobs=20; every text delta carried logprobs: true; final logprobs include bytes: true; median alternatives 20 (needs ≥ 15)."
+    },
+    "reasoningZero": {
+      "pass": true,
+      "detail": "Largest reasoning_tokens across 61 calls: 0."
+    },
+    "samplingControls": {
+      "pass": true,
+      "detail": "Requests at T=0.7, T=1.5, and top_p=0.1 all succeeded."
+    },
+    "roundTrip": {
+      "pass": true,
+      "detail": "1761/1761 checkable output tokens encode to one o200k_base token (needs ≥ 99%)."
+    },
+    "retirement": {
+      "pass": true,
+      "detail": "No shutdown date listed as of 2026-09-29."
+    }
+  },
+  "quality": {
+    "file": "docs/probe/2026-09-30-quality-gpt-5.4-nano.md",
+    "replies": 20,
+    "failures": 0
+  },
+  "info": {
+    "topLogprobsUsed": 20,
+    "streamedAlternatives": {
+      "count": 49,
+      "min": 20,
+      "median": 20,
+      "max": 20
+    },
+    "finalAlternatives": {
+      "count": 49,
+      "min": 20,
+      "median": 20,
+      "max": 20
+    },
+    "chosenOutside": {
+      "total": 1761,
+      "outside": 0,
+      "rate": 0
+    },
+    "tokensPerEvent": {
+      "0": 4,
+      "1": 1773
+    },
+    "textMatchesDone": true,
+    "hiddenOutputTokens": {
+      "count": 27,
+      "min": 4,
+      "median": 4,
+      "max": 4
+    },
+    "coverage": {
+      "deltas": 1777,
+      "deltasWithoutLogprobs": 4,
+      "charsWithoutLogprobs": 10,
+      "chars": 8056,
+      "examples": [
+        " 👋",
+        "🏽",
+        " 🧑",
+        "🚀"
+      ]
+    },
+    "finalLogprobs": {
+      "streams": 22,
+      "empty": 1,
+      "countMismatch": 1
+    },
+    "roundTrip": {
+      "total": 1761,
+      "checkable": 1761,
+      "single": 1761,
+      "partialBytes": 0,
+      "rate": 1,
+      "mismatches": []
+    },
+    "semantics": {
+      "semantics": "raw",
+      "noise": 1.2939790000000002,
+      "tolerance": 3.8819370000000006,
+      "runs": [
+        {
+          "label": "T=0",
+          "temperature": 0,
+          "topP": 1,
+          "alternatives": 20,
+          "common": 19,
+          "maxAbsDiff": 1.0813939999999995,
+          "gapRatio": 0.9633967493287912,
+          "expectedIfScaled": null
+        },
+        {
+          "label": "T=0.7",
+          "temperature": 0.7,
+          "topP": 1,
+          "alternatives": 20,
+          "common": 20,
+          "maxAbsDiff": 0.7093769999999999,
+          "gapRatio": 1.0127659574468084,
+          "expectedIfScaled": 1.4285714285714286
+        },
+        {
+          "label": "T=1.5",
+          "temperature": 1.5,
+          "topP": 1,
+          "alternatives": 20,
+          "common": 20,
+          "maxAbsDiff": 0.7093769999999999,
+          "gapRatio": 1.0127659574468084,
+          "expectedIfScaled": 0.6666666666666666
+        },
+        {
+          "label": "T=1, top_p=0.1",
+          "temperature": 1,
+          "topP": 0.1,
+          "alternatives": 1,
+          "common": 1,
+          "maxAbsDiff": 0.0009649999999999997,
+          "gapRatio": null,
+          "expectedIfScaled": 1
+        }
+      ]
+    },
+    "timing": {
+      "createdMs": {
+        "count": 22,
+        "min": 284.5,
+        "median": 400.95000000000005,
+        "max": 817.7
+      },
+      "firstTextMs": {
+        "count": 22,
+        "min": 383.5,
+        "median": 598.9,
+        "max": 1157.7
+      },
+      "createdToFirstTextMs": {
+        "count": 22,
+        "min": 54.5,
+        "median": 132.9,
+        "max": 416.1
+      }
+    },
+    "cache": {
+      "first": {
+        "input_tokens": 1598,
+        "output_tokens": 5,
+        "total_tokens": 1603,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "second": {
+        "input_tokens": 1598,
+        "output_tokens": 5,
+        "total_tokens": 1603,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    "incomplete": {
+      "status": "incomplete",
+      "reason": "max_output_tokens"
+    },
+    "overhead": {
+      "perRequest": 0.9901220220801861,
+      "perUnit": 4.942475305055201,
+      "maxResidual": 0.8750726321905873,
+      "samples": 30
+    },
+    "unicodeText": "Hi 👋🏽 — 你好, مرحبا, ¡olé! 🧑‍🚀"
+  },
+  "calls": 61,
+  "costUsd": 0.00408815,
+  "verdict": "pass"
+}

@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "settings": {
+    "input": "Write a 300-word story about a lighthouse keeper.",
+    "maxOutputTokens": 16,
+    "temperature": 1,
+    "topP": 1
+  },
+  "final": {
+    "model": "gpt-4.1-mini-2025-04-14",
+    "status": "incomplete",
+    "incompleteReason": "max_output_tokens",
+    "usage": {
+      "input_tokens": 18,
+      "output_tokens": 16,
+      "total_tokens": 34,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "text": "Beneath the steely sky, the lighthouse stood resolute on the jag",
+    "refusal": null,
+    "logprobs": []
+  },
+  "totalMs": 2319.6877999999997
+}

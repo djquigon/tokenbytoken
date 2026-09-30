@@ -1,0 +1,1218 @@
+[
+  {
+    "label": "T=1",
+    "temperature": 1,
+    "topP": 1,
+    "record": {
+      "ok": true,
+      "settings": {
+        "input": "Name one color. Reply with a single word.",
+        "maxOutputTokens": 16,
+        "temperature": 1,
+        "topP": 1,
+        "topLogprobs": 20
+      },
+      "final": {
+        "model": "gpt-5.4-nano-2026-03-17",
+        "status": "completed",
+        "incompleteReason": null,
+        "usage": {
+          "input_tokens": 16,
+          "output_tokens": 5,
+          "total_tokens": 21,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "text": "Blue",
+        "refusal": null,
+        "logprobs": [
+          {
+            "token": "Blue",
+            "bytes": [
+              66,
+              108,
+              117,
+              101
+            ],
+            "logprob": -0.006745,
+            "top_logprobs": [
+              {
+                "token": "Blue",
+                "bytes": [
+                  66,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -0.006744
+              },
+              {
+                "token": "Red",
+                "bytes": [
+                  82,
+                  101,
+                  100
+                ],
+                "logprob": -5.811432
+              },
+              {
+                "token": "Cr",
+                "bytes": [
+                  67,
+                  114
+                ],
+                "logprob": -6.725494
+              },
+              {
+                "token": "blue",
+                "bytes": [
+                  98,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -6.795807
+              },
+              {
+                "token": "Azure",
+                "bytes": [
+                  65,
+                  122,
+                  117,
+                  114,
+                  101
+                ],
+                "logprob": -7.348541
+              },
+              {
+                "token": "Ind",
+                "bytes": [
+                  73,
+                  110,
+                  100
+                ],
+                "logprob": -8.686432
+              },
+              {
+                "token": "Tur",
+                "bytes": [
+                  84,
+                  117,
+                  114
+                ],
+                "logprob": -8.881744
+              },
+              {
+                "token": "V",
+                "bytes": [
+                  86
+                ],
+                "logprob": -9.342682
+              },
+              {
+                "token": "Cer",
+                "bytes": [
+                  67,
+                  101,
+                  114
+                ],
+                "logprob": -10.022369
+              },
+              {
+                "token": "Te",
+                "bytes": [
+                  84,
+                  101
+                ],
+                "logprob": -10.131744
+              },
+              {
+                "token": "Green",
+                "bytes": [
+                  71,
+                  114,
+                  101,
+                  101,
+                  110
+                ],
+                "logprob": -10.334869
+              },
+              {
+                "token": "Purple",
+                "bytes": [
+                  80,
+                  117,
+                  114,
+                  112,
+                  108,
+                  101
+                ],
+                "logprob": -10.522369
+              },
+              {
+                "token": "Sky",
+                "bytes": [
+                  83,
+                  107,
+                  121
+                ],
+                "logprob": -10.600494
+              },
+              {
+                "token": "Ul",
+                "bytes": [
+                  85,
+                  108
+                ],
+                "logprob": -10.787994
+              },
+              {
+                "token": "Orange",
+                "bytes": [
+                  79,
+                  114,
+                  97,
+                  110,
+                  103,
+                  101
+                ],
+                "logprob": -10.881744
+              },
+              {
+                "token": "C",
+                "bytes": [
+                  67
+                ],
+                "logprob": -11.022369
+              },
+              {
+                "token": "Mag",
+                "bytes": [
+                  77,
+                  97,
+                  103
+                ],
+                "logprob": -11.131744
+              },
+              {
+                "token": "Am",
+                "bytes": [
+                  65,
+                  109
+                ],
+                "logprob": -11.225494
+              },
+              {
+                "token": "蓝",
+                "bytes": [
+                  232,
+                  147,
+                  157
+                ],
+                "logprob": -11.522369
+              },
+              {
+                "token": "Az",
+                "bytes": [
+                  65,
+                  122
+                ],
+                "logprob": -11.725494
+              }
+            ]
+          }
+        ]
+      },
+      "totalMs": 548.962400000004
+    }
+  },
+  {
+    "label": "T=1 (repeat)",
+    "temperature": 1,
+    "topP": 1,
+    "record": {
+      "ok": true,
+      "settings": {
+        "input": "Name one color. Reply with a single word.",
+        "maxOutputTokens": 16,
+        "temperature": 1,
+        "topP": 1,
+        "topLogprobs": 20
+      },
+      "final": {
+        "model": "gpt-5.4-nano-2026-03-17",
+        "status": "completed",
+        "incompleteReason": null,
+        "usage": {
+          "input_tokens": 16,
+          "output_tokens": 5,
+          "total_tokens": 21,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "text": "Blue",
+        "refusal": null,
+        "logprobs": [
+          {
+            "token": "Blue",
+            "bytes": [
+              66,
+              108,
+              117,
+              101
+            ],
+            "logprob": -0.009639,
+            "top_logprobs": [
+              {
+                "token": "Blue",
+                "bytes": [
+                  66,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -0.00964
+              },
+              {
+                "token": "Red",
+                "bytes": [
+                  82,
+                  101,
+                  100
+                ],
+                "logprob": -5.97839
+              },
+              {
+                "token": "Azure",
+                "bytes": [
+                  65,
+                  122,
+                  117,
+                  114,
+                  101
+                ],
+                "logprob": -6.173702
+              },
+              {
+                "token": "blue",
+                "bytes": [
+                  98,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -6.244015
+              },
+              {
+                "token": "Cr",
+                "bytes": [
+                  67,
+                  114
+                ],
+                "logprob": -6.548702
+              },
+              {
+                "token": "Ind",
+                "bytes": [
+                  73,
+                  110,
+                  100
+                ],
+                "logprob": -7.508663
+              },
+              {
+                "token": "Tur",
+                "bytes": [
+                  84,
+                  117,
+                  114
+                ],
+                "logprob": -8.329952
+              },
+              {
+                "token": "V",
+                "bytes": [
+                  86
+                ],
+                "logprob": -8.66589
+              },
+              {
+                "token": "Sky",
+                "bytes": [
+                  83,
+                  107,
+                  121
+                ],
+                "logprob": -9.306515
+              },
+              {
+                "token": "Cer",
+                "bytes": [
+                  67,
+                  101,
+                  114
+                ],
+                "logprob": -9.400265
+              },
+              {
+                "token": "Te",
+                "bytes": [
+                  84,
+                  101
+                ],
+                "logprob": -9.806515
+              },
+              {
+                "token": "Green",
+                "bytes": [
+                  71,
+                  114,
+                  101,
+                  101,
+                  110
+                ],
+                "logprob": -10.07214
+              },
+              {
+                "token": "Ul",
+                "bytes": [
+                  85,
+                  108
+                ],
+                "logprob": -10.212765
+              },
+              {
+                "token": "Purple",
+                "bytes": [
+                  80,
+                  117,
+                  114,
+                  112,
+                  108,
+                  101
+                ],
+                "logprob": -10.337765
+              },
+              {
+                "token": "C",
+                "bytes": [
+                  67
+                ],
+                "logprob": -10.650265
+              },
+              {
+                "token": "Orange",
+                "bytes": [
+                  79,
+                  114,
+                  97,
+                  110,
+                  103,
+                  101
+                ],
+                "logprob": -10.775265
+              },
+              {
+                "token": "Mag",
+                "bytes": [
+                  77,
+                  97,
+                  103
+                ],
+                "logprob": -10.85339
+              },
+              {
+                "token": "Az",
+                "bytes": [
+                  65,
+                  122
+                ],
+                "logprob": -10.88464
+              },
+              {
+                "token": "Am",
+                "bytes": [
+                  65,
+                  109
+                ],
+                "logprob": -10.962765
+              },
+              {
+                "token": "A",
+                "bytes": [
+                  65
+                ],
+                "logprob": -11.16589
+              }
+            ]
+          }
+        ]
+      },
+      "totalMs": 725.6396999999997
+    }
+  },
+  {
+    "label": "T=0",
+    "temperature": 0,
+    "topP": 1,
+    "record": {
+      "ok": true,
+      "settings": {
+        "input": "Name one color. Reply with a single word.",
+        "maxOutputTokens": 16,
+        "temperature": 0,
+        "topP": 1,
+        "topLogprobs": 20
+      },
+      "final": {
+        "model": "gpt-5.4-nano-2026-03-17",
+        "status": "completed",
+        "incompleteReason": null,
+        "usage": {
+          "input_tokens": 16,
+          "output_tokens": 5,
+          "total_tokens": 21,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "text": "Blue",
+        "refusal": null,
+        "logprobs": [
+          {
+            "token": "Blue",
+            "bytes": [
+              66,
+              108,
+              117,
+              101
+            ],
+            "logprob": -0.009335,
+            "top_logprobs": [
+              {
+                "token": "Blue",
+                "bytes": [
+                  66,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -0.009335
+              },
+              {
+                "token": "Red",
+                "bytes": [
+                  82,
+                  101,
+                  100
+                ],
+                "logprob": -5.907772
+              },
+              {
+                "token": "blue",
+                "bytes": [
+                  98,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -6.231991
+              },
+              {
+                "token": "Azure",
+                "bytes": [
+                  65,
+                  122,
+                  117,
+                  114,
+                  101
+                ],
+                "logprob": -6.30621
+              },
+              {
+                "token": "Cr",
+                "bytes": [
+                  67,
+                  114
+                ],
+                "logprob": -6.622616
+              },
+              {
+                "token": "Ind",
+                "bytes": [
+                  73,
+                  110,
+                  100
+                ],
+                "logprob": -7.605038
+              },
+              {
+                "token": "Tur",
+                "bytes": [
+                  84,
+                  117,
+                  114
+                ],
+                "logprob": -8.49371
+              },
+              {
+                "token": "V",
+                "bytes": [
+                  86
+                ],
+                "logprob": -8.720272
+              },
+              {
+                "token": "Cer",
+                "bytes": [
+                  67,
+                  101,
+                  114
+                ],
+                "logprob": -9.415585
+              },
+              {
+                "token": "Sky",
+                "bytes": [
+                  83,
+                  107,
+                  121
+                ],
+                "logprob": -9.55621
+              },
+              {
+                "token": "Te",
+                "bytes": [
+                  84,
+                  101
+                ],
+                "logprob": -10.040585
+              },
+              {
+                "token": "Green",
+                "bytes": [
+                  71,
+                  114,
+                  101,
+                  101,
+                  110
+                ],
+                "logprob": -10.21246
+              },
+              {
+                "token": "Ul",
+                "bytes": [
+                  85,
+                  108
+                ],
+                "logprob": -10.27496
+              },
+              {
+                "token": "Purple",
+                "bytes": [
+                  80,
+                  117,
+                  114,
+                  112,
+                  108,
+                  101
+                ],
+                "logprob": -10.33746
+              },
+              {
+                "token": "Orange",
+                "bytes": [
+                  79,
+                  114,
+                  97,
+                  110,
+                  103,
+                  101
+                ],
+                "logprob": -10.696835
+              },
+              {
+                "token": "C",
+                "bytes": [
+                  67
+                ],
+                "logprob": -10.696835
+              },
+              {
+                "token": "Am",
+                "bytes": [
+                  65,
+                  109
+                ],
+                "logprob": -10.89996
+              },
+              {
+                "token": "蓝",
+                "bytes": [
+                  232,
+                  147,
+                  157
+                ],
+                "logprob": -11.02496
+              },
+              {
+                "token": "Mag",
+                "bytes": [
+                  77,
+                  97,
+                  103
+                ],
+                "logprob": -11.02496
+              },
+              {
+                "token": "A",
+                "bytes": [
+                  65
+                ],
+                "logprob": -11.02496
+              }
+            ]
+          }
+        ]
+      },
+      "totalMs": 926.1426000000065
+    }
+  },
+  {
+    "label": "T=0.7",
+    "temperature": 0.7,
+    "topP": 1,
+    "record": {
+      "ok": true,
+      "settings": {
+        "input": "Name one color. Reply with a single word.",
+        "maxOutputTokens": 16,
+        "temperature": 0.7,
+        "topP": 1,
+        "topLogprobs": 20
+      },
+      "final": {
+        "model": "gpt-5.4-nano-2026-03-17",
+        "status": "completed",
+        "incompleteReason": null,
+        "usage": {
+          "input_tokens": 16,
+          "output_tokens": 5,
+          "total_tokens": 21,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "text": "Blue",
+        "refusal": null,
+        "logprobs": [
+          {
+            "token": "Blue",
+            "bytes": [
+              66,
+              108,
+              117,
+              101
+            ],
+            "logprob": -0.008305,
+            "top_logprobs": [
+              {
+                "token": "Blue",
+                "bytes": [
+                  66,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -0.008305
+              },
+              {
+                "token": "Red",
+                "bytes": [
+                  82,
+                  101,
+                  100
+                ],
+                "logprob": -5.687992
+              },
+              {
+                "token": "blue",
+                "bytes": [
+                  98,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -6.08643
+              },
+              {
+                "token": "Cr",
+                "bytes": [
+                  67,
+                  114
+                ],
+                "logprob": -6.668461
+              },
+              {
+                "token": "Azure",
+                "bytes": [
+                  65,
+                  122,
+                  117,
+                  114,
+                  101
+                ],
+                "logprob": -7.301273
+              },
+              {
+                "token": "Ind",
+                "bytes": [
+                  73,
+                  110,
+                  100
+                ],
+                "logprob": -8.812992
+              },
+              {
+                "token": "Tur",
+                "bytes": [
+                  84,
+                  117,
+                  114
+                ],
+                "logprob": -9.078617
+              },
+              {
+                "token": "V",
+                "bytes": [
+                  86
+                ],
+                "logprob": -9.83643
+              },
+              {
+                "token": "Cer",
+                "bytes": [
+                  67,
+                  101,
+                  114
+                ],
+                "logprob": -9.914555
+              },
+              {
+                "token": "Te",
+                "bytes": [
+                  84,
+                  101
+                ],
+                "logprob": -10.33643
+              },
+              {
+                "token": "Green",
+                "bytes": [
+                  71,
+                  114,
+                  101,
+                  101,
+                  110
+                ],
+                "logprob": -10.508305
+              },
+              {
+                "token": "Sky",
+                "bytes": [
+                  83,
+                  107,
+                  121
+                ],
+                "logprob": -10.55518
+              },
+              {
+                "token": "Purple",
+                "bytes": [
+                  80,
+                  117,
+                  114,
+                  112,
+                  108,
+                  101
+                ],
+                "logprob": -10.789555
+              },
+              {
+                "token": "Ul",
+                "bytes": [
+                  85,
+                  108
+                ],
+                "logprob": -10.852055
+              },
+              {
+                "token": "Orange",
+                "bytes": [
+                  79,
+                  114,
+                  97,
+                  110,
+                  103,
+                  101
+                ],
+                "logprob": -11.05518
+              },
+              {
+                "token": "C",
+                "bytes": [
+                  67
+                ],
+                "logprob": -11.164555
+              },
+              {
+                "token": "Am",
+                "bytes": [
+                  65,
+                  109
+                ],
+                "logprob": -11.258305
+              },
+              {
+                "token": "蓝",
+                "bytes": [
+                  232,
+                  147,
+                  157
+                ],
+                "logprob": -11.352055
+              },
+              {
+                "token": "Mag",
+                "bytes": [
+                  77,
+                  97,
+                  103
+                ],
+                "logprob": -11.49268
+              },
+              {
+                "token": "Az",
+                "bytes": [
+                  65,
+                  122
+                ],
+                "logprob": -11.914555
+              }
+            ]
+          }
+        ]
+      },
+      "totalMs": 571.8987999999954
+    }
+  },
+  {
+    "label": "T=1.5",
+    "temperature": 1.5,
+    "topP": 1,
+    "record": {
+      "ok": true,
+      "settings": {
+        "input": "Name one color. Reply with a single word.",
+        "maxOutputTokens": 16,
+        "temperature": 1.5,
+        "topP": 1,
+        "topLogprobs": 20
+      },
+      "final": {
+        "model": "gpt-5.4-nano-2026-03-17",
+        "status": "completed",
+        "incompleteReason": null,
+        "usage": {
+          "input_tokens": 16,
+          "output_tokens": 5,
+          "total_tokens": 21,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "text": "Blue",
+        "refusal": null,
+        "logprobs": [
+          {
+            "token": "Blue",
+            "bytes": [
+              66,
+              108,
+              117,
+              101
+            ],
+            "logprob": -0.008305,
+            "top_logprobs": [
+              {
+                "token": "Blue",
+                "bytes": [
+                  66,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -0.008305
+              },
+              {
+                "token": "Red",
+                "bytes": [
+                  82,
+                  101,
+                  100
+                ],
+                "logprob": -5.687992
+              },
+              {
+                "token": "blue",
+                "bytes": [
+                  98,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -6.08643
+              },
+              {
+                "token": "Cr",
+                "bytes": [
+                  67,
+                  114
+                ],
+                "logprob": -6.668461
+              },
+              {
+                "token": "Azure",
+                "bytes": [
+                  65,
+                  122,
+                  117,
+                  114,
+                  101
+                ],
+                "logprob": -7.301273
+              },
+              {
+                "token": "Ind",
+                "bytes": [
+                  73,
+                  110,
+                  100
+                ],
+                "logprob": -8.812992
+              },
+              {
+                "token": "Tur",
+                "bytes": [
+                  84,
+                  117,
+                  114
+                ],
+                "logprob": -9.078617
+              },
+              {
+                "token": "V",
+                "bytes": [
+                  86
+                ],
+                "logprob": -9.83643
+              },
+              {
+                "token": "Cer",
+                "bytes": [
+                  67,
+                  101,
+                  114
+                ],
+                "logprob": -9.914555
+              },
+              {
+                "token": "Te",
+                "bytes": [
+                  84,
+                  101
+                ],
+                "logprob": -10.33643
+              },
+              {
+                "token": "Green",
+                "bytes": [
+                  71,
+                  114,
+                  101,
+                  101,
+                  110
+                ],
+                "logprob": -10.508305
+              },
+              {
+                "token": "Sky",
+                "bytes": [
+                  83,
+                  107,
+                  121
+                ],
+                "logprob": -10.55518
+              },
+              {
+                "token": "Purple",
+                "bytes": [
+                  80,
+                  117,
+                  114,
+                  112,
+                  108,
+                  101
+                ],
+                "logprob": -10.789555
+              },
+              {
+                "token": "Ul",
+                "bytes": [
+                  85,
+                  108
+                ],
+                "logprob": -10.852055
+              },
+              {
+                "token": "Orange",
+                "bytes": [
+                  79,
+                  114,
+                  97,
+                  110,
+                  103,
+                  101
+                ],
+                "logprob": -11.05518
+              },
+              {
+                "token": "C",
+                "bytes": [
+                  67
+                ],
+                "logprob": -11.164555
+              },
+              {
+                "token": "Am",
+                "bytes": [
+                  65,
+                  109
+                ],
+                "logprob": -11.258305
+              },
+              {
+                "token": "蓝",
+                "bytes": [
+                  232,
+                  147,
+                  157
+                ],
+                "logprob": -11.352055
+              },
+              {
+                "token": "Mag",
+                "bytes": [
+                  77,
+                  97,
+                  103
+                ],
+                "logprob": -11.49268
+              },
+              {
+                "token": "Az",
+                "bytes": [
+                  65,
+                  122
+                ],
+                "logprob": -11.914555
+              }
+            ]
+          }
+        ]
+      },
+      "totalMs": 661.6675000000105
+    }
+  },
+  {
+    "label": "T=1, top_p=0.1",
+    "temperature": 1,
+    "topP": 0.1,
+    "record": {
+      "ok": true,
+      "settings": {
+        "input": "Name one color. Reply with a single word.",
+        "maxOutputTokens": 16,
+        "temperature": 1,
+        "topP": 0.1,
+        "topLogprobs": 20
+      },
+      "final": {
+        "model": "gpt-5.4-nano-2026-03-17",
+        "status": "completed",
+        "incompleteReason": null,
+        "usage": {
+          "input_tokens": 16,
+          "output_tokens": 5,
+          "total_tokens": 21,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "text": "Blue",
+        "refusal": null,
+        "logprobs": [
+          {
+            "token": "Blue",
+            "bytes": [
+              66,
+              108,
+              117,
+              101
+            ],
+            "logprob": -0.00578,
+            "top_logprobs": [
+              {
+                "token": "Blue",
+                "bytes": [
+                  66,
+                  108,
+                  117,
+                  101
+                ],
+                "logprob": -0.005779
+              }
+            ]
+          }
+        ]
+      },
+      "totalMs": 589.3155000000115
+    }
+  }
+]

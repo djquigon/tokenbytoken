@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "settings": {
+    "input": "Write a 300-word story about a lighthouse keeper.",
+    "maxOutputTokens": 16,
+    "temperature": 1,
+    "topP": 1
+  },
+  "final": {
+    "model": "gpt-6-luna",
+    "status": "incomplete",
+    "incompleteReason": "max_output_tokens",
+    "usage": {
+      "input_tokens": 17,
+      "output_tokens": 16,
+      "total_tokens": 33,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "text": "At the edge of the island, where the cliffs crumbled into",
+    "refusal": null,
+    "logprobs": []
+  },
+  "totalMs": 3263.4533999999985
+}

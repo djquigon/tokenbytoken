@@ -1,0 +1,462 @@
+[
+  {
+    "prompt": "Why is the sky blue?",
+    "ok": true,
+    "text": "The sky appears blue because of a phenomenon called Rayleigh scattering. When sunlight enters Earth’s atmosphere, it is made up of different colors of light, each with different wavelengths. Blue light has a shorter wavelength and is scattered in all directions by the gases and particles in the atmosphere more than other colors with longer wavelengths. This scattered blue light reaches our eyes from every direction, making the sky look blue during the day.",
+    "usage": {
+      "input_tokens": 35,
+      "output_tokens": 84,
+      "total_tokens": 119,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 589.2,
+      "firstTextMs": 598.4,
+      "totalMs": 2276.2918999999965
+    },
+    "error": null
+  },
+  {
+    "prompt": "What is a large language model, in simple terms?",
+    "ok": true,
+    "text": "A large language model is a type of computer program that learns to understand and generate human language by reading lots of text. It studies patterns in words and sentences to predict what comes next or to answer questions. This helps it write stories, chat with people, translate languages, and more. Think of it like a very advanced robot that has read many books and can talk or write like a person.",
+    "usage": {
+      "input_tokens": 40,
+      "output_tokens": 80,
+      "total_tokens": 120,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 1313.2,
+      "firstTextMs": 1325.3,
+      "totalMs": 2272.85530000001
+    },
+    "error": null
+  },
+  {
+    "prompt": "How do vaccines work?",
+    "ok": true,
+    "text": "Vaccines work by teaching your immune system to recognize and fight harmful germs like viruses or bacteria. They contain weakened or inactive parts of a particular germ (antigen). When you get vaccinated, your immune system responds by making antibodies. These antibodies stay in your body, so if you encounter the real germ later, your body can quickly fight it off, preventing illness or making it less severe. Vaccines help your body build immunity without causing the disease itself.",
+    "usage": {
+      "input_tokens": 34,
+      "output_tokens": 92,
+      "total_tokens": 126,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 448.9,
+      "firstTextMs": 465.3,
+      "totalMs": 1524.334600000002
+    },
+    "error": null
+  },
+  {
+    "prompt": "Give me three tips for better sleep.",
+    "ok": true,
+    "text": "Here are three tips for better sleep:\n\n1. **Maintain a consistent sleep schedule:** Go to bed and wake up at the same time every day, even on weekends, to regulate your body’s internal clock.\n\n2. **Create a relaxing bedtime routine:** Engage in calming activities like reading or taking a warm bath to signal your brain it's time to wind down.\n\n3. **Limit exposure to screens before bed:** Avoid phones, tablets, and computers at least an hour before sleeping, as the blue light can interfere with melatonin production.",
+    "usage": {
+      "input_tokens": 37,
+      "output_tokens": 108,
+      "total_tokens": 145,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 408.9,
+      "firstTextMs": 409.4,
+      "totalMs": 1704.3923000000068
+    },
+    "error": null
+  },
+  {
+    "prompt": "What's the difference between weather and climate?",
+    "ok": true,
+    "text": "Weather refers to the short-term conditions of the atmosphere in a specific place, including temperature, humidity, precipitation, wind, and visibility. It can change from minute to minute or day to day. Climate, on the other hand, describes the long-term average of weather patterns in a particular region, typically over 30 years or more. In short, weather is what you experience daily, while climate is the typical weather you expect based on long-term trends. For example, a rainy day is weather, but the overall tendency for a region to be rainy or dry over decades is climate.",
+    "usage": {
+      "input_tokens": 37,
+      "output_tokens": 118,
+      "total_tokens": 155,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 520.5,
+      "firstTextMs": 527.9,
+      "totalMs": 1849.1546999999991
+    },
+    "error": null
+  },
+  {
+    "prompt": "Explain what a token is in the context of AI chatbots.",
+    "ok": true,
+    "text": "In AI chatbots, a token is a piece of text used as a basic unit for processing language. Tokens can be whole words, parts of words, or even single characters, depending on the model. When you type a sentence, the AI breaks it down into tokens to understand and generate responses. For example, the sentence “I’m happy” might be split into three tokens: “I”, “’m”, and “happy.” Tokens help the AI analyze language patterns and predict the next part of the conversation efficiently. They are essential for managing input, output, and calculating costs in models like GPT.",
+    "usage": {
+      "input_tokens": 42,
+      "output_tokens": 123,
+      "total_tokens": 165,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 500.4,
+      "firstTextMs": 511.5,
+      "totalMs": 2018.7828000000009
+    },
+    "error": null
+  },
+  {
+    "prompt": "Write a haiku about the ocean.",
+    "ok": true,
+    "text": "Waves kiss the shore’s edge,  \nSecrets deep in blue silence,  \nOcean’s endless song.",
+    "usage": {
+      "input_tokens": 37,
+      "output_tokens": 22,
+      "total_tokens": 59,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 399.9,
+      "firstTextMs": 408,
+      "totalMs": 717.387200000012
+    },
+    "error": null
+  },
+  {
+    "prompt": "What is 17 × 23? Show your working briefly.",
+    "ok": true,
+    "text": "To calculate 17 × 23:\n\n1. Break 23 into 20 + 3.\n2. Multiply 17 by 20: 17 × 20 = 340.\n3. Multiply 17 by 3: 17 × 3 = 51.\n4. Add the two results: 340 + 51 = 391.\n\nSo, 17 × 23 = 391.",
+    "usage": {
+      "input_tokens": 42,
+      "output_tokens": 84,
+      "total_tokens": 126,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 482.6,
+      "firstTextMs": 494.7,
+      "totalMs": 1403.0387000000046
+    },
+    "error": null
+  },
+  {
+    "prompt": "Who was Ada Lovelace?",
+    "ok": true,
+    "text": "Ada Lovelace (1815–1852) was an English mathematician and writer, known as the first computer programmer. She worked with Charles Babbage on his early mechanical general-purpose computer, the Analytical Engine. Ada wrote detailed notes on how the machine could be programmed to perform calculations, including what is considered the first algorithm intended for a computer. Her insights recognized that computers could do more than just numerical calculations, envisioning their potential in areas like music and graphics. Ada Lovelace is celebrated for her pioneering contributions to computer science.",
+    "usage": {
+      "input_tokens": 36,
+      "output_tokens": 111,
+      "total_tokens": 147,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 527,
+      "firstTextMs": 549.9,
+      "totalMs": 2673.830999999991
+    },
+    "error": null
+  },
+  {
+    "prompt": "How does a refrigerator keep food cold?",
+    "ok": true,
+    "text": "A refrigerator keeps food cold by removing heat from inside its compartment. It uses a refrigerant, a special fluid, that absorbs heat as it evaporates inside coils in the fridge. A compressor then pumps this refrigerant, compressing it to release heat outside the fridge through coils at the back. As the refrigerant cycles through evaporation and compression, it continuously absorbs heat from inside, lowering the temperature and keeping food cold. This process is called the refrigeration cycle.",
+    "usage": {
+      "input_tokens": 37,
+      "output_tokens": 93,
+      "total_tokens": 130,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 396,
+      "firstTextMs": 417,
+      "totalMs": 1476.9382000000041
+    },
+    "error": null
+  },
+  {
+    "prompt": "Translate \"Where is the train station?\" into French and Spanish.",
+    "ok": true,
+    "text": "Sure!  \n- In French: « Où est la gare ? »  \n- In Spanish: « ¿Dónde está la estación de tren? »",
+    "usage": {
+      "input_tokens": 42,
+      "output_tokens": 30,
+      "total_tokens": 72,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 835.4,
+      "firstTextMs": 845.5,
+      "totalMs": 1388.5998000000109
+    },
+    "error": null
+  },
+  {
+    "prompt": "Suggest a name for a friendly robot and explain why.",
+    "ok": true,
+    "text": "How about naming the friendly robot \"Buddy\"? The name \"Buddy\" sounds warm and approachable, making the robot seem like a helpful companion. It suggests friendship and support, which encourages users to feel comfortable interacting with the robot. A simple, positive name like Buddy helps create a welcoming atmosphere, perfect for a robot designed to assist and make tasks easier.",
+    "usage": {
+      "input_tokens": 40,
+      "output_tokens": 71,
+      "total_tokens": 111,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 479.1,
+      "firstTextMs": 495.7,
+      "totalMs": 1344.041499999992
+    },
+    "error": null
+  },
+  {
+    "prompt": "Explain recursion to a 12-year-old.",
+    "ok": true,
+    "text": "Recursion is like a story that repeats itself inside the story. Imagine a set of Russian dolls: when you open one, there’s a smaller one inside, and inside that one is an even smaller one, and so on. In programming, recursion happens when a function (a set of instructions) calls itself to solve a smaller part of a problem. It keeps doing this until it reaches the smallest part it can solve easily, called the “base case.” Then it works its way back, solving all the smaller problems. It’s a way computers solve big problems by breaking them into smaller, similar problems!",
+    "usage": {
+      "input_tokens": 38,
+      "output_tokens": 123,
+      "total_tokens": 161,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 698.4,
+      "firstTextMs": 713,
+      "totalMs": 2139.824900000007
+    },
+    "error": null
+  },
+  {
+    "prompt": "What causes the seasons on Earth?",
+    "ok": true,
+    "text": "The seasons on Earth are caused by the tilt of its axis. Earth’s axis is tilted about 23.5 degrees relative to its orbit around the Sun. This tilt means that as Earth travels around the Sun, different parts receive varying amounts of sunlight at different times of the year. When the Northern Hemisphere tilts toward the Sun, it experiences summer with longer days and more direct sunlight. At the same time, the Southern Hemisphere tilts away from the Sun, experiencing winter with shorter days and less direct light. Six months later, the situation reverses, causing the opposite seasons in each hemisphere.",
+    "usage": {
+      "input_tokens": 36,
+      "output_tokens": 121,
+      "total_tokens": 157,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 463.8,
+      "firstTextMs": 472.8,
+      "totalMs": 1969.6612999999925
+    },
+    "error": null
+  },
+  {
+    "prompt": "Summarize the plot of Romeo and Juliet in two sentences.",
+    "ok": true,
+    "text": "Romeo and Juliet, two young lovers from feuding families in Verona, secretly marry but face tragedy due to their families' hatred. Miscommunications lead to their untimely deaths, ultimately reconciling the Montagues and Capulets.",
+    "usage": {
+      "input_tokens": 42,
+      "output_tokens": 50,
+      "total_tokens": 92,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 408.9,
+      "firstTextMs": 426.3,
+      "totalMs": 1171.7998999999982
+    },
+    "error": null
+  },
+  {
+    "prompt": "Is a tomato a fruit or a vegetable?",
+    "ok": true,
+    "text": "A tomato is botanically classified as a fruit because it develops from the ovary of a flower and contains seeds. Specifically, it is a type of berry. However, in culinary terms, tomatoes are often treated as vegetables due to their savory flavor and common use in salads, sauces, and cooking. This distinction even led to a famous U.S. Supreme Court case in 1893, where tomatoes were legally deemed vegetables for tariff purposes. So, scientifically a fruit, but commonly used as a vegetable.",
+    "usage": {
+      "input_tokens": 38,
+      "output_tokens": 102,
+      "total_tokens": 140,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 442,
+      "firstTextMs": 444.5,
+      "totalMs": 1540.5522999999957
+    },
+    "error": null
+  },
+  {
+    "prompt": "What should I consider before adopting a dog?",
+    "ok": true,
+    "text": "Before adopting a dog, consider these key points:\n\n1. **Time Commitment:** Dogs need daily exercise, training, and attention.\n2. **Lifestyle Compatibility:** Choose a breed that fits your activity level and living situation.\n3. **Financial Responsibility:** Budget for food, vet care, grooming, and emergencies.\n4. **Space:** Ensure you have enough room for the dog to live comfortably.\n5. **Allergies:** Check if anyone in your household is allergic to dogs.\n6. **Long-Term Care:** Dogs live 10-15 years or more; be ready for this commitment.\n7. **Training and Socialization:** Be prepared to invest time in teaching your dog good behavior.\n8. **Other Pets:** Consider how a new dog will interact with your current pets.\n\nCareful thought will help ensure a happy, healthy relationship!",
+    "usage": {
+      "input_tokens": 38,
+      "output_tokens": 171,
+      "total_tokens": 209,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 423.3,
+      "firstTextMs": 432.8,
+      "totalMs": 2344.905899999998
+    },
+    "error": null
+  },
+  {
+    "prompt": "How many r's are in the word strawberry?",
+    "ok": true,
+    "text": "The word \"strawberry\" contains 2 letter \"r\"s.",
+    "usage": {
+      "input_tokens": 39,
+      "output_tokens": 16,
+      "total_tokens": 55,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 566.8,
+      "firstTextMs": 572.9,
+      "totalMs": 964.8842000000004
+    },
+    "error": null
+  },
+  {
+    "prompt": "Why do we dream?",
+    "ok": true,
+    "text": "We dream because our brains process emotions, memories, and information while we sleep. Dreams help us sort through daily experiences, solve problems, and understand feelings. They also aid learning and creativity by connecting ideas in new ways. Some scientists believe dreams prepare us for real-life challenges by simulating different scenarios. Although the exact reasons are still studied, dreaming plays an important role in mental and emotional health.",
+    "usage": {
+      "input_tokens": 34,
+      "output_tokens": 80,
+      "total_tokens": 114,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 740.2,
+      "firstTextMs": 740.5,
+      "totalMs": 1785.4135000000097
+    },
+    "error": null
+  },
+  {
+    "prompt": "Tell me a short joke about computers.",
+    "ok": true,
+    "text": "Why did the computer go to the doctor?\n\nBecause it had a virus!",
+    "usage": {
+      "input_tokens": 37,
+      "output_tokens": 16,
+      "total_tokens": 53,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "timing": {
+      "createdMs": 397.6,
+      "firstTextMs": 412.2,
+      "totalMs": 654.2786000000051
+    },
+    "error": null
+  }
+]

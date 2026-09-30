@@ -1,0 +1,1254 @@
+{
+  "ok": true,
+  "settings": {
+    "input": "Reply with exactly this text and nothing else: Hi 👋🏽 — 你好, مرحبا, ¡olé! 🧑‍🚀",
+    "maxOutputTokens": 60,
+    "temperature": 1,
+    "topP": 1,
+    "topLogprobs": 20
+  },
+  "events": [
+    {
+      "type": "response.created",
+      "sequence_number": 0,
+      "atMs": 948.1
+    },
+    {
+      "type": "response.in_progress",
+      "sequence_number": 1,
+      "atMs": 948.1
+    },
+    {
+      "type": "response.output_item.added",
+      "sequence_number": 2,
+      "atMs": 954.7
+    },
+    {
+      "type": "response.content_part.added",
+      "sequence_number": 3,
+      "atMs": 954.8
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 4,
+      "atMs": 955,
+      "delta": "Hi",
+      "logprobs": [
+        {
+          "token": "Hi",
+          "logprob": 0,
+          "top_logprobs": [
+            {
+              "token": "Hi",
+              "logprob": 0
+            },
+            {
+              "token": " Hi",
+              "logprob": -21.75
+            },
+            {
+              "token": "Hello",
+              "logprob": -23.375
+            },
+            {
+              "token": "HI",
+              "logprob": -23.5
+            },
+            {
+              "token": "Hey",
+              "logprob": -25.75
+            },
+            {
+              "token": "_hi",
+              "logprob": -26.875
+            },
+            {
+              "token": "H",
+              "logprob": -27
+            },
+            {
+              "token": "hi",
+              "logprob": -27.375
+            },
+            {
+              "token": "Sure",
+              "logprob": -27.375
+            },
+            {
+              "token": "I",
+              "logprob": -27.875
+            },
+            {
+              "token": "Ho",
+              "logprob": -28
+            },
+            {
+              "token": "Ha",
+              "logprob": -28.25
+            },
+            {
+              "token": "```",
+              "logprob": -28.625
+            },
+            {
+              "token": "Hit",
+              "logprob": -28.75
+            },
+            {
+              "token": "``",
+              "logprob": -28.875
+            },
+            {
+              "token": "**",
+              "logprob": -29.125
+            },
+            {
+              "token": "Hola",
+              "logprob": -29.25
+            },
+            {
+              "token": "\"",
+              "logprob": -29.75
+            },
+            {
+              "token": "High",
+              "logprob": -30.125
+            },
+            {
+              "token": "Si",
+              "logprob": -30.25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 5,
+      "atMs": 974.6,
+      "delta": " 👋",
+      "logprobs": []
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 6,
+      "atMs": 976.3,
+      "delta": "🏽",
+      "logprobs": []
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 7,
+      "atMs": 981.8,
+      "delta": " —",
+      "logprobs": [
+        {
+          "token": " —",
+          "logprob": 0,
+          "top_logprobs": [
+            {
+              "token": " —",
+              "logprob": 0
+            },
+            {
+              "token": " ",
+              "logprob": -20.75
+            },
+            {
+              "token": " ―",
+              "logprob": -23
+            },
+            {
+              "token": " ",
+              "logprob": -24
+            },
+            {
+              "token": " �",
+              "logprob": -25.875
+            },
+            {
+              "token": " ",
+              "logprob": -26.5
+            },
+            {
+              "token": " ­",
+              "logprob": -26.625
+            },
+            {
+              "token": " ",
+              "logprob": -27.625
+            },
+            {
+              "token": " ‌",
+              "logprob": -27.75
+            },
+            {
+              "token": " ",
+              "logprob": -28.125
+            },
+            {
+              "token": " ——",
+              "logprob": -28.375
+            },
+            {
+              "token": " �",
+              "logprob": -28.625
+            },
+            {
+              "token": " ",
+              "logprob": -29
+            },
+            {
+              "token": "—",
+              "logprob": -29.125
+            },
+            {
+              "token": " —\n\n",
+              "logprob": -29.25
+            },
+            {
+              "token": " ـ",
+              "logprob": -29.625
+            },
+            {
+              "token": " â",
+              "logprob": -29.625
+            },
+            {
+              "token": " —\n",
+              "logprob": -29.875
+            },
+            {
+              "token": " ‎",
+              "logprob": -30.125
+            },
+            {
+              "token": " ​",
+              "logprob": -30.25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 8,
+      "atMs": 1016.2,
+      "delta": " ",
+      "logprobs": [
+        {
+          "token": " ",
+          "logprob": 0,
+          "top_logprobs": [
+            {
+              "token": " ",
+              "logprob": 0
+            },
+            {
+              "token": " 好",
+              "logprob": -26.625
+            },
+            {
+              "token": " ",
+              "logprob": -27.625
+            },
+            {
+              "token": " 中文",
+              "logprob": -28
+            },
+            {
+              "token": " 一",
+              "logprob": -28.5
+            },
+            {
+              "token": "你好",
+              "logprob": -29
+            },
+            {
+              "token": " �",
+              "logprob": -29.625
+            },
+            {
+              "token": " 中",
+              "logprob": -30.125
+            },
+            {
+              "token": " �",
+              "logprob": -30.25
+            },
+            {
+              "token": " 有",
+              "logprob": -30.375
+            },
+            {
+              "token": " 是",
+              "logprob": -30.375
+            },
+            {
+              "token": " �",
+              "logprob": -30.375
+            },
+            {
+              "token": " �",
+              "logprob": -30.5
+            },
+            {
+              "token": " �",
+              "logprob": -30.625
+            },
+            {
+              "token": " 我",
+              "logprob": -30.625
+            },
+            {
+              "token": " �",
+              "logprob": -30.625
+            },
+            {
+              "token": " �",
+              "logprob": -31.125
+            },
+            {
+              "token": " �",
+              "logprob": -31.25
+            },
+            {
+              "token": " �",
+              "logprob": -31.25
+            },
+            {
+              "token": " 不",
+              "logprob": -31.375
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 9,
+      "atMs": 1021.2,
+      "delta": "你好",
+      "logprobs": [
+        {
+          "token": "你好",
+          "logprob": -0.0000011472419600977446,
+          "top_logprobs": [
+            {
+              "token": "你好",
+              "logprob": -0.0000011472419600977446
+            },
+            {
+              "token": "你",
+              "logprob": -14.375000953674316
+            },
+            {
+              "token": " ",
+              "logprob": -14.750000953674316
+            },
+            {
+              "token": "こんにちは",
+              "logprob": -17.000001907348633
+            },
+            {
+              "token": "你的",
+              "logprob": -18.000001907348633
+            },
+            {
+              "token": "您好",
+              "logprob": -18.750001907348633
+            },
+            {
+              "token": " ",
+              "logprob": -19.375001907348633
+            },
+            {
+              "token": "你懂",
+              "logprob": -19.750001907348633
+            },
+            {
+              "token": "这里",
+              "logprob": -20.500001907348633
+            },
+            {
+              "token": "\b",
+              "logprob": -21.000001907348633
+            },
+            {
+              "token": "���",
+              "logprob": -21.125001907348633
+            },
+            {
+              "token": "纽约",
+              "logprob": -22.000001907348633
+            },
+            {
+              "token": "不了",
+              "logprob": -22.750001907348633
+            },
+            {
+              "token": "\u0010",
+              "logprob": -22.875001907348633
+            },
+            {
+              "token": " hello",
+              "logprob": -23.062501907348633
+            },
+            {
+              "token": "这是",
+              "logprob": -23.125001907348633
+            },
+            {
+              "token": "亲",
+              "logprob": -23.687501907348633
+            },
+            {
+              "token": "电脑",
+              "logprob": -23.812501907348633
+            },
+            {
+              "token": "朋友",
+              "logprob": -23.812501907348633
+            },
+            {
+              "token": "说",
+              "logprob": -23.812501907348633
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 10,
+      "atMs": 1063,
+      "delta": ",",
+      "logprobs": [
+        {
+          "token": ",",
+          "logprob": 0,
+          "top_logprobs": [
+            {
+              "token": ",",
+              "logprob": 0
+            },
+            {
+              "token": "،",
+              "logprob": -21.375
+            },
+            {
+              "token": "，",
+              "logprob": -23.625
+            },
+            {
+              "token": " ,",
+              "logprob": -26
+            },
+            {
+              "token": ",免费",
+              "logprob": -27.625
+            },
+            {
+              "token": "‌,",
+              "logprob": -27.75
+            },
+            {
+              "token": ",色",
+              "logprob": -28.125
+            },
+            {
+              "token": "‍,",
+              "logprob": -28.625
+            },
+            {
+              "token": "‎",
+              "logprob": -29
+            },
+            {
+              "token": ",亚洲",
+              "logprob": -29.75
+            },
+            {
+              "token": ",\n",
+              "logprob": -29.75
+            },
+            {
+              "token": "、",
+              "logprob": -29.75
+            },
+            {
+              "token": ",在线",
+              "logprob": -29.875
+            },
+            {
+              "token": ",香港",
+              "logprob": -29.875
+            },
+            {
+              "token": "٬",
+              "logprob": -30.125
+            },
+            {
+              "token": ",日本",
+              "logprob": -30.25
+            },
+            {
+              "token": ",,",
+              "logprob": -30.375
+            },
+            {
+              "token": ",天天",
+              "logprob": -30.5
+            },
+            {
+              "token": ",—",
+              "logprob": -30.875
+            },
+            {
+              "token": ",欧美",
+              "logprob": -31.125
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 11,
+      "atMs": 1068.2,
+      "delta": " مرح",
+      "logprobs": [
+        {
+          "token": " مرح",
+          "logprob": -0.00022213248303160071,
+          "top_logprobs": [
+            {
+              "token": " مرح",
+              "logprob": -0.00022213248303160071
+            },
+            {
+              "token": "مرح",
+              "logprob": -8.750222206115723
+            },
+            {
+              "token": " ",
+              "logprob": -9.750222206115723
+            },
+            {
+              "token": " ",
+              "logprob": -12.750222206115723
+            },
+            {
+              "token": " رح",
+              "logprob": -14.625222206115723
+            },
+            {
+              "token": " المرح",
+              "logprob": -15.000222206115723
+            },
+            {
+              "token": " محتر",
+              "logprob": -15.375222206115723
+            },
+            {
+              "token": " مرحله",
+              "logprob": -15.500222206115723
+            },
+            {
+              "token": " مرا",
+              "logprob": -15.625222206115723
+            },
+            {
+              "token": " رحمه",
+              "logprob": -16.250221252441406
+            },
+            {
+              "token": " مساء",
+              "logprob": -16.375221252441406
+            },
+            {
+              "token": " \n",
+              "logprob": -16.500221252441406
+            },
+            {
+              "token": " محر",
+              "logprob": -16.500221252441406
+            },
+            {
+              "token": "  ",
+              "logprob": -16.750221252441406
+            },
+            {
+              "token": " مر",
+              "logprob": -16.875221252441406
+            },
+            {
+              "token": "  \n",
+              "logprob": -17.000221252441406
+            },
+            {
+              "token": " مرحلة",
+              "logprob": -17.125221252441406
+            },
+            {
+              "token": " سلام",
+              "logprob": -17.375221252441406
+            },
+            {
+              "token": " ‎",
+              "logprob": -17.625221252441406
+            },
+            {
+              "token": " مه",
+              "logprob": -17.687721252441406
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 12,
+      "atMs": 1073.4,
+      "delta": "با",
+      "logprobs": [
+        {
+          "token": "با",
+          "logprob": -0.000018908587662735954,
+          "top_logprobs": [
+            {
+              "token": "با",
+              "logprob": -0.000018908587662735954
+            },
+            {
+              "token": "ب",
+              "logprob": -11.375019073486328
+            },
+            {
+              "token": "ба",
+              "logprob": -11.875019073486328
+            },
+            {
+              "token": "בא",
+              "logprob": -15.625019073486328
+            },
+            {
+              "token": "باب",
+              "logprob": -16.000019073486328
+            },
+            {
+              "token": " با",
+              "logprob": -17.000019073486328
+            },
+            {
+              "token": "ba",
+              "logprob": -17.250019073486328
+            },
+            {
+              "token": "باد",
+              "logprob": -18.000019073486328
+            },
+            {
+              "token": "باح",
+              "logprob": -18.375019073486328
+            },
+            {
+              "token": "بال",
+              "logprob": -18.500019073486328
+            },
+            {
+              "token": "باز",
+              "logprob": -18.500019073486328
+            },
+            {
+              "token": "بت",
+              "logprob": -18.500019073486328
+            },
+            {
+              "token": "يا",
+              "logprob": -18.750019073486328
+            },
+            {
+              "token": "بيا",
+              "logprob": -19.125019073486328
+            },
+            {
+              "token": "בה",
+              "logprob": -19.250019073486328
+            },
+            {
+              "token": "ב",
+              "logprob": -19.375019073486328
+            },
+            {
+              "token": "برا",
+              "logprob": -19.625019073486328
+            },
+            {
+              "token": "بة",
+              "logprob": -19.875019073486328
+            },
+            {
+              "token": "لا",
+              "logprob": -20.125019073486328
+            },
+            {
+              "token": "اب",
+              "logprob": -20.125019073486328
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 13,
+      "atMs": 1080.2,
+      "delta": ",",
+      "logprobs": [
+        {
+          "token": ",",
+          "logprob": 0,
+          "top_logprobs": [
+            {
+              "token": ",",
+              "logprob": 0
+            },
+            {
+              "token": "،",
+              "logprob": -21
+            },
+            {
+              "token": "，",
+              "logprob": -24.5
+            },
+            {
+              "token": "‎",
+              "logprob": -24.625
+            },
+            {
+              "token": " ,",
+              "logprob": -24.875
+            },
+            {
+              "token": "‌,",
+              "logprob": -26.25
+            },
+            {
+              "token": "、",
+              "logprob": -27.1875
+            },
+            {
+              "token": "‬",
+              "logprob": -27.625
+            },
+            {
+              "token": ",色",
+              "logprob": -27.6875
+            },
+            {
+              "token": ",免费",
+              "logprob": -28.1875
+            },
+            {
+              "token": "﻿",
+              "logprob": -28.4375
+            },
+            {
+              "token": "٬",
+              "logprob": -28.5
+            },
+            {
+              "token": "‍,",
+              "logprob": -28.625
+            },
+            {
+              "token": " ",
+              "logprob": -28.6875
+            },
+            {
+              "token": "ּ",
+              "logprob": -29.0625
+            },
+            {
+              "token": ",_",
+              "logprob": -29.3125
+            },
+            {
+              "token": ",<",
+              "logprob": -29.375
+            },
+            {
+              "token": "�",
+              "logprob": -29.375
+            },
+            {
+              "token": "​",
+              "logprob": -29.375
+            },
+            {
+              "token": "‌",
+              "logprob": -29.375
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 14,
+      "atMs": 1091.2,
+      "delta": " ¡",
+      "logprobs": [
+        {
+          "token": " ¡",
+          "logprob": 0,
+          "top_logprobs": [
+            {
+              "token": " ¡",
+              "logprob": 0
+            },
+            {
+              "token": " !",
+              "logprob": -21.875
+            },
+            {
+              "token": "¡",
+              "logprob": -23.5
+            },
+            {
+              "token": " ¿",
+              "logprob": -24.375
+            },
+            {
+              "token": " �",
+              "logprob": -24.875
+            },
+            {
+              "token": " ",
+              "logprob": -26
+            },
+            {
+              "token": " ",
+              "logprob": -26.25
+            },
+            {
+              "token": " �",
+              "logprob": -26.625
+            },
+            {
+              "token": " ​",
+              "logprob": -28
+            },
+            {
+              "token": " �",
+              "logprob": -28.375
+            },
+            {
+              "token": " ﻿",
+              "logprob": -28.375
+            },
+            {
+              "token": " &#",
+              "logprob": -28.5
+            },
+            {
+              "token": " ‌",
+              "logprob": -28.875
+            },
+            {
+              "token": " �",
+              "logprob": -29.625
+            },
+            {
+              "token": " í",
+              "logprob": -29.75
+            },
+            {
+              "token": " ©",
+              "logprob": -29.875
+            },
+            {
+              "token": " ñ",
+              "logprob": -30.375
+            },
+            {
+              "token": " �",
+              "logprob": -30.375
+            },
+            {
+              "token": " �",
+              "logprob": -30.5
+            },
+            {
+              "token": " ​​",
+              "logprob": -30.625
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 15,
+      "atMs": 1096.5,
+      "delta": "olé",
+      "logprobs": [
+        {
+          "token": "olé",
+          "logprob": -0.000010921942703134846,
+          "top_logprobs": [
+            {
+              "token": "olé",
+              "logprob": -0.000010921942703134846
+            },
+            {
+              "token": "oló",
+              "logprob": -12.37501049041748
+            },
+            {
+              "token": "ilé",
+              "logprob": -12.87501049041748
+            },
+            {
+              "token": "ulé",
+              "logprob": -13.37501049041748
+            },
+            {
+              "token": "ól",
+              "logprob": -13.62501049041748
+            },
+            {
+              "token": "elé",
+              "logprob": -14.25001049041748
+            },
+            {
+              "token": "oley",
+              "logprob": -15.75001049041748
+            },
+            {
+              "token": "óleo",
+              "logprob": -16.125011444091797
+            },
+            {
+              "token": "lé",
+              "logprob": -16.625011444091797
+            },
+            {
+              "token": "olah",
+              "logprob": -17.000011444091797
+            },
+            {
+              "token": "eté",
+              "logprob": -17.125011444091797
+            },
+            {
+              "token": "ôle",
+              "logprob": -17.500011444091797
+            },
+            {
+              "token": "óla",
+              "logprob": -17.625011444091797
+            },
+            {
+              "token": "ol",
+              "logprob": -17.625011444091797
+            },
+            {
+              "token": "oleh",
+              "logprob": -17.625011444091797
+            },
+            {
+              "token": "othé",
+              "logprob": -17.750011444091797
+            },
+            {
+              "token": "oué",
+              "logprob": -18.000011444091797
+            },
+            {
+              "token": "ené",
+              "logprob": -18.000011444091797
+            },
+            {
+              "token": "oled",
+              "logprob": -18.000011444091797
+            },
+            {
+              "token": "oler",
+              "logprob": -18.000011444091797
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 16,
+      "atMs": 1101.9,
+      "delta": "!",
+      "logprobs": [
+        {
+          "token": "!",
+          "logprob": 0,
+          "top_logprobs": [
+            {
+              "token": "!",
+              "logprob": 0
+            },
+            {
+              "token": "！",
+              "logprob": -18.875
+            },
+            {
+              "token": "}!",
+              "logprob": -23.75
+            },
+            {
+              "token": "!»",
+              "logprob": -24.75
+            },
+            {
+              "token": "!]",
+              "logprob": -25.375
+            },
+            {
+              "token": "!\n\n",
+              "logprob": -25.375
+            },
+            {
+              "token": "?",
+              "logprob": -26
+            },
+            {
+              "token": "¡",
+              "logprob": -26
+            },
+            {
+              "token": "️",
+              "logprob": -26.5
+            },
+            {
+              "token": "!*",
+              "logprob": -26.5
+            },
+            {
+              "token": "}",
+              "logprob": -27.5
+            },
+            {
+              "token": "]!",
+              "logprob": -27.625
+            },
+            {
+              "token": "!【",
+              "logprob": -27.75
+            },
+            {
+              "token": " ",
+              "logprob": -28
+            },
+            {
+              "token": " !",
+              "logprob": -28.1875
+            },
+            {
+              "token": "!!",
+              "logprob": -28.375
+            },
+            {
+              "token": "!...",
+              "logprob": -28.625
+            },
+            {
+              "token": "®",
+              "logprob": -28.75
+            },
+            {
+              "token": "‼",
+              "logprob": -29.1875
+            },
+            {
+              "token": "]",
+              "logprob": -29.1875
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 17,
+      "atMs": 1109.2,
+      "delta": " 🧑",
+      "logprobs": []
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 18,
+      "atMs": 1119.2,
+      "delta": "‍",
+      "logprobs": [
+        {
+          "token": "‍",
+          "logprob": 0,
+          "top_logprobs": [
+            {
+              "token": "‍",
+              "logprob": 0
+            },
+            {
+              "token": "🏻",
+              "logprob": -18.875
+            },
+            {
+              "token": "‍:",
+              "logprob": -20.5
+            },
+            {
+              "token": "�",
+              "logprob": -20.75
+            },
+            {
+              "token": "🏼",
+              "logprob": -21.625
+            },
+            {
+              "token": "‌",
+              "logprob": -21.75
+            },
+            {
+              "token": "\\",
+              "logprob": -22
+            },
+            {
+              "token": "‍.",
+              "logprob": -23.125
+            },
+            {
+              "token": "‍\n\n",
+              "logprob": -23.375
+            },
+            {
+              "token": "‍,",
+              "logprob": -24.25
+            },
+            {
+              "token": "�",
+              "logprob": -24.375
+            },
+            {
+              "token": "�",
+              "logprob": -25.375
+            },
+            {
+              "token": "️",
+              "logprob": -26.875
+            },
+            {
+              "token": "�",
+              "logprob": -27
+            },
+            {
+              "token": "‌‌",
+              "logprob": -27.125
+            },
+            {
+              "token": "**",
+              "logprob": -27.25
+            },
+            {
+              "token": "�",
+              "logprob": -27.375
+            },
+            {
+              "token": "�",
+              "logprob": -28
+            },
+            {
+              "token": "�",
+              "logprob": -28
+            },
+            {
+              "token": "*",
+              "logprob": -28
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "response.output_text.delta",
+      "sequence_number": 19,
+      "atMs": 1153.3,
+      "delta": "🚀",
+      "logprobs": []
+    },
+    {
+      "type": "response.output_text.done",
+      "sequence_number": 20,
+      "atMs": 1163.6,
+      "text": "Hi 👋🏽 — 你好, مرحبا, ¡olé! 🧑‍🚀"
+    },
+    {
+      "type": "response.content_part.done",
+      "sequence_number": 21,
+      "atMs": 1163.7
+    },
+    {
+      "type": "response.output_item.done",
+      "sequence_number": 22,
+      "atMs": 1163.8
+    },
+    {
+      "type": "response.completed",
+      "sequence_number": 23,
+      "atMs": 1175.5,
+      "response": {
+        "model": "gpt-4.1-mini-2025-04-14",
+        "status": "completed",
+        "incompleteReason": null,
+        "usage": {
+          "input_tokens": 37,
+          "output_tokens": 22,
+          "total_tokens": 59,
+          "input_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0
+          },
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          }
+        },
+        "text": "Hi 👋🏽 — 你好, مرحبا, ¡olé! 🧑‍🚀",
+        "refusal": null,
+        "logprobs": []
+      }
+    }
+  ],
+  "final": {
+    "model": "gpt-4.1-mini-2025-04-14",
+    "status": "completed",
+    "incompleteReason": null,
+    "usage": {
+      "input_tokens": 37,
+      "output_tokens": 22,
+      "total_tokens": 59,
+      "input_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "text": "Hi 👋🏽 — 你好, مرحبا, ¡olé! 🧑‍🚀",
+    "refusal": null,
+    "logprobs": []
+  },
+  "timing": {
+    "createdMs": 948.1,
+    "firstTextMs": 955,
+    "totalMs": 1207.2203000000009
+  }
+}

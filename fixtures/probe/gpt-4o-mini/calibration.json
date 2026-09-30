@@ -1,0 +1,182 @@
+[
+  {
+    "id": "en-hi",
+    "units": 1,
+    "local": 1,
+    "reported": 8
+  },
+  {
+    "id": "en-question",
+    "units": 1,
+    "local": 7,
+    "reported": 14
+  },
+  {
+    "id": "en-paragraph",
+    "units": 1,
+    "local": 77,
+    "reported": 84
+  },
+  {
+    "id": "en-long",
+    "units": 1,
+    "local": 385,
+    "reported": 392
+  },
+  {
+    "id": "code-ts",
+    "units": 1,
+    "local": 52,
+    "reported": 59
+  },
+  {
+    "id": "json",
+    "units": 1,
+    "local": 26,
+    "reported": 33
+  },
+  {
+    "id": "emoji",
+    "units": 1,
+    "local": 30,
+    "reported": 37
+  },
+  {
+    "id": "emoji-single",
+    "units": 1,
+    "local": 1,
+    "reported": 8
+  },
+  {
+    "id": "zh",
+    "units": 1,
+    "local": 10,
+    "reported": 17
+  },
+  {
+    "id": "ja",
+    "units": 1,
+    "local": 15,
+    "reported": 22
+  },
+  {
+    "id": "ko",
+    "units": 1,
+    "local": 15,
+    "reported": 22
+  },
+  {
+    "id": "ar-rtl",
+    "units": 1,
+    "local": 11,
+    "reported": 18
+  },
+  {
+    "id": "he-rtl",
+    "units": 1,
+    "local": 14,
+    "reported": 21
+  },
+  {
+    "id": "hi",
+    "units": 1,
+    "local": 16,
+    "reported": 23
+  },
+  {
+    "id": "ru",
+    "units": 1,
+    "local": 10,
+    "reported": 17
+  },
+  {
+    "id": "es",
+    "units": 1,
+    "local": 13,
+    "reported": 20
+  },
+  {
+    "id": "de-compound",
+    "units": 1,
+    "local": 16,
+    "reported": 23
+  },
+  {
+    "id": "numbers",
+    "units": 1,
+    "local": 33,
+    "reported": 40
+  },
+  {
+    "id": "whitespace",
+    "units": 1,
+    "local": 16,
+    "reported": 23
+  },
+  {
+    "id": "markdown-url",
+    "units": 1,
+    "local": 22,
+    "reported": 29
+  },
+  {
+    "id": "typography",
+    "units": 1,
+    "local": 20,
+    "reported": 27
+  },
+  {
+    "id": "special-token-text",
+    "units": 1,
+    "local": 19,
+    "reported": 26
+  },
+  {
+    "id": "long-word",
+    "units": 1,
+    "local": 15,
+    "reported": 22
+  },
+  {
+    "id": "repetition",
+    "units": 1,
+    "local": 40,
+    "reported": 47
+  },
+  {
+    "id": "turns-3",
+    "units": 3,
+    "local": 21,
+    "reported": 36
+  },
+  {
+    "id": "turns-5",
+    "units": 5,
+    "local": 47,
+    "reported": 70
+  },
+  {
+    "id": "turns-7",
+    "units": 7,
+    "local": 26,
+    "reported": 57
+  },
+  {
+    "id": "instructions-1",
+    "units": 2,
+    "local": 24,
+    "reported": 35
+  },
+  {
+    "id": "instructions-3",
+    "units": 4,
+    "local": 43,
+    "reported": 62
+  },
+  {
+    "id": "instructions-long",
+    "units": 2,
+    "local": 83,
+    "reported": 94
+  }
+]
