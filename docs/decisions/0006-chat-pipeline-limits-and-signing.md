@@ -95,7 +95,9 @@ a request must happen before streaming starts (ADR 0003).
   budget allows. Beyond that, the store fails closed (no spending); pay-as-you-go lifts the cap. Free
   databases are archived after 30 days without activity.
 - **Bundle:** the chat page loads about 320 KB of gzipped JavaScript, mostly React, zod, and the Markdown
-  stack. Phase 2 must get it under 250 KB, for example by using `zod/mini` on the client.
+  stack. That is over the 250 KB warning. The owner decided (2026-09-30) that script size is a warning, not a
+  gate, and must never block a better product. Cheap savings, such as `zod/mini` on the client, are still
+  worth taking.
 - **Verified on a Preview deployment (2026-09-30).** It ran with Upstash, BotID, and the CSP on, and all
   three turns were logged:
   - A question: 13 tokens, with usage of 17 (13 plus the 4 hidden), settled from usage at 18 µ$.

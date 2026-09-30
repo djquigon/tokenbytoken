@@ -953,9 +953,11 @@ Pacing and focus:
   - `safety_identifier` is an HMAC of the anonymous session ID.
   - Analytics are cookieless and never include content.
   - `/privacy` cites OpenAI's data-controls documentation, with a review date.
-- **Performance budgets (provisional).**
-  - Landing page JS ≤150 KB gzipped. Chat route ≤250 KB gzipped, before lazily loaded stages.
+- **Performance targets (provisional).**
   - LCP ≤2.5 s, INP ≤200 ms, CLS ≤0.1, all at the 75th percentile.
+  - Script size is a warning, not a gate (owner, 2026-09-30): about 150 KB gzipped for the landing page and
+    250 KB for the chat route, before lazily loaded stages. Going over prompts a look for cheap savings, but it
+    never blocks a better product.
   - At least 60 fps on a mid-range laptop and 30 fps on a mid-range phone.
   - Only transforms and opacity are animated.
   - Long token strips are windowed.
@@ -1097,7 +1099,8 @@ Guiding rule: **prove the teaching loop with plain 2D and a data inspector befor
   - axe reports no serious or critical issues.
   - A keyboard-only E2E and a reduced-motion E2E pass.
   - A manual NVDA and VoiceOver pass.
-  - The performance budgets are met.
+  - The speed targets (LCP, INP, CLS) are met on a throttled mid-range phone profile. Script size is reported
+    as a warning only.
   - A self-review against the accuracy rules in `CLAUDE.md` §3. Every claim cites a source, and the content lint passes.
 
 **Phase 3 (optional): Informal feedback (a few days)**

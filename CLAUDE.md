@@ -336,10 +336,12 @@ Simple-depth chapters group them:
 - **Verification:** axe runs in CI. Manual NVDA and VoiceOver passes happen before each release.
 
 ## 9. Performance
-- **Budgets (PROVISIONAL):**
-  - Landing page JS ≤150 KB gzipped.
-  - Chat route ≤250 KB gzipped, before lazily loaded stages.
-  - LCP ≤2.5 s, INP ≤200 ms, CLS ≤0.1, all at the 75th percentile.
+- **Speed targets:** LCP ≤2.5 s, INP ≤200 ms, CLS ≤0.1, all at the 75th percentile. Phase 2 measures them on a
+  throttled mid-range phone profile.
+- **Script-size warnings, not gates** (owner, 2026-09-30):
+  - About 150 KB gzipped for the landing page, and 250 KB for the chat page before lazily loaded stages.
+  - Going over is a prompt to look for cheap savings. It never blocks a feature or a choice that makes the
+    product better.
 - **Frame rate:** at least 60 fps on a mid-range laptop and 30 fps on a mid-range phone.
 - **Rendering**
   - No React commits per frame. Continuous values go through CSS variables and refs.
@@ -588,7 +590,8 @@ type-only imports, and include the `.mts` extension on relative imports.
   2. Set Production variables: `OPENAI_API_KEY` (the production project's key), a `HISTORY_SIGNING_SECRET`
      different from Preview's, and the Upstash connection for Production (the same database is fine).
   3. Deploy, then repeat the Preview checks: a question, a follow-up, and a Stop.
-- Get the chat page under its 250 KB budget in Phase 2 (for example, `zod/mini` in the browser).
+- The chat page is over its 250 KB size warning (about 320 KB, estimated from the build total). Take cheap
+  savings such as `zod/mini` in the browser. Size is never a blocker.
 - Optional: check streaming in Safari and iOS Safari. Padding is already in place.
 - The label vocabulary (default: four labels plus What-if).
 - Exact palette values and fonts (Phase 2 design tokens, checked for contrast).
