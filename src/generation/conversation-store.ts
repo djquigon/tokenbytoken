@@ -15,6 +15,7 @@ import { foldLive, initialLiveState, reduceLive, type LiveTurnState } from '@/tr
 
 import type { sendTurn as SendTurn } from './client';
 import {
+  CONVERSATION_KEY,
   PRIVACY_KEY,
   clearConversation,
   loadConversation,
@@ -25,6 +26,14 @@ import {
 
 /** Bump when the privacy notice changes, so visitors see the new version. */
 export const PRIVACY_VERSION = '2026-09-30';
+
+/**
+ * Runs before first paint (in the root layout). The chat page's privacy notice and empty-chat text are
+ * rendered on the server, so they show without waiting for scripts; this marks what the browser has
+ * already stored, so CSS can hide them at once for visitors who don't need them. React takes over after
+ * hydration (and removes the marks). Only a substring check: the stored conversation isn't parsed here.
+ */
+export const CHAT_PRELOAD_SCRIPT = `(function(){try{var d=document.documentElement.dataset;if(localStorage.getItem(${JSON.stringify(PRIVACY_KEY)})===${JSON.stringify(PRIVACY_VERSION)})d.privacy="accepted";var c=sessionStorage.getItem(${JSON.stringify(CONVERSATION_KEY)});if(c&&c.indexOf('"turns":[{')>=0)d.conversation="yes";}catch(e){}})();`;
 
 function announce(turn: Turn): string {
   if (turn.live.terminal === 'user_abort') return 'Reply stopped.';
@@ -76,6 +85,11 @@ export interface StoreDeps {
   readonly preferences: KeyValueStorage | null;
   readonly idleTimeoutMs: number;
   readonly scheduleFlush: (flush: () => void) => void;
+  /**
+   * Load storage while creating the store, so it starts hydrated. Only for storage that exists on the
+   * server too (the recorded sample): React reads a store's initial state during server rendering.
+   */
+  readonly hydrateAtCreation?: boolean;
 }
 
 /** Keep requests well under the server's body limit; the server trims by tokens as well. */
@@ -142,6 +156,25 @@ function toStored(state: ConversationState): StoredConversation {
     sessionId: state.sessionId,
     conversationId: state.conversationId,
     turns: state.turns.filter((t) => t.done).map((t) => ({ id: t.id, user: t.user, assistant: t.assistant, log: t.log })),
+  };
+}
+
+/** The state that loading storage produces (the whole of hydrate()). */
+function loadedState(deps: StoreDeps): Partial<ConversationState> {
+  const stored = loadConversation(deps.storage);
+  const turns: Turn[] = (stored?.turns ?? []).map((t) => {
+    // A log without an ending means the page was reloaded mid-stream.
+    const log = t.log && !isTerminated(t.log) ? appendEntry(t.log, { k: 'recovered', tc: deps.now() }) : t.log;
+    const live = log ? foldLive(log) : { ...initialLiveState, phase: 'done' as const, text: t.assistant?.content ?? '' };
+    return { id: t.id, user: t.user, log, live, assistant: t.assistant, done: true };
+  });
+  return {
+    hydrated: true,
+    sessionId: stored?.sessionId ?? newId(deps, 'ses'),
+    conversationId: stored?.conversationId ?? newId(deps, 'cnv'),
+    turns,
+    storageNote: turns.some((t) => t.log === null) ? 'Some earlier replies can no longer be inspected in this tab.' : null,
+    privacyAccepted: readPreference(deps.preferences, PRIVACY_KEY) === PRIVACY_VERSION,
   };
 }
 
@@ -226,24 +259,11 @@ export function createConversationStore(deps: StoreDeps): ConversationStore {
       storageNote: null,
       privacyAccepted: null,
       announcement: '',
+      ...(deps.hydrateAtCreation ? loadedState(deps) : {}),
 
       hydrate() {
         if (get().hydrated) return;
-        const stored = loadConversation(deps.storage);
-        const turns: Turn[] = (stored?.turns ?? []).map((t) => {
-          // A log without an ending means the page was reloaded mid-stream.
-          const log = t.log && !isTerminated(t.log) ? appendEntry(t.log, { k: 'recovered', tc: deps.now() }) : t.log;
-          const live = log ? foldLive(log) : { ...initialLiveState, phase: 'done' as const, text: t.assistant?.content ?? '' };
-          return { id: t.id, user: t.user, log, live, assistant: t.assistant, done: true };
-        });
-        set({
-          hydrated: true,
-          sessionId: stored?.sessionId ?? newId(deps, 'ses'),
-          conversationId: stored?.conversationId ?? newId(deps, 'cnv'),
-          turns,
-          storageNote: turns.some((t) => t.log === null) ? 'Some earlier replies can no longer be inspected in this tab.' : null,
-          privacyAccepted: readPreference(deps.preferences, PRIVACY_KEY) === PRIVACY_VERSION,
-        });
+        set(loadedState(deps));
       },
 
       acceptPrivacy() {

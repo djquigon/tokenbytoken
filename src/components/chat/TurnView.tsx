@@ -2,7 +2,7 @@
 
 // One turn: the question, the streamed reply, how it ended, and the data behind it.
 
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 
 import { Datum } from '@/components/provenance/Datum';
 import { TraceInspector } from '@/components/inspector/TraceInspector';
@@ -10,8 +10,11 @@ import type { AppError } from '@/shared/errors';
 import { read } from '@/shared/provenance/read';
 import { traceOf, type Turn } from '@/generation/conversation-store';
 
+import { usePrefs } from '@/components/prefs/hooks';
+
 import { AssistantReply } from './AssistantReply';
 import { ErrorNotice } from './ErrorNotice';
+import { LiveStrip } from './LiveStrip';
 
 function EndNote({ turn, onRetry, canRetry }: { turn: Turn; onRetry: () => void; canRetry: boolean }) {
   const trace = useMemo(() => traceOf(turn), [turn]);
@@ -52,11 +55,15 @@ function errorOf(turn: Turn): AppError | null {
   return outcome === 'interrupted' || outcome === 'failed' || outcome === 'rejected' ? trace.error : null;
 }
 
-export function TurnView({
+/** Memoized: with stable callbacks, a turn re-renders only when it (or its selection) changes. */
+export const TurnView = memo(function TurnView({
   turn,
   index,
   isLast,
   streaming,
+  selected = false,
+  canExplain = false,
+  onExplain,
   onRetry,
   onClear,
 }: {
@@ -64,10 +71,17 @@ export function TurnView({
   index: number;
   isLast: boolean;
   streaming: boolean;
+  /** This reply's walkthrough is the one showing. */
+  selected?: boolean;
+  /** Whether there's a walkthrough for this reply. */
+  canExplain?: boolean;
+  /** Shows a reply's walkthrough. */
+  onExplain?: (turnId: string) => void;
   onRetry: () => void;
   onClear: () => void;
 }) {
   const [inspect, setInspect] = useState(false);
+  const liveStrip = usePrefs((s) => s.liveStrip);
   const live = turn.live;
   const active = !turn.done;
   const reply = live.text || live.refusal;
@@ -76,7 +90,7 @@ export function TurnView({
   const summary = turn.done ? traceOf(turn) : null;
 
   return (
-    <article className="turn" aria-labelledby={`turn-${index}-q`}>
+    <article className="turn" aria-labelledby={`turn-${index}-q`} data-selected={selected ? 'true' : undefined}>
       <div className="msg msg-user">
         <h2 id={`turn-${index}-q`} className="sr-only">
           Your message {index + 1}
@@ -100,6 +114,7 @@ export function TurnView({
         </div>
       ) : null}
 
+      {active && liveStrip && turn.log && live.terminal !== 'http_error' ? <LiveStrip log={turn.log} /> : null}
       {turn.done ? <EndNote turn={turn} onRetry={onRetry} canRetry={isLast && !streaming} /> : null}
       {error ? <ErrorNotice error={error} onRetry={onRetry} onClear={onClear} canRetry={isLast && !streaming} /> : null}
 
@@ -113,6 +128,11 @@ export function TurnView({
               <span>first text after</span> <Datum of={summary.timing.durations.browserToFirstText} as="ms" compact />
             </>
           ) : null}
+          {canExplain && onExplain ? (
+            <button type="button" className="btn btn-quiet btn-explain" onClick={() => onExplain(turn.id)}>
+              Explain this reply
+            </button>
+          ) : null}
           {turn.log ? (
             <button type="button" className="btn btn-quiet" aria-expanded={inspect} onClick={() => setInspect((v) => !v)}>
               {inspect ? 'Hide data' : 'Inspect data'}
@@ -125,4 +145,4 @@ export function TurnView({
       {trace ? <TraceInspector trace={trace} /> : null}
     </article>
   );
-}
+});

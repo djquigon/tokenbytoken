@@ -5,13 +5,9 @@
 // Featured moments must meet the displayed rule, so the label is always honest; among those, uncertain
 // and non-top picks rank higher and whitespace or punctuation ranks lower.
 
-export const CLOSE_CALL_RULE = {
-  chosenUnderPct: 50,
-  topTwoWithinPts: 15,
-  /** Featured moments are at least this many tokens apart. */
-  minFeaturedGap: 8,
-  maxFeatured: 2,
-} as const;
+import { CLOSE_CALL_RULE } from '@/shared/close-call-rule';
+
+export { CLOSE_CALL_RULE };
 
 export interface CloseCallInput {
   readonly index: number;

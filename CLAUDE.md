@@ -2,18 +2,24 @@
 
 @AGENTS.md
 
-> **Project status: Phase 1 (real chat and trace foundation).**
+> **Project status: Phase 2 (the walkthrough), core built (ADR 0007).**
 >
 > **What exists:**
 > - The chat (`/chat`) with streaming, Stop, retry, and every error state, backed by `/api/chat` and its
 >   full guard pipeline (ADR 0006).
 > - The label system (`src/shared/provenance/`), protocol v1, and the trace. The trace records every turn
 >   as a TraceLog and folds it into labeled facts.
-> - The Trace Inspector (every value with its label), the privacy notice, and `/privacy`.
-> - The Phase 0 probe, fixtures, and ADRs 0001–0006.
+> - The walkthrough beside the chat:
+>   - the Hook and chapters 1–7 at Simple and Detailed depth, with the player, chapter bar, and step mode;
+>   - the token card, five deep dives, the Transcript view, and the live strip.
+> - The recorded sample conversation (`/sample`) and the landing page with its token rain.
+> - The Trace Inspector, the privacy notice, and `/privacy`.
+> - The claims register (generated `content/claims.md`) and the content lint.
+> - The Phase 0 probe, fixtures, and ADRs 0001–0007.
 >
-> **Not built yet:** the walkthrough, the live strip, the landing page, the sample conversation, and
-> playback (Phase 2). Sections below that describe those describe intended structure.
+> **Not built yet:** the Phase 2 items ADR 0007 lists as deferred, such as glossary popovers, "Is this
+> real?" buttons, the first-visit orientation, and some Detailed sub-scenes. Also everything after Phase 2.
+> Sections below that describe those describe intended structure.
 >
 > Items marked **PROVISIONAL** are proposals, not decisions. When one is decided, record an ADR in
 > `docs/decisions/` and update this file. Never describe planned files or commands as if they already exist.
@@ -124,8 +130,9 @@ Unlabeled data must not render.
   open-weight gpt-oss models. Say "in many transformer models…". Never state internals for the configured
   model.
 - **A10. Example patterns and vectors.**
-  - Examples come only from seeded, documented generators in `src/stages/illustrative/` (planned), based on
-    published general phenomena (previous-token, duplicate-token, induction patterns).
+  - Examples come only from seeded, documented generators (today in `src/stages/common.ts`, each with a
+    rule in `src/shared/provenance/registry.ts`), based on published general phenomena (previous-token,
+    duplicate-token, induction patterns).
   - Arcs have a fixed weight, and no numbers ever appear on arcs or vectors.
   - Introduce each pattern on a neutral sample before showing it on the user's tokens.
 - **A11. Correct attention wording.** "Each position can draw on itself and earlier positions, never later
@@ -151,11 +158,15 @@ Unlabeled data must not render.
 - Use "≈" only for estimates. Give units. Date every price and documented fact.
 
 **Process**
-- **Claims register.** Every explanatory claim lives in `content/` (planned) with an ID in the claims register
-  (`content/claims.md`, format PROVISIONAL). Each entry records the claim, its depth, its sources, and the date
-  it was last checked. A claim cannot ship without a source. There is no external review (personal project),
-  so self-review every change against this section.
-- **Content lint (planned).** It fails on banned phrasings.
+- **Claims register.** Every explanatory claim has an ID in `src/content/claims.ts`, the source of truth.
+  Each entry records the claim, where it appears, its sources, and the date it was last checked.
+  - `npm run claims` regenerates `content/claims.md`, and a test fails if the two differ.
+  - Copy functions name the claims they rest on, and a test checks that each ID exists.
+  - A claim cannot ship without a source.
+  - There is no external review (personal project), so self-review every change against this section.
+- **Content lint.** `src/content/content-lint.test.ts` fails on banned phrasings in any user-facing string
+  or JSX text. Its list: the model as a person, "thinking", "re-reads", "probably wrong", "hallucinate".
+  Simple captions must avoid "prefill", "decode", "logprob", and "autoregressive".
 - **Re-verification.** Whenever the API layer changes, re-verify API and framework facts against official
   docs. Record the URL and date.
 
@@ -170,10 +181,10 @@ Facts were verified on 2026-09-29. Re-verify before relying on details.
 | Vercel AI SDK | Not used: logprobs arrive only at finish, and we own the protocol | Decided |
 | Model | **`gpt-6-luna` with `reasoning.effort: "none"`**, temperature 1, top_p 1, `top_logprobs: 20`, `store: false`. This is the cheapest candidate, and it passed every automatic check in the 2026-09-30 probe. Fallbacks, in cost order: `gpt-4o-mini`, `gpt-5.4-nano`, `gpt-4.1-mini` (see ADR 0001). | Decided (ADR 0001) |
 | Tokenizer | `LocalTokenizer` interface; `gpt-tokenizer` (`o200k_base`), server-side. The probe found every output token of every candidate to be one `o200k_base` token, with input counts within 1 token. | Decided (ADR 0001) |
-| Visualization | SVG/HTML rendered as pure functions of `(step, progress)` from our own clock; d3-scale/shape/interpolate; Canvas 2D for dense views; Three.js/R3F post-MVP, lazy-loaded, optional | PROVISIONAL |
-| UI | Tailwind CSS 4 with CSS-variable tokens (a provisional dark palette in `globals.css`); shadcn/ui on Base UI; Motion only for UI chrome outside the timeline | PROVISIONAL |
+| Visualization | HTML/CSS and a few hand-computed SVG paths, rendered as pure functions of `(step, progress)` from our own clock; within-step motion only through `--p`. Canvas 2D for the token rain. No d3 or Motion so far. Three.js/R3F post-MVP, lazy-loaded, optional | Decided (ADRs 0004, 0007) |
+| UI | Tailwind CSS 4 plus CSS-variable design tokens in `src/app/styles/` (dark default, light theme, contrast-tested); small custom controls (shadcn/ui not used so far) | Decided (ADR 0007) |
 | Model output | `react-markdown` + `remark-gfm` + `rehype-sanitize`: no raw HTML, no images, links with `rel="noopener noreferrer nofollow"` | Decided (ADR 0006) |
-| State | A Zustand vanilla store for the conversation (`src/generation/conversation-store.ts`), published at most once per animation frame. Playback: a pure machine and clock exposed through `useSyncExternalStore` (Phase 2) | Conversation decided; playback PROVISIONAL |
+| State | A Zustand vanilla store for the conversation (`src/generation/conversation-store.ts`), published at most once per animation frame; one for preferences (`src/components/prefs/store.ts`, localStorage). Playback: a pure machine (`src/playback/machine.ts`), a clock, and a controller exposed through `useSyncExternalStore`, notifying React once per step | Decided (ADR 0007) |
 | Budget | $20/month: an OpenAI hard cap at the organization level (split into production $17 and development $3 if project caps exist); an app ledger of about $0.55/day; fall back to the sample conversation when it runs out | Decided |
 | Limits | Per IP 30/min and 300/day; per tab session 30/day and one stream at a time; $0.55/day global and $0.15/day per IP, reserved worst-case and settled once; Upstash Redis (free tier) through two Lua scripts; BotID Basic on Vercel deployments; Hobby's WAF rule optional | Decided (ADR 0006) |
 | History | HMAC-signed replies (`v1.<kid>.<iat>.<mac>`); the previous secret is accepted during a rotation; signatures older than 24 h are dropped from the context | Decided (ADR 0006) |
@@ -202,33 +213,43 @@ PlaybackScript → PlaybackClock → stage views`
   capability registry in `src/server/config`.
 
 ## 5. Repository layout
-**Exists now (Phase 1):**
+**Exists now (Phases 1–2):**
 ```
-src/app/              pages: / (placeholder), /chat, /privacy; api/chat/route.ts (thin)
+src/app/              pages: / (landing), /chat, /sample, /privacy; api/chat/route.ts (thin);
+                      styles/ (tokens, base, components, chat, walkthrough, stages, inspector, landing)
 src/instrumentation-client.ts   BotID client init (Vercel deployments only)
 src/server/           config.ts · chat/ (handler, http, runtime) · openai/adapter.ts · tokenizer/ ·
                       limits/ (store contract, memory store, Redis Lua scripts) · signing/
 src/shared/           protocol/ (v1 schemas, SSE) · provenance/ (types, registry, combine, mint, read,
-                      describe) · context-policy/ · errors.ts · limits.ts · units.ts · utf8.ts · sha256.ts ·
-                      token-display.ts
-src/trace/            log · reducer · finalize · facts · align/ · reconcile · close-calls · provs
+                      describe) · context-policy/ · sourced-text.ts · format.ts · close-call-rule.ts ·
+                      errors.ts · limits.ts · units.ts · utf8.ts · sha256.ts · token-display.ts
+src/trace/            log · reducer · finalize · facts · live (the live strip's facts) · align/ ·
+                      reconcile · close-calls · provs
 src/generation/       client (fetch + SSE + watchdog) · conversation-store · persist (sessionStorage)
-src/components/       provenance/ (Datum, ProvBadge, format) · chat/ · inspector/ (TraceInspector)
-src/test/             test harnesses: chat route, probe fixtures, fake Redis + Lua VM
-content/claims.md     claims register (format PROVISIONAL)
-scripts/              probe/ (live capability probe) · check-client-bundle.mts
+src/playback/         machine · clock · controller · types · compile/ (compile, pacing)
+src/stages/           contract · common · scenes · deep-dives · <stage>/{build, View} for probs, context,
+                      tokenize, network, sample (+ what-if), loop, followup
+src/content/          walkthrough.ts and deep-dives.ts (all copy, with claim IDs) · claims.ts (the
+                      register) · content-lint.test.ts
+src/components/       provenance/ (Datum, ProvBadge) · chat/ (ChatApp, TurnView, Composer, LiveStrip, …) ·
+                      walkthrough/ (Walkthrough, StageView, TokenCard, DeepDive, Transcript, OptionBars, …) ·
+                      tokens/ (TokenTape) · prefs/ (store, hooks, PrefsMenu) · effects/ (TokenRain,
+                      DecodeText) · inspector/ (TraceInspector) · ui/ (icons)
+src/test/             test harnesses: chat route, probe fixtures, fake Redis + Lua VM, sample fixtures
+content/claims.md     claims register, generated from src/content/claims.ts (npm run claims)
+scripts/              probe/ (live capability probe) · record-sample.mts · build-claims.mts ·
+                      check-client-bundle.mts
 fixtures/probe/       sanitized recorded streams per model (written only by the probe)
-e2e/                  Playwright tests · mock-openai.mts (replays the probe fixtures)
-docs/                 PLAN.md · decisions/ (ADRs 0001–0006) · probe/
+fixtures/sample/      the recorded sample conversation and wrong-answer case (written only by
+                      record-sample.mts)
+e2e/                  Playwright tests (chat, walkthrough, pages, smoke) · mock-openai.mts (replays the
+                      probe fixtures)
+docs/                 PLAN.md · decisions/ (ADRs 0001–0007) · probe/
 ```
-**Planned (Phase 2 and later; nothing below exists yet):**
+**Planned (later phases; nothing below exists yet):**
 ```
-src/playback/     machine · clock · controller · compile/
-src/stages/       contract · registry · <stage-id>/{build,View,describe} · illustrative/
-src/components/   viz/
-content/          stages/*.mdx (Simple/Detailed/Technical) · glossary
-fixtures/         TraceLogs for the playback tests
-scripts/          record-fixture.ts
+src/stages/       illustrative/ (seeded generators beyond the current common.ts ones)
+content/          glossary
 ```
 Import boundaries are enforced with ESLint `no-restricted-imports` (`eslint.config.mjs`, per
 `docs/PLAN.md` §3.3):
@@ -257,19 +278,22 @@ branching. UI shows values only through `<Datum>`.
   small, maintained packages.
 
 ## 7. Stage module contract
-Each `src/stages/<stage-id>/` provides the following:
-- **`build({trace, slot, seed}) → SceneSpec[]`**
+Each `src/stages/<stage>/` provides the following (ADR 0007):
+- **`build(ctx: BuildContext) → Scene[]`** (`ctx` is `{trace, depth, seed}`)
   - Pure: no `Date`, `Math.random`, DOM, or `fetch`.
   - Every displayable leaf is `Sourced`.
-  - Steps declare `baseMs`/`minMs`/`compressible`/`autoPause`.
-- **`View({model, step, motion})`**
+  - Each scene declares its `timing` (`baseMs`, `minMs`, `compressible`), `autoPause`, whether it draws
+    `examples`, and its `copy`.
+- **`View({scene})`** (and the trace where it needs one)
   - React re-renders only when the step changes.
-  - Within-step progress arrives as the CSS variable `--p` (or through `useFrame`).
+  - Within-step progress arrives as the CSS variable `--p`, set on the walkthrough panel. `--p` is 1 when
+    paused, in step mode, and before playing, so a view's resting state is its complete state.
   - No timers of its own, and no fire-and-forget animations.
-- **`describe(model, step) → SourcedText`**
-  - Text alternative for exactly this step, including label words.
-- **Copy** lives in `content/stages/<stage-id>.mdx`, with Simple, Detailed, and Technical sections plus
-  claim IDs.
+- **Text alternative:** `describeScene` (in `src/playback/compile/compile.ts`) turns a scene's copy into
+  `SourcedText` for exactly that step. Labels are spelled out in the live region and the Transcript.
+- **Copy** lives in `src/content/walkthrough.ts`: functions returning `SceneCopy`, which holds a title, a
+  Simple body, and optional Detailed and Technical text, plus claim IDs. It is TypeScript rather than MDX,
+  so a bare number in copy is a type error.
 
 Stage IDs:
 - `context`
@@ -282,14 +306,15 @@ Stage IDs:
 - `stop`
 - `followup`
 
-Simple-depth chapters group them:
-1. context
-2. tokenize
-3. embed + layers
-4. probs
-5. sample
-6. loop + stop
-7. followup
+Chapters group them (`src/playback/types.ts`):
+- hook (probs)
+- context
+- tokenize
+- network (embed + layers)
+- options (probs)
+- pick (sample)
+- loop (layers for the second pass + loop + stop)
+- followup (second turn onward)
 
 ## 8. Accessibility (target: WCAG 2.2 AA)
 - **Keyboard and focus**
@@ -336,8 +361,15 @@ Simple-depth chapters group them:
 - **Verification:** axe runs in CI. Manual NVDA and VoiceOver passes happen before each release.
 
 ## 9. Performance
-- **Speed targets:** LCP ≤2.5 s, INP ≤200 ms, CLS ≤0.1, all at the 75th percentile. Phase 2 measures them on a
-  throttled mid-range phone profile.
+- **Speed targets:** LCP ≤2.5 s, INP ≤200 ms, CLS ≤0.1, all at the 75th percentile.
+  - Measured 2026-09-30 on a throttled phone profile (Pixel 7, 4× CPU slowdown, about 1.6 Mbps and 150 ms
+    latency; ADR 0007): LCP about 0.9 s on `/`, `/chat`, and `/sample`; CLS 0. The worst interaction
+    measured was 176 ms (opening and playing the walkthrough on `/sample`).
+  - Main content must render on the server, not wait for hydration. The sample's store starts hydrated.
+    The chat page's notice and empty text are server-rendered and hidden before paint by
+    `CHAT_PRELOAD_SCRIPT` when not needed.
+  - Zustand's `useStore` reads the store's initial state during server rendering and hydration, so a
+    store must be created in the state it should render.
 - **Script-size warnings, not gates** (owner, 2026-09-30):
   - About 150 KB gzipped for the landing page, and 250 KB for the chat page before lazily loaded stages.
   - Going over is a prompt to look for cheap savings. It never blocks a feature or a choice that makes the
@@ -436,9 +468,14 @@ Simple-depth chapters group them:
   cover scenes and steps.
 - **Components**
   - Each stage view renders at every step for each fixture.
-  - A DOM test fails if digits or model text appear outside a labeled element or UI chrome.
-  - A render-count test.
-  - axe.
+  - A DOM test fails if digits appear in the walkthrough outside a labeled element (`[data-kind]`), a
+    method description (`[data-method]`), or UI chrome (the player, the offer, the live region).
+    It is `e2e/walkthrough.spec.ts`, stepping through every step at Detailed depth.
+  - A render-count test (the controller notifies React once per step, never per frame).
+  - axe, on the chat, the walkthrough (offer, a step, the Transcript), the landing page, and `/sample`.
+- **Content:** the content lint and the claims-register sync test (`src/content/content-lint.test.ts`).
+  The recorded sample fixtures are checked for validity, completeness, and removed signatures
+  (`src/test/sample-fixture.test.ts`).
 - **Limits store contract:** one suite runs against the in-memory store and against the production Lua
   scripts, executed by a real Lua VM (wasmoon) over a fake Redis (`src/test/fake-redis.ts`).
 - **Client bundle:** `npm run check:bundle` fails if the browser build contains a key pattern, a server
@@ -448,14 +485,19 @@ Simple-depth chapters group them:
   - OpenAI is replaced by `e2e/mock-openai.mts`, reached through `OPENAI_BASE_URL`, so the real adapter
     parses real-shaped streams. Keywords in the message pick scenarios (`SLOW`, `CUTOFF`, `UNICODE`,
     `FAIL_429`, `QUOTA`, `FLAG_ME`).
-  - Send → stream → replay → follow-up.
+  - Send → stream → replay → follow-up (the walkthrough is skipped first: sending is locked until then).
   - Stop.
   - Every error code.
   - Interrupted streams.
-  - Reduced motion (`emulateMedia`).
-  - Keyboard only.
-  - Mobile viewport.
-  - Replay while offline, proving no API calls.
+  - Reduced motion (`emulateMedia`): step mode, and the token rain holds still.
+  - Keyboard only: play, pause, steps, chapters, the shortcut list, and the token card's focus return.
+  - Mobile viewport (one pane at a time).
+  - Replay while offline, and the sample conversation, both proving no API calls.
+  - The live strip, the deep dives (the temperature What-if and the recorded wrong answer), and the
+    landing page.
+  - Scope reply-text lookups to the chat pane (`#main`): the walkthrough quotes the reply too.
+  - Visual checks with the dev server use the mock too. Run it with the "dev-mock" launch configuration,
+    which sets `OPENAI_BASE_URL` and a fake key; the mock always replies with the same fixture.
 - **Live capability probe:** run before releases to catch model or endpoint drift. Never in PR CI.
 - **Accuracy:** every claim cites a source; the content lint passes; self-review against §3.
 - **Learning (informal):** a few people try it and answer probe questions from `docs/PLAN.md` §2, plus the
@@ -533,6 +575,8 @@ fill in the values.
 | `npm run check:bundle` | After a build: scan the browser bundle for secrets and server-only code, and report its size |
 | `npm run check` | Typecheck, lint, unit tests, build, and the bundle check, in order |
 | `npm run mock:openai` | Start the mock OpenAI on port 3299 (see "Local chat without spending" below) |
+| `npm run claims` | Regenerate `content/claims.md` from `src/content/claims.ts` (a test fails if they differ) |
+| `npm run record:sample` | Re-record `fixtures/sample/` through a local production build with the real key (run `npm run build` first; OPENAI_BASE_URL must be unset). At most 10 short turns, well under a cent. Never in CI. |
 | `npm run probe` | Live capability probe. Needs `OPENAI_API_KEY` in `.env.local` and costs about 1–2¢. Never run it in CI. |
 
 `probe` options:
@@ -584,17 +628,39 @@ type-only imports, and include the `.mts` extension on relative imports.
 - The chat page loads about 320 KB of gzipped JavaScript.
 - Verified on a Vercel Preview: Upstash, BotID under the CSP, signed follow-ups, and Stop (ADR 0006).
 
+**Phase 2 results (2026-09-30):** ADR 0007.
+- The walkthrough runs beside the chat:
+  - the Hook and chapters 1–7 at Simple and Detailed depth;
+  - the player, chapter bar, step mode, and focus-scoped shortcuts;
+  - the token card, five deep dives, and the Transcript view.
+- The live strip, the recorded sample conversation (`/sample`), and the landing page with its token rain.
+- Walkthroughs are paced by reading time: about 2.5 min for a first reply and about 3 min with the
+  follow-up chapter. The plan's ~90 s left too little time to read.
+- Tested by 29 end-to-end tests (axe included) and the unit suite. The speed targets are met on a
+  throttled phone profile.
+- The sample recording cost about $0.00011. Early visual checks accidentally reached the real API, about
+  $0.0006 in all; the launch configuration now forces the mock.
+
 **Open (proceeding on defaults):**
+- **Phase 2 items not built yet** (ADR 0007, "Deferred"):
+  - glossary popovers, and "Is this real?" buttons;
+  - the first-visit orientation, and the "real or example?" check;
+  - "guess which is likely", "simulate 20 picks", and "show another example pattern";
+  - the Detailed sub-scenes, and the three lanes at Detailed depth;
+  - the raw/rendered Markdown toggle, and the real-speed replay;
+  - remappable shortcuts.
+- A manual NVDA and VoiceOver pass (owner, before release).
 - **Production launch checklist** (owner approval required):
   1. Pin Next.js to 16.3.8 or later. It's the security release, and wasn't published as of 2026-09-30.
   2. Set Production variables: `OPENAI_API_KEY` (the production project's key), a `HISTORY_SIGNING_SECRET`
      different from Preview's, and the Upstash connection for Production (the same database is fine).
   3. Deploy, then repeat the Preview checks: a question, a follow-up, and a Stop.
-- The chat page is over its 250 KB size warning (about 320 KB, estimated from the build total). Take cheap
-  savings such as `zod/mini` in the browser. Size is never a blocker.
+- Script size is over its warnings: 362 KB gzipped across all routes (2026-09-30), while the speed targets
+  are met. Take cheap savings, such as `zod/mini` in the browser, when convenient. Size is never a blocker.
 - Optional: check streaming in Safari and iOS Safari. Padding is already in place.
 - The label vocabulary (default: four labels plus What-if).
-- Exact palette values and fonts (Phase 2 design tokens, checked for contrast).
+- The palette and fonts are set (`src/app/styles/tokens.css`, IBM Plex Sans and Mono, contrast-tested) but
+  still open to the owner's review of the look.
 - How deep the formulas go (default: at Technical depth, collapsed).
 - Whether real generation controls ship in MVP (default: no).
 - The domain (not yet bought).

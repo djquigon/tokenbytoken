@@ -1,6 +1,7 @@
 // Model output as sanitized Markdown (CLAUDE.md §10): no raw HTML, no images, and links that can't
 // carry the reader's context along.
 
+import { memo } from 'react';
 import Markdown, { defaultUrlTransform, type Components } from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
@@ -13,15 +14,20 @@ const components: Components = {
   ),
 };
 
-export function AssistantReply({ text }: { text: string }) {
+const REMARK = [remarkGfm];
+const REHYPE = [rehypeSanitize];
+const DISALLOWED = ['img'];
+
+/** Memoized on the text: parsing Markdown is the costliest part of a chat re-render. */
+export const AssistantReply = memo(function AssistantReply({ text }: { text: string }) {
   return (
     <div className="markdown" dir="auto">
       <Markdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeSanitize]}
+        remarkPlugins={REMARK}
+        rehypePlugins={REHYPE}
         components={components}
         skipHtml
-        disallowedElements={['img']}
+        disallowedElements={DISALLOWED}
         unwrapDisallowed
         urlTransform={defaultUrlTransform}
       >
@@ -29,4 +35,4 @@ export function AssistantReply({ text }: { text: string }) {
       </Markdown>
     </div>
   );
-}
+});

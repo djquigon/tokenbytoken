@@ -70,7 +70,16 @@ export const REFERENCE: ReferenceValuesV1 = {
   hiddenOutputTokensPerReply: { value: 4, measured: PROBE('Output tokens OpenAI counts but does not return as text') },
   inputOverhead: { value: { perRequest: 1, perMessage: 5 }, measured: PROBE('Formatting tokens OpenAI adds to the input') },
   logprobsAreRawScores: { value: true, measured: PROBE('Logprobs unchanged by temperature') },
-  tokenizer: { encoding: 'o200k_base', library: 'gpt-tokenizer 4' },
+  tokenizer: {
+    encoding: 'o200k_base',
+    library: 'gpt-tokenizer 4',
+    vocabularySize: { value: 199_998, measured: { what: 'Ordinary tokens in o200k_base (gpt-tokenizer 4.0.0)', date: '2026-09-30' } },
+  },
+  knowledgeCutoff: { value: '2026-05-18', doc: MODEL_PAGE },
+  apiDataUsedForTraining: {
+    value: false,
+    doc: { title: 'OpenAI: Your data', url: 'https://developers.openai.com/api/docs/guides/your-data', retrieved: '2026-09-30' },
+  },
 };
 
 export const APP_LIMITS = {

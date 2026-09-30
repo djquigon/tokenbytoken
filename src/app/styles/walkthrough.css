@@ -1,0 +1,476 @@
+/*
+ * The walkthrough panel: header, stage, caption, offer, player, chapter bar, token card, transcript,
+ * shortcuts, and the settings menu. Views inside the stage are styled in stages.css.
+ */
+
+.walkthrough-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 36rem;
+  margin: var(--space-8) auto;
+  color: var(--text-muted);
+}
+
+.walkthrough {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 60rem;
+  margin: 0 auto;
+}
+.walkthrough-empty {
+  color: var(--text-muted);
+}
+
+/* Header: chapter title, depth switch, transcript toggle. */
+.walkthrough-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.walkthrough-head h2 {
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-shadow: 0 0 12px var(--glow);
+}
+.chapter-subtitle {
+  margin-top: 0.15rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.walkthrough-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* "Contains examples" (CLAUDE.md L2): dashed like the drawings it warns about. */
+.banner-examples {
+  padding: var(--space-2) var(--space-3);
+  border: 1px dashed var(--example);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.example-tag-inline {
+  margin-right: 0.25rem;
+  color: var(--example);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* The stage: one scene at a time. A steady minimum height keeps the controls from jumping per step. */
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 17rem;
+  padding: var(--space-6) var(--space-4) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  animation: stage-in var(--medium) ease-out both;
+}
+@keyframes stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* Caption: HTML text that reflows (CLAUDE.md §8), never text inside a drawing. */
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 6.5rem;
+}
+.caption-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.caption-body {
+  max-width: 65ch;
+  font-size: 1.02rem;
+}
+.caption-detail {
+  max-width: 65ch;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+.caption .datum-value,
+.caption-title .datum-value {
+  font-weight: 600;
+}
+.technical summary {
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.technical p {
+  margin-top: var(--space-2);
+  max-width: 65ch;
+  font-size: 0.95rem;
+}
+
+/* The offer (docs/PLAN.md §1, step 4): Play is one click; Skip is always beside it. */
+.offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+/* Player: sticky at the bottom of the pane so the controls stay in reach. On narrow screens only the main
+ * row (play, step, step count) is pinned, to the bottom of the screen; the rest scrolls with the page. */
+.player {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.player-main,
+.player-more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.player .chapters {
+  grid-column: 1 / -1;
+}
+@media (max-width: 59.99rem) {
+  .player {
+    position: static;
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 0;
+    border-top: 0;
+  }
+  .player-main {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    flex-wrap: nowrap;
+    padding: var(--space-2) var(--space-4) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .walkthrough {
+    padding-bottom: 4.5rem;
+  }
+}
+.player-spacer {
+  flex: 1;
+}
+.step-count {
+  padding: 0 var(--space-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Chapter bar: segments as wide as their share of the walkthrough, each a button (no dragging needed,
+ * WCAG 2.5.7). The fill is whole for finished chapters, partial for the current one. */
+.chapters {
+  display: flex;
+  gap: 3px;
+}
+.chapter-seg {
+  position: relative;
+  flex: var(--w) 1 0;
+  min-width: 3.25rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.35rem 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-align: left;
+  cursor: pointer;
+}
+.chapter-seg:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.chapter-seg[aria-current="step"] {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.chapter-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--glow);
+  transform-origin: left;
+  transform: scaleX(clamp(0, calc((var(--done, 0) + var(--p, 0)) / var(--steps, 1)), 1));
+}
+.chapter-name {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 40rem) {
+  .chapters {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .chapter-seg {
+    min-width: 0;
+  }
+}
+@media (pointer: coarse) {
+  .chapter-seg {
+    min-height: 2.75rem;
+  }
+}
+
+/* Token card: a docked panel below the caption, never an overlay (CLAUDE.md §8). */
+.token-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-color: var(--border-strong);
+}
+.token-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.token-card-head h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.token-card-head h3:focus {
+  outline: none;
+}
+.token-card-head h3:focus-visible {
+  outline: 2px solid var(--focus);
+}
+
+/* Definition lists of labeled values (token card, "what gets sent", settings). */
+.facts,
+.settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--space-2) var(--space-4);
+}
+.facts > div,
+.settings > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+.facts dt,
+.settings dt {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.settings dt {
+  font-family: var(--font-mono);
+}
+
+/* Go deeper: optional deep dives beside the caption, opened as docked panels. */
+.go-deeper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.go-deeper .eyebrow {
+  margin-right: var(--space-1);
+}
+.deep-dive {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-color: var(--border-strong);
+}
+.deep-dive-text {
+  max-width: 65ch;
+}
+.what-if {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.what-if-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.what-if-controls label {
+  margin-right: var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.what-if-controls input[type="range"] {
+  flex: 1 1 10rem;
+  max-width: 18rem;
+  accent-color: var(--accent);
+}
+.what-if-controls output {
+  min-width: 3rem;
+}
+.what-if-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.what-if-table caption {
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-align: left;
+}
+.what-if-table th,
+.what-if-table td {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  font-weight: 400;
+}
+.what-if-table thead th {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.what-if-table td {
+  position: relative;
+  min-width: 7rem;
+  font-variant-numeric: tabular-nums;
+}
+.what-if-bar {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.15rem;
+  height: 3px;
+  background: color-mix(in srgb, var(--text) 45%, transparent);
+  transform-origin: left;
+  transform: scaleX(var(--w, 0));
+}
+.what-if-table td[data-whatif="true"] .what-if-bar {
+  background: repeating-linear-gradient(90deg, var(--calculated) 0 5px, transparent 5px 8px);
+}
+.what-if-table tr[data-chosen="true"] th {
+  color: var(--text);
+}
+.what-if-table .option-picked {
+  margin-left: 0.4rem;
+}
+
+/* Transcript: the whole walkthrough as text, labels spelled out. */
+.transcript {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.transcript h3 {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+.transcript ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-left: 1.25rem;
+  list-style: decimal;
+}
+.transcript li {
+  max-width: 70ch;
+}
+.transcript h4 {
+  margin-top: var(--space-3);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.transcript-dive p {
+  max-width: 70ch;
+  margin-top: var(--space-1);
+}
+
+/* Keyboard shortcut list (? toggles it). */
+.shortcut-help {
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9rem;
+}
+.shortcut-help ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Settings menu: a disclosure in the header, never a modal. */
+.prefs-menu {
+  position: relative;
+}
+.prefs-menu > summary {
+  list-style: none;
+}
+.prefs-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.prefs-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(22rem, calc(100vw - 2rem));
+  padding: var(--space-4);
+  box-shadow: var(--shadow);
+}
+.pref {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border: 0;
+}
+.pref legend {
+  margin-bottom: var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}

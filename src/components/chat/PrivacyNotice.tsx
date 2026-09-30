@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 
-export function PrivacyNotice({ onAccept }: { onAccept: () => void }) {
+/** `ready` is false until the page is interactive: the notice is server-rendered, and an earlier click would be lost. */
+export function PrivacyNotice({ onAccept, ready = true }: { onAccept: () => void; ready?: boolean }) {
   return (
     <section className="notice notice-privacy" aria-labelledby="privacy-notice-title">
       <h2 id="privacy-notice-title" className="notice-title">
@@ -15,7 +16,7 @@ export function PrivacyNotice({ onAccept }: { onAccept: () => void }) {
         <li>Please don&apos;t share personal or sensitive information.</li>
       </ul>
       <div className="notice-actions">
-        <button type="button" className="btn btn-primary" onClick={onAccept}>
+        <button type="button" className="btn btn-primary" onClick={onAccept} disabled={!ready}>
           I understand
         </button>
         <Link href="/privacy">Read the privacy page</Link>

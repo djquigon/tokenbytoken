@@ -1,0 +1,369 @@
+/* Pages, the app header, and the chat column. */
+
+.home,
+.prose-page {
+  margin: 0 auto;
+  max-width: 44rem;
+  padding: 3rem var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.prose-page h1 {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  letter-spacing: 0.04em;
+}
+.prose-page h2 {
+  font-size: 1.2rem;
+  margin-top: var(--space-4);
+}
+.prose-page ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* App header ----------------------------------------------------------------------------------------- */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+.app-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.brand {
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-decoration: none;
+  text-shadow: 0 0 10px var(--glow);
+}
+
+/* Workspace: the chat beside the walkthrough (docs/PLAN.md §2, Layouts) ------------------------------------
+ * Wide screens: chat about 38%, walkthrough about 62%, each scrolling on its own.
+ * Narrow screens (and high zoom): one pane at a time, switched by "Chat | How it works", with the page
+ * itself scrolling so text reflows at 320 px. */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+.workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.pane-switch {
+  align-self: center;
+  margin: var(--space-3) var(--space-4) 0;
+}
+.pane-switch button {
+  min-height: 2.75rem;
+  padding-inline: 1.1rem;
+  font-size: 0.95rem;
+}
+.pane-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--glow);
+  vertical-align: middle;
+}
+.chat-pane,
+.walkthrough-pane {
+  padding: var(--space-4);
+}
+.chat-pane {
+  width: 100%;
+  max-width: 46rem;
+  margin: 0 auto;
+}
+.workspace[data-tab="chat"] .walkthrough-pane,
+.workspace[data-tab="walkthrough"] .chat-pane {
+  display: none;
+}
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--recorded);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+@media (min-width: 60rem) {
+  .app {
+    height: 100dvh;
+  }
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(22rem, 38fr) 62fr;
+  }
+  .pane-switch,
+  .pane-only-narrow {
+    display: none;
+  }
+  .workspace[data-tab] .chat-pane {
+    display: flex;
+    max-width: none;
+    overflow-y: auto;
+    padding-bottom: 0;
+  }
+  .workspace[data-tab] .walkthrough-pane {
+    display: block;
+    overflow-y: auto;
+    border-left: 1px solid var(--border);
+    scroll-padding-bottom: 9rem;
+  }
+}
+
+/* Narrow screens: the header scrolls away (the player and composer are pinned instead), and focused
+ * elements are kept clear of the pinned bars. */
+@media (max-width: 59.99rem) {
+  html {
+    scroll-padding-top: 1rem;
+    scroll-padding-bottom: 6rem;
+  }
+  .app-header {
+    position: static;
+    flex-wrap: wrap;
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+  .app-header nav {
+    gap: var(--space-2);
+  }
+  .composer textarea {
+    height: 3.4rem;
+  }
+}
+
+/* Chat column ---------------------------------------------------------------------------------------- */
+.chat-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.chat-empty {
+  color: var(--text-muted);
+}
+/* Before hydration only: hide what this browser's storage says isn't needed (CHAT_PRELOAD_SCRIPT). */
+:root[data-conversation="yes"] .chat-empty,
+:root[data-privacy="accepted"] .notice-privacy {
+  display: none;
+}
+.turns {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+.turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.msg {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  overflow-wrap: anywhere;
+}
+.msg-user {
+  align-self: flex-end;
+  max-width: 88%;
+  background: var(--surface-2);
+  white-space: pre-wrap;
+}
+.msg-assistant {
+  background: var(--surface);
+}
+.turn[data-selected="true"] .msg-assistant {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+.waiting {
+  color: var(--text-muted);
+}
+.cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.1em;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--glow);
+}
+.refusal {
+  color: var(--text-muted);
+}
+.turn-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+.turn-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Live strip: recorded events while a reply streams (docs/PLAN.md §1, step 3). Thin, and never a lesson. */
+.live-strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--recorded);
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  font-size: 0.85rem;
+}
+.live-events {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+}
+.live-events li::before {
+  content: "●";
+  margin-right: 0.35rem;
+  color: var(--recorded);
+  font-size: 0.7em;
+  text-shadow: 0 0 6px var(--glow);
+}
+.live-note {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.live-strip .token-tape {
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  overflow: hidden;
+  font-size: 0.85rem;
+  mask-image: linear-gradient(to right, transparent, #000 3rem);
+}
+.live-strip .token-slot:last-child .token-chip {
+  animation: token-arrive 300ms ease-out;
+}
+@keyframes token-arrive {
+  from {
+    opacity: 0.2;
+  }
+}
+.live-hide {
+  align-self: flex-start;
+}
+
+/* Markdown replies ----------------------------------------------------------------------------------- */
+.markdown > * + * {
+  margin-top: var(--space-2);
+}
+.markdown ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.markdown ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.markdown pre {
+  overflow-x: auto;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+.markdown code {
+  font-size: 0.92em;
+}
+.markdown table {
+  border-collapse: collapse;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.5rem;
+}
+
+/* Composer ------------------------------------------------------------------------------------------- */
+.composer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  background: var(--bg);
+}
+.composer textarea {
+  width: 100%;
+  resize: vertical;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+.composer textarea:disabled {
+  opacity: 0.7;
+}
+.composer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.composer-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.composer-lock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.92rem;
+}
+.composer-lock p {
+  flex: 1 1 16rem;
+}
+.btn-explain {
+  border-color: var(--border-strong);
+}

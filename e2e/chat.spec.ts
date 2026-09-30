@@ -11,6 +11,9 @@ async function openChat(page: Page) {
   await expect(page.getByRole('textbox', { name: 'Your message' })).toBeEnabled();
 }
 
+/** The chat pane (the walkthrough beside it quotes the reply too). */
+const chat = (page: Page) => page.locator('#main');
+
 /** The app's error notice (Next.js has its own role="alert" route announcer). */
 const errorNotice = (page: Page) => page.locator('[data-error-code]');
 
@@ -33,7 +36,7 @@ test('the privacy notice comes before the first message', async ({ page }) => {
 test('send → stream → inspect → follow-up re-sends the signed reply', async ({ page }) => {
   await openChat(page);
   await send(page, 'Why is the sky blue?');
-  await expect(page.getByText(REPLY_START)).toBeVisible();
+  await expect(chat(page).getByText(REPLY_START)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Send' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Inspect data' }).click();
@@ -44,6 +47,9 @@ test('send → stream → inspect → follow-up re-sends the signed reply', asyn
   await inspector.getByText("Checks: this app's counts vs. OpenAI's").click();
   await expect(inspector.getByText('Explained difference').first()).toBeVisible();
 
+  // Sending stays locked until the walkthrough is watched or skipped; Skip is one click from the composer.
+  await expect(page.getByRole('button', { name: 'Send' })).toBeDisabled();
+  await chat(page).getByRole('button', { name: 'Skip walkthrough' }).click();
   await send(page, 'And why is it red at sunset?');
   await expect(page.locator('.turn')).toHaveCount(2);
   await expect(page.locator('.turn').nth(1).getByText(REPLY_START)).toBeVisible();
@@ -57,7 +63,7 @@ test('send → stream → inspect → follow-up re-sends the signed reply', asyn
 test('Stop ends the reply, keeps what arrived, and Try again sends a new request', async ({ page }) => {
   await openChat(page);
   await send(page, 'SLOW please');
-  await expect(page.getByText('Sunlight')).toBeVisible();
+  await expect(chat(page).locator('.msg-assistant').getByText('Sunlight').first()).toBeVisible();
   await page.getByRole('button', { name: 'Stop' }).click();
   await expect(page.getByText("Stopped. This partial reply won't be sent back")).toBeVisible();
   await page.getByRole('button', { name: 'Try again' }).click();
@@ -92,13 +98,13 @@ test('a stream cut off upstream is reported and keeps its partial text', async (
   await openChat(page);
   await send(page, 'CUTOFF');
   await expect(errorNotice(page)).toContainText('The reply was cut off');
-  await expect(page.getByText('Sunlight')).toBeVisible();
+  await expect(chat(page).locator('.msg-assistant').getByText('Sunlight').first()).toBeVisible();
 });
 
 test('text without alternatives is labeled, never filled in', async ({ page }) => {
   await openChat(page);
   await send(page, 'UNICODE');
-  await expect(page.getByText('你好')).toBeVisible();
+  await expect(chat(page).locator('.msg-assistant').getByText('你好')).toBeVisible();
   await page.getByRole('button', { name: 'Inspect data' }).click();
   await page.locator('.inspector').getByText('Tokens in the reply').click();
   await expect(page.getByText('OpenAI returned no alternatives for these characters.').first()).toBeVisible();
@@ -107,9 +113,9 @@ test('text without alternatives is labeled, never filled in', async ({ page }) =
 test('the conversation survives a reload and can be cleared', async ({ page }) => {
   await openChat(page);
   await send(page, 'Why is the sky blue?');
-  await expect(page.getByText(REPLY_START)).toBeVisible();
+  await expect(chat(page).getByText(REPLY_START)).toBeVisible();
   await page.reload();
-  await expect(page.getByText(REPLY_START)).toBeVisible();
+  await expect(chat(page).getByText(REPLY_START)).toBeVisible();
   await page.getByRole('button', { name: 'Clear conversation' }).click();
   await expect(page.locator('.turn')).toHaveCount(0);
   await page.reload();
@@ -119,7 +125,7 @@ test('the conversation survives a reload and can be cleared', async ({ page }) =
 test('the chat has no serious accessibility violations', async ({ page }) => {
   await openChat(page);
   await send(page, 'Why is the sky blue?');
-  await expect(page.getByText(REPLY_START)).toBeVisible();
+  await expect(chat(page).getByText(REPLY_START)).toBeVisible();
   await page.getByRole('button', { name: 'Inspect data' }).click();
   const results = await new AxeBuilder({ page }).analyze();
   const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');

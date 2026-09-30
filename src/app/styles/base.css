@@ -1,0 +1,125 @@
+/* Base elements, focus, and motion/effects switches (CLAUDE.md §8). */
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: 4.5rem;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+a {
+  color: var(--recorded);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+code,
+pre,
+kbd,
+.mono {
+  font-family: var(--font-mono);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 0 0.35em;
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85em;
+  text-align: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-2);
+  top: -3rem;
+  z-index: 50;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+/* Short uppercase, letter-spaced monospace headings only (never long passages). */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------------------------------
+ * Effects: glow and scanlines are decoration only. Off under the Effects toggle, reduced motion, or
+ * more contrast. Motion: the in-app setting overrides the OS setting in both directions.
+ */
+:root[data-effects="off"] {
+  --glow: transparent;
+}
+@media (prefers-contrast: more) {
+  :root {
+    --glow: transparent;
+    --border: var(--border-strong);
+  }
+}
+
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

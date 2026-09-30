@@ -1,0 +1,65 @@
+/* The Trace Inspector: every value with its label, as tables. */
+
+.inspector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+.inspector-intro {
+  color: var(--text-muted);
+}
+.inspector-section > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: var(--space-1) 0;
+}
+.inspector-section h3 {
+  margin: var(--space-3) 0 var(--space-1);
+  font-weight: 600;
+}
+.inspector table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.inspector th,
+.inspector td {
+  text-align: left;
+  vertical-align: top;
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+.inspector .kv th {
+  width: 40%;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.table-scroll {
+  overflow-x: auto;
+  max-height: 32rem;
+}
+.tokens td {
+  white-space: nowrap;
+}
+.tokens .alts {
+  white-space: normal;
+}
+.alt {
+  display: inline-flex;
+  gap: var(--space-1);
+  margin-right: var(--space-3);
+}
+.alt-chosen {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+.gap-row td {
+  color: var(--example);
+}
+tr[data-close-call="true"] > td:first-child {
+  box-shadow: inset 3px 0 0 var(--calculated);
+}

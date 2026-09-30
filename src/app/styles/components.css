@@ -1,0 +1,272 @@
+/* Shared components: buttons, controls, panels, notices, labels, token chips. */
+
+/* Buttons ------------------------------------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--fast),
+    border-color var(--fast);
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.btn-primary {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+.btn-stop {
+  border-color: var(--danger);
+}
+.btn-quiet {
+  min-height: 2rem;
+  padding: 0.2rem 0.6rem;
+  background: transparent;
+  border-color: var(--border);
+}
+.btn-icon {
+  min-width: 2.5rem;
+  padding: 0.4rem;
+}
+.btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+}
+@media (pointer: coarse) {
+  .btn,
+  .btn-quiet,
+  .btn-icon {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+}
+
+/* Segmented control (depth switch, speed) ----------------------------------------------------------- */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.segmented button {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.7rem;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.segmented button:last-child {
+  border-right: 0;
+}
+.segmented button[aria-pressed="true"],
+.segmented button[aria-checked="true"] {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+/* Panels and notices ------------------------------------------------------------------------------- */
+.panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.notice-error {
+  border-color: var(--danger);
+}
+.notice-title {
+  font-weight: 600;
+}
+.notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.notice-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.notice ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+/* Labels (CLAUDE.md L6): the word is always present; glyph, border style, and hue are extra cues. ------- */
+.datum {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.datum-value {
+  font-variant-numeric: tabular-nums;
+}
+/* In running prose a value flows with the words, badge and all, instead of forming a box. */
+:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note) .datum {
+  display: inline;
+}
+:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note) .datum .prov-badge {
+  margin-left: 0.3em;
+  vertical-align: 0.1em;
+}
+.datum-block {
+  white-space: pre-wrap;
+  overflow-x: auto;
+  max-height: 24rem;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: 0.85rem;
+}
+.prov-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0 0.3rem;
+  border-radius: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.prov-badge svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+.prov-badge[data-kind="recorded"] {
+  color: var(--recorded);
+  border: 1px solid currentColor;
+  text-shadow: 0 0 6px var(--glow);
+}
+.prov-badge[data-kind="calculated"] {
+  color: var(--calculated);
+  border: 1px solid currentColor;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.prov-badge[data-kind="reference"] {
+  color: var(--reference);
+  border: 1px double currentColor;
+  border-width: 3px;
+  border-style: double;
+  padding: 0 0.25rem;
+}
+.prov-badge[data-kind="example"] {
+  color: var(--example);
+  border: 1px dashed currentColor;
+}
+.prov-whatif {
+  margin-left: 0.15rem;
+  padding: 0 0.2rem;
+  border-left: 1px solid currentColor;
+}
+
+/* Example drawings: a "wireframe simulation" — dashed outline, no glow, EXAMPLE tag, faint hatching
+ * (hatching sits only on shapes, never behind text). */
+.example-frame {
+  position: relative;
+  border: 1px dashed var(--example);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-3) var(--space-3);
+}
+.example-tag {
+  position: absolute;
+  top: -0.65rem;
+  left: var(--space-3);
+  padding: 0 0.35rem;
+  background: var(--bg);
+  color: var(--example);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hatch {
+  background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 9px);
+}
+
+/* Tokens -------------------------------------------------------------------------------------------- */
+.token-tape {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 0;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+.token-tape:focus-visible {
+  outline-offset: 4px;
+}
+.token-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.7rem;
+  padding: 0 0.2rem;
+  border: 1px solid var(--border);
+  border-left-width: 0;
+  background: var(--token-a);
+  color: var(--text);
+  white-space: pre;
+  cursor: default;
+}
+.token-chip:nth-child(even) {
+  background: var(--token-b);
+}
+.token-chip:first-child {
+  border-left-width: 1px;
+}
+.token-chip[data-focus="true"],
+.token-chip:hover {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.token-chip[data-gap="true"] {
+  border-style: dashed;
+  color: var(--text-muted);
+}
+.datum .ws {
+  color: var(--text-muted);
+  font-weight: 400;
+  text-shadow: none;
+}
+button.token-chip {
+  font: inherit;
+  cursor: pointer;
+}

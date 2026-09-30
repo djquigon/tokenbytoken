@@ -17,6 +17,9 @@ const SPOKEN: Readonly<Record<string, string>> = {
   ' ': 'non-breaking space',
 };
 
+/** Splits shown token text into runs, so whitespace symbols can be styled apart from real characters. */
+export const WHITESPACE_SYMBOL_RUNS = /([␣↵⇥␍]+)/u;
+
 /** Token text with whitespace made visible, for chips and tables. */
 export const visibleTokenText = (text: string): string =>
   Array.from(text, (ch) => VISIBLE[ch] ?? (ch === '‍' ? '‹ZWJ›' : ch)).join('');

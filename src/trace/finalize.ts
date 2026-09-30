@@ -168,7 +168,14 @@ function requestFacts(start: StartEventV1): RequestFacts {
   const inputRuns: InputRunFacts[] = start.inputTokens.runs.map((run) => {
     const text = recordedWith(run.key === 'instructions' ? PROV.instructions : PROV.messages, textForRun(start, run.key));
     const ids = derive('local-token-count', [text], () => run.ids as readonly number[]);
-    return { key: run.key, text, ids, byteLengths: run.byteLengths, count: derive('local-token-count', [text], () => run.ids.length) };
+    return {
+      key: run.key,
+      role: run.key === 'instructions' ? 'instructions' : roleForRun(start, run.key),
+      text,
+      ids,
+      byteLengths: run.byteLengths,
+      count: derive('local-token-count', [text], () => run.ids.length),
+    };
   });
   const overhead = referenceWith(probe(ref.inputOverhead.measured), ref.inputOverhead.value);
   return {
@@ -224,8 +231,22 @@ function requestFacts(start: StartEventV1): RequestFacts {
         { measured: { what: 'Round-trip check of every output token against o200k_base (Phase 0 probe)', date: '2026-09-30' } },
         `${ref.tokenizer.encoding} (${ref.tokenizer.library})`,
       ),
+      tokenizerVocabulary: ref.tokenizer.vocabularySize
+        ? reference({ measured: ref.tokenizer.vocabularySize.measured }, ref.tokenizer.vocabularySize.value)
+        : null,
+      knowledgeCutoff: ref.knowledgeCutoff ? reference({ doc: ref.knowledgeCutoff.doc }, ref.knowledgeCutoff.value) : null,
+      apiDataUsedForTraining: ref.apiDataUsedForTraining
+        ? reference({ doc: ref.apiDataUsedForTraining.doc }, ref.apiDataUsedForTraining.value)
+        : null,
     },
   };
+}
+
+/** The role of an included message, as the server sent it. */
+function roleForRun(start: StartEventV1, key: string): 'user' | 'assistant' {
+  const input = start.upstreamRequest.body.input;
+  const item: unknown = Array.isArray(input) ? input[start.context.included.indexOf(key)] : undefined;
+  return typeof item === 'object' && item !== null && (item as { role?: unknown }).role === 'assistant' ? 'assistant' : 'user';
 }
 
 /** The text a token run covers: the instructions, or a message as the server sent it. */

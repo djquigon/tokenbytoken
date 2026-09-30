@@ -1,0 +1,161 @@
+/* The landing page (docs/PLAN.md §1, journey step 1). */
+
+.landing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: var(--space-8);
+}
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.hero-title {
+  font-family: var(--font-mono);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 0 18px var(--glow);
+}
+.lede {
+  max-width: 36rem;
+  font-size: 1.15rem;
+}
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.small {
+  font-size: 0.85rem;
+}
+
+/* Decode reveal: the overlay sits exactly over the real text while it resolves. */
+.decode-text {
+  position: relative;
+  display: inline-block;
+}
+.decode-overlay {
+  position: absolute;
+  inset: 0;
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+/* Token rain: a framed panel beside the copy, never behind text. */
+.token-rain {
+  --rain-h: 22rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.token-rain canvas {
+  display: block;
+  width: 100%;
+  height: var(--rain-h);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+/* Scanlines: decoration over the rain only, off with Effects, more contrast, and the light theme. */
+.token-rain::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--rain-h);
+  border-radius: var(--radius);
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.18) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+:root[data-effects="off"] .token-rain::after,
+:root[data-theme="light"] .token-rain::after {
+  display: none;
+}
+@media (prefers-contrast: more) {
+  .token-rain::after {
+    display: none;
+  }
+}
+.token-rain figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.token-rain figcaption .datum {
+  display: inline;
+}
+
+.landing-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 48rem;
+}
+.landing-section h2 {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.learn-list {
+  display: grid;
+  gap: var(--space-3);
+}
+.learn-list li {
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--border-strong);
+}
+.label-key {
+  display: grid;
+  gap: var(--space-3);
+}
+.label-key > div {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.label-key .prov-badge {
+  font-size: 0.78rem;
+}
+.landing-footer {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 52rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+  .token-rain {
+    --rain-h: 13rem;
+  }
+}
+@media (max-width: 30rem) {
+  .label-key > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+}

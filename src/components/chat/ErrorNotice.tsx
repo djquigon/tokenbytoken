@@ -3,11 +3,14 @@
 // One notice per AppErrorCode: fixed copy, plus the action its retry rule allows. Raw provider text is
 // never shown (CLAUDE.md §6).
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { APP_ERRORS, type AppError } from '@/shared/errors';
 
 const CLEAR_CODES = new Set(['invalid_history', 'payload_too_large', 'upstream_context_length']);
+/** When the site can't reach the model for a while, the recorded sample still teaches everything, for free. */
+const SAMPLE_CODES = new Set(['daily_budget_exhausted', 'upstream_quota_exhausted', 'service_unavailable']);
 
 function useCountdown(seconds: number | undefined): number {
   const [left, setLeft] = useState(seconds ?? 0);
@@ -51,6 +54,11 @@ export function ErrorNotice({
         </p>
       ) : null}
       <div className="notice-actions">
+        {SAMPLE_CODES.has(error.code) ? (
+          <Link href="/sample" className="btn">
+            Replay a sample conversation
+          </Link>
+        ) : null}
         {CLEAR_CODES.has(error.code) ? (
           <button type="button" className="btn" onClick={onClear}>
             Clear conversation

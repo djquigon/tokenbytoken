@@ -29,6 +29,19 @@ export const METHODS = {
     label: 'Share not covered by the returned options',
     detail: '100% minus the sum of the returned options.',
   },
+  sum: {
+    label: 'Sum of listed options',
+    detail: 'The percentages of the returned options not drawn as their own rows, added up.',
+  },
+  'letter-count': {
+    label: 'Letters counted',
+    detail: 'How many times the letter appears in the word from the question, counted by this app.',
+  },
+  'temperature-what-if': {
+    label: 'Chances at another temperature',
+    detail:
+      'e raised to (logprob ÷ temperature) for each listed option, divided by their total. Among the listed options only, and valid because this model’s logprobs are raw scores (measured 2026-09-30).',
+  },
   rank: {
     label: 'Position among the returned options',
     detail: 'Where the chosen token appears in the list of alternatives OpenAI returned, ordered by logprob.',
@@ -81,6 +94,10 @@ export const METHODS = {
     label: 'Cost from usage',
     detail: 'The token counts OpenAI reported, multiplied by the dated price table.',
   },
+  round: {
+    label: 'Rounded',
+    detail: 'Rounded for readability; the exact value is in the data view.',
+  },
   'cost-estimate': {
     label: 'Estimated cost',
     detail: 'OpenAI reported no usage for this reply, so this app estimates it from what was sent and relayed.',
@@ -103,6 +120,38 @@ export const RULES = {
   'attention-previous-token': {
     label: 'Rule-based pattern: previous token',
     disclaimer: "Each position draws on itself and the token before it. A teaching pattern, not this model's attention.",
+  },
+  'embedding-vector': {
+    label: 'Example vector',
+    disclaimer: "Stands for the list of numbers a model looks up for each token. Not this model's values, and none are shown.",
+  },
+  'layer-stack': {
+    label: 'Example layer stack',
+    disclaimer: "Models like this have many layers. The number drawn here isn't this model's; OpenAI hasn't published it.",
+  },
+  'sample-sentence': {
+    label: 'Neutral sample sentence',
+    disclaimer: 'Used to introduce a pattern before showing it on your text.',
+  },
+  'vocab-scores': {
+    label: 'Example score strip',
+    disclaimer: 'Stands for a score for every entry in the vocabulary. The heights are made up; only the listed options are real.',
+  },
+  'sampler-draw': {
+    label: 'Example draw',
+    disclaimer: "The random draw itself can't be observed. This shows a draw landing on the token the model actually produced.",
+  },
+  'saved-work': {
+    label: 'Example of saved work',
+    disclaimer: "Stands for values computed for earlier positions and reused (the key-value cache). Not this model's values.",
+  },
+  'role-markers': {
+    label: 'Example layout',
+    disclaimer: "Roughly how messages are laid out for a model. Not OpenAI's format, which it hasn't published.",
+  },
+  'context-gauge': {
+    label: 'Not to scale',
+    disclaimer: 'The bar lengths are schematic; the numbers beside them are the real values.',
   },
 } as const satisfies Record<string, RuleSpec>;
 

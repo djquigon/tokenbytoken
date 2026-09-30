@@ -1,6 +1,7 @@
 'use client';
 
-// The message box. While a reply streams, Send becomes Stop and the draft is kept.
+// The message box. While a reply streams, Send becomes Stop and the draft is kept. After a reply, sending is
+// locked until its walkthrough ends or is skipped (CLAUDE.md §2.5); typing still works, and Skip is one click.
 
 import { useId, useState, type FormEvent, type KeyboardEvent } from 'react';
 
@@ -9,11 +10,14 @@ import { REQUEST_LIMITS } from '@/shared/limits';
 export function Composer({
   disabled,
   streaming,
+  locked,
   onSend,
   onStop,
 }: {
   disabled: boolean;
   streaming: boolean;
+  /** Set while the latest reply's walkthrough hasn't been watched or skipped. */
+  locked: { onSkip: () => void; onShow: () => void } | null;
   onSend: (text: string) => void;
   onStop: () => void;
 }) {
@@ -24,7 +28,7 @@ export function Composer({
 
   const submit = (e?: FormEvent) => {
     e?.preventDefault();
-    if (disabled || streaming || draft.trim().length === 0) return;
+    if (disabled || streaming || locked || draft.trim().length === 0) return;
     onSend(draft);
     setDraft('');
   };
@@ -34,7 +38,21 @@ export function Composer({
   };
 
   return (
-    <form className="composer" onSubmit={submit}>
+    <form className="composer" onSubmit={submit} data-locked={locked ? 'true' : undefined}>
+      {locked ? (
+        <div className="composer-lock" role="status">
+          <p>
+            Next: see how this reply was made.{' '}
+            <button type="button" className="link-button pane-only-narrow" onClick={locked.onShow}>
+              Open the walkthrough
+            </button>{' '}
+            Play it or skip it to send another message.
+          </p>
+          <button type="button" className="btn" onClick={locked.onSkip}>
+            Skip walkthrough
+          </button>
+        </div>
+      ) : null}
       <label htmlFor={id} className="sr-only">
         Your message
       </label>
@@ -60,7 +78,7 @@ export function Composer({
             Stop
           </button>
         ) : (
-          <button type="submit" className="btn btn-primary" disabled={disabled || draft.trim().length === 0}>
+          <button type="submit" className="btn btn-primary" disabled={disabled || locked !== null || draft.trim().length === 0}>
             Send
           </button>
         )}

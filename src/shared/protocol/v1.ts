@@ -115,7 +115,15 @@ export const referenceValuesSchema = z.object({
     measured: measuredSchema,
   }),
   logprobsAreRawScores: z.object({ value: z.boolean(), measured: measuredSchema }),
-  tokenizer: z.object({ encoding: z.literal('o200k_base'), library: z.string() }),
+  tokenizer: z.object({
+    encoding: z.literal('o200k_base'),
+    library: z.string(),
+    /** Ordinary (non-special) tokens in the assumed vocabulary. Optional: older logs lack it. */
+    vocabularySize: z.object({ value: count, measured: measuredSchema }).optional(),
+  }),
+  /** Optional: added in Phase 2, so logs recorded earlier still validate. */
+  knowledgeCutoff: z.object({ value: z.string(), doc: docSchema }).optional(),
+  apiDataUsedForTraining: z.object({ value: z.boolean(), doc: docSchema }).optional(),
 });
 
 /** The generation settings this app sent. */

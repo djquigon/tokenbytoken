@@ -4,19 +4,20 @@ import { describe, expect, it } from 'vitest';
 import { formatValue } from './format';
 
 describe('formatValue', () => {
-  it('never shows a percentage as certain unless it is', () => {
-    expect(formatValue('pct', 100)).toBe('100%');
+  it('never shows a chance as certain either way, even when rounding computes 0 or 100', () => {
+    expect(formatValue('pct', 100)).toBe('>99.99%');
     expect(formatValue('pct', 99.999)).toBe('>99.99%');
     expect(formatValue('pct', 99.96)).toBe('99.96%');
     expect(formatValue('pct', 99.949)).toBe('99.94%');
     expect(formatValue('pct', 74.12)).toBe('74.1%');
     expect(formatValue('pct', 3.18)).toBe('3.18%');
     expect(formatValue('pct', 0.004)).toBe('<0.01%');
-    expect(formatValue('pct', 0)).toBe('0%');
+    expect(formatValue('pct', 0)).toBe('<0.01%');
     fc.assert(
-      fc.property(fc.double({ min: 0, max: 100, noNaN: true, maxExcluded: true }), (v) => {
-        expect(formatValue('pct', v)).not.toBe('100%');
-        expect(formatValue('pct', v)).not.toMatch(/^100\.0+%$/);
+      fc.property(fc.double({ min: 0, max: 100, noNaN: true }), (v) => {
+        const shown = formatValue('pct', v);
+        expect(shown).not.toMatch(/^100(\.0+)?%$/);
+        expect(shown).not.toMatch(/^0(\.0+)?%$/);
       }),
     );
   });
@@ -29,5 +30,6 @@ describe('formatValue', () => {
     expect(formatValue('token', ' the\n')).toBe('␣the↵');
     expect(formatValue('list', [])).toBe('none');
     expect(formatValue('bool', false)).toBe('no');
+    expect(formatValue('date', Date.UTC(2026, 8, 30, 15, 4))).toBe('2026-09-30');
   });
 });

@@ -98,6 +98,7 @@ export interface OutputFacts {
 export interface InputRunFacts {
   /** "instructions" or a message ID. */
   readonly key: string;
+  readonly role: 'instructions' | 'user' | 'assistant';
   readonly text: Sourced<string, 'recorded'>;
   readonly ids: Sourced<readonly number[], 'calculated'>;
   readonly byteLengths: readonly number[];
@@ -150,6 +151,9 @@ export interface RequestFacts {
     readonly logprobsAreRawScores: Sourced<boolean, 'reference'>;
     readonly inputOverhead: Sourced<{ readonly perRequest: number; readonly perMessage: number }, 'reference'>;
     readonly tokenizer: Sourced<string, 'reference'>;
+    readonly tokenizerVocabulary: Sourced<number, 'reference'> | null;
+    readonly knowledgeCutoff: Sourced<string, 'reference'> | null;
+    readonly apiDataUsedForTraining: Sourced<boolean, 'reference'> | null;
   };
 }
 

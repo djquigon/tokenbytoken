@@ -21,7 +21,7 @@ cheapest one that gives the best visualization outcomes. There is no formal expe
 ## Decisions at a glance
 - **Hybrid timing.**
   - The real reply streams normally, alongside a thin live strip that shows only observed events.
-  - When the reply finishes, a guided walkthrough of about 90 seconds is *offered*. It replays the recorded trace at a pace people can follow.
+  - When the reply finishes, a guided walkthrough of about 2.5 minutes is *offered*, paced by reading time (ADR 0007; first planned at about 90 seconds). It replays the recorded trace at a pace people can follow.
 - **Real data wherever it exists.**
   - Real messages, real token strings, and the real top‑20 next-token options (logprobs) for every token in the reply.
   - The network's internals appear only as labeled examples.
@@ -103,7 +103,7 @@ Every view is anchored to the user's own conversation. Views of the model's insi
    2. A waiting timer, captioned: *"waiting for the first text. This includes network travel, OpenAI's queue, and the model processing your conversation. We can't see how that time splits."*
    3. First text arrives.
    4. Text and tokens keep arriving.
-4. **Offer.** When the reply ends, the walkthrough panel shows a static **Hook** card built from real data: *"Your reply was 212 tokens. At every token there were options. Here's a close call…"*. It has two buttons: **Play (~90 s)** and **Skip**. Autoplay is off by default and can be turned on as a preference.
+4. **Offer.** When the reply ends, the walkthrough panel shows a static **Hook** card built from real data: *"Your reply was 212 tokens. At every token there were options. Here's a close call…"*. It has two buttons: **Play (≈ 2.5 min)** and **Skip**. Autoplay is off by default and can be turned on as a preference.
 5. **Walkthrough.** Six short chapters, seven from the second turn on. The user can:
    - play, pause, step, and scrub;
    - change speed, replay, and jump to any chapter;
@@ -845,7 +845,7 @@ type TraceLogEntry = { tc: ClientMs } & ({ k: 'server'; ev: ServerEventV1 } | { 
 10. Follow-up.
 
 Pacing and focus:
-- **Durations:** set by distributing time across steps, each with a minimum length, to hit a target of about 90 s at 1× and a hard cap of 120 s.
+- **Durations:** set by distributing time across steps, each at least its reading time (230 words per minute plus 1.5 s), to hit a target of about 150 s at 1× and a hard cap of 240 s. The first plan said about 90 s and 120 s, which left less time per step than reading the captions takes (ADR 0007).
 - **Focus re-runs:** replaying the walkthrough for a user-chosen token has a fixed budget of about 15 s.
 - **Caching:** compiled scripts are cached, keyed by trace ID and the structural preferences.
 
@@ -1072,6 +1072,8 @@ Guiding rule: **prove the teaching loop with plain 2D and a data inspector befor
   - A forged assistant turn is rejected.
 
 **Phase 2: Educational MVP, 2D visualizer v1 (~4 weeks)**
+- *Status (2026-09-30):* the core is built. ADR 0007 records what changed from this plan, what was
+  measured, and which items are deferred.
 - *Deliverables:*
   - The machine, clock, compiler, and StageHost.
   - The player bar, chapters, token card, and depth switch.

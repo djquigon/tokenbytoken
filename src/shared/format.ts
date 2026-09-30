@@ -1,12 +1,16 @@
 // Closed, meaning-preserving formatters for labeled values (docs/PLAN.md §3.5). A value can only be shown
 // through one of these, via <Datum>.
 
-import { visibleTokenText } from '@/shared/token-display';
+import { visibleTokenText } from './token-display';
 
 export interface FormatValues {
   readonly int: number;
+  /** A setting such as temperature: up to two decimals, no trailing zeros. */
+  readonly decimal: number;
   readonly pct: number;
   readonly ms: number;
+  /** A moment in epoch milliseconds, shown as its UTC date. */
+  readonly date: number;
   readonly usd: number;
   readonly logprob: number;
   readonly rate: number;
@@ -26,10 +30,13 @@ export function formatValue<F extends Format>(format: F, value: FormatValues[F])
   switch (format) {
     case 'int':
       return int.format(value as number);
+    case 'decimal':
+      return (value as number).toLocaleString('en-US', { maximumFractionDigits: 2 });
     case 'pct': {
-      // Never round up to a certainty that wasn't there: only an exact 100 reads "100%".
+      // Chances from a model's scores are never exactly 0% or 100% (every token keeps some chance), but
+      // OpenAI's rounded logprobs can compute to either, and a remainder can clamp to 0. So neither
+      // extreme is ever shown: rounding must not read as certainty in either direction.
       const v = value as number;
-      if (v === 0 || v === 100) return `${v}%`;
       if (v < 0.01) return '<0.01%';
       if (v > 99.99) return '>99.99%';
       if (v >= 99.5) return `${(Math.floor(v * 100) / 100).toFixed(2)}%`;
@@ -39,6 +46,8 @@ export function formatValue<F extends Format>(format: F, value: FormatValues[F])
       const v = value as number;
       return v < 1_000 ? `${Math.round(v)} ms` : `${(v / 1_000).toFixed(2)} s`;
     }
+    case 'date':
+      return new Date(value as number).toISOString().slice(0, 10);
     case 'usd': {
       const v = value as number;
       return v === 0 ? '$0' : v < 0.01 ? `$${v.toPrecision(2)}` : `$${v.toFixed(4)}`;

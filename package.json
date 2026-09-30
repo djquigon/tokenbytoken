@@ -17,6 +17,8 @@
     "check:bundle": "node --env-file-if-exists=.env.local scripts/check-client-bundle.mts",
     "check": "npm run typecheck && npm run lint && npm test && npm run build && npm run check:bundle",
     "mock:openai": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON e2e/mock-openai.mts",
+    "claims": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-claims.mts",
+    "record:sample": "node --env-file-if-exists=.env.local scripts/record-sample.mts",
     "probe": "node --env-file-if-exists=.env.local scripts/probe/probe-capabilities.mts"
   },
   "dependencies": {

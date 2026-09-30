@@ -3,7 +3,8 @@
 import type { Kind, Sourced } from '@/shared/provenance';
 import { provOf, read } from '@/shared/provenance/read';
 
-import { formatValue, type Format, type FormatValues } from './format';
+import { formatValue, type Format, type FormatValues } from '@/shared/format';
+import { WHITESPACE_SYMBOL_RUNS } from '@/shared/token-display';
 import { ProvBadge } from './ProvBadge';
 
 interface DatumProps<F extends Format> {
@@ -18,6 +19,23 @@ interface DatumProps<F extends Format> {
   readonly block?: boolean;
 }
 
+/** Whitespace symbols (␣ ↵) are dimmed so they read as markers, not as characters of the token. */
+function TokenGlyphs({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(WHITESPACE_SYMBOL_RUNS).map((run, i) =>
+        i % 2 === 1 ? (
+          <span key={i} className="ws">
+            {run}
+          </span>
+        ) : (
+          run
+        ),
+      )}
+    </>
+  );
+}
+
 export function Datum<F extends Format>({ of, as, approx = false, compact = false, badge = true, block = false }: DatumProps<F>) {
   const p = provOf(of);
   const text = formatValue(as, read(of));
@@ -25,13 +43,14 @@ export function Datum<F extends Format>({ of, as, approx = false, compact = fals
   return (
     <Tag className="datum" data-kind={p.kind} data-whatif={of.whatIf ? 'true' : undefined}>
       {block ? (
-        <pre className="datum-block" dir="auto">
+        // Focusable so keyboard users can scroll a long block (it has a max height).
+        <pre className="datum-block" dir="auto" tabIndex={0}>
           {text}
         </pre>
       ) : (
         <span className="datum-value" dir="auto">
           {approx ? '≈ ' : ''}
-          {text}
+          {as === 'token' ? <TokenGlyphs text={text} /> : text}
         </span>
       )}
       {badge ? <ProvBadge prov={p} whatIf={of.whatIf === true} compact={compact} /> : null}
