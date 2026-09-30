@@ -19,6 +19,9 @@ lock, and the daily budget ledger need a shared store.
   projects capped at $17 and $3 if project caps are available. The app ledger allows about $0.55/day.
 
 ## Consequences
+- **Framework preset.** It is pinned in `vercel.json` (`"framework": "nextjs"`). The project was imported
+  while the repo held only docs, so Vercel had picked "Other". The first real build then failed after a
+  successful `next build`, looking for a static `public` output directory.
 - Re-check Vercel's Hobby terms if the site ever earns money (ads, sponsorships); commercial use needs Pro.
 - Hobby allows only one WAF rule, so every other limit lives in the route handler and Redis.
 - If Redis is unreachable, the chat endpoint fails closed (no request is sent to OpenAI).

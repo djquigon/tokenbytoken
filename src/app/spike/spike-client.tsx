@@ -16,6 +16,8 @@ interface Frame {
   data: unknown;
 }
 
+type Kind = 'synthetic' | 'openai';
+
 function parseFrame(frame: string): Frame | null {
   let event = 'message';
   const data: string[] = [];
@@ -45,43 +47,64 @@ function progressive(rows: readonly Row[]): string {
   const timed = rows.filter((r) => r.serverMs !== null);
   const first = timed[0];
   const last = timed[timed.length - 1];
-  if (!first || !last || first === last || first.serverMs === null || last.serverMs === null) return 'not enough events yet';
+  if (!first || !last || first === last || first.serverMs === null || last.serverMs === null) return 'not enough events';
   const serverSpread = last.serverMs - first.serverMs;
   const clientSpread = last.clientMs - first.clientMs;
   if (serverSpread < 200) return 'server spread too short to judge';
   return clientSpread >= serverSpread * 0.5
-    ? `yes: arrivals spread over ${Math.round(clientSpread)} ms vs ${Math.round(serverSpread)} ms of sending`
-    : `NO: arrivals bunched into ${Math.round(clientSpread)} ms vs ${Math.round(serverSpread)} ms of sending (buffered)`;
+    ? `yes (arrivals spread over ${Math.round(clientSpread)} ms vs ${Math.round(serverSpread)} ms of sending)`
+    : `NO, buffered (arrivals bunched into ${Math.round(clientSpread)} ms vs ${Math.round(serverSpread)} ms of sending)`;
 }
 
 /** How many SSE events each network read delivered: OpenAI sends one token per event, but the network can group them. */
 function readsSummary(eventsPerRead: readonly number[]): string {
-  if (eventsPerRead.length === 0) return 'no reads yet';
+  if (eventsPerRead.length === 0) return 'no reads';
   const counts = new Map<number, number>();
   for (const n of eventsPerRead) counts.set(n, (counts.get(n) ?? 0) + 1);
   return [...counts.entries()]
     .sort(([a], [b]) => a - b)
-    .map(([events, reads]) => `${reads} read(s) carried ${events} event(s)`)
+    .map(([events, reads]) => `${reads} read(s) × ${events} event(s)`)
     .join(', ');
 }
 
+function browserName(ua: string): string {
+  const version = (re: RegExp) => ua.match(re)?.[1] ?? '';
+  const ios = /iPhone|iPad|iPod/.test(ua) ? ' on iOS' : '';
+  if (/Edg\//.test(ua)) return `Edge ${version(/Edg\/([\d.]+)/)}`;
+  if (/(Firefox|FxiOS)\//.test(ua)) return `Firefox ${version(/(?:Firefox|FxiOS)\/([\d.]+)/)}${ios}`;
+  if (/CriOS\//.test(ua)) return `Chrome ${version(/CriOS\/([\d.]+)/)}${ios}`;
+  if (/Chrome\//.test(ua)) return `Chrome ${version(/Chrome\/([\d.]+)/)}`;
+  if (/Safari\//.test(ua)) return `Safari ${version(/Version\/([\d.]+)/)}${ios}`;
+  return ua;
+}
+
+const STREAM_EVENTS = new Set(['tick', 'delta']);
+
 export function SpikeClient() {
   const [rows, setRows] = useState<Row[]>([]);
-  const [eventsPerRead, setEventsPerRead] = useState<number[]>([]);
   const [status, setStatus] = useState('Idle.');
+  const [summary, setSummary] = useState('');
+  const [copied, setCopied] = useState(false);
   const [events, setEvents] = useState(40);
   const [intervalMs, setIntervalMs] = useState(150);
+  const [autoStop, setAutoStop] = useState(10);
   const [token, setToken] = useState('');
   const controllerRef = useRef<AbortController | null>(null);
+  const stopReasonRef = useRef<'user' | 'auto' | null>(null);
 
-  async function run(kind: 'synthetic' | 'openai') {
+  async function run(kind: Kind) {
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
+    stopReasonRef.current = null;
+    const localRows: Row[] = [];
+    const eventsPerRead: number[] = [];
     setRows([]);
-    setEventsPerRead([]);
+    setSummary('');
+    setCopied(false);
     const t0 = performance.now();
     const since = () => Math.round(performance.now() - t0);
+    let ended = '';
     setStatus('Connecting…');
     try {
       const response =
@@ -89,13 +112,14 @@ export function SpikeClient() {
           ? await fetch(`/api/spike/stream?events=${events}&intervalMs=${intervalMs}`, { signal: controller.signal })
           : await fetch('/api/spike/openai', { method: 'POST', headers: { 'x-spike-token': token }, signal: controller.signal });
       if (!response.ok || !response.body) {
-        setStatus(`HTTP ${response.status} after ${since()} ms.`);
+        ended = `HTTP ${response.status} after ${since()} ms`;
         return;
       }
       setStatus(`Streaming (headers after ${since()} ms)…`);
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let streamed = 0;
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -106,65 +130,107 @@ export function SpikeClient() {
           buffer = buffer.slice(end + 2);
           if (!frame) continue;
           framesThisRead += 1;
-          const clientMs = performance.now() - t0;
-          setRows((prev) => [...prev, { event: frame.event, clientMs, ...describe(frame.data) }]);
+          localRows.push({ event: frame.event, clientMs: performance.now() - t0, ...describe(frame.data) });
+          if (STREAM_EVENTS.has(frame.event)) streamed += 1;
         }
-        if (framesThisRead > 0) setEventsPerRead((prev) => [...prev, framesThisRead]);
+        if (framesThisRead > 0) {
+          eventsPerRead.push(framesThisRead);
+          setRows([...localRows]);
+        }
+        if (autoStop > 0 && streamed >= autoStop) {
+          stopReasonRef.current = 'auto';
+          controller.abort();
+          break;
+        }
       }
-      setStatus(`Stream ended after ${since()} ms.`);
+      ended =
+        stopReasonRef.current === 'auto'
+          ? `stopped automatically after ${streamed} events at ${since()} ms`
+          : `stream ended by the server at ${since()} ms`;
     } catch (err) {
-      setStatus(controller.signal.aborted ? `Stopped by you after ${since()} ms.` : `Error after ${since()} ms: ${String(err)}`);
+      ended = controller.signal.aborted
+        ? `${stopReasonRef.current === 'auto' ? 'stopped automatically' : 'stopped by you'} at ${since()} ms`
+        : `error at ${since()} ms: ${String(err)}`;
+    } finally {
+      setRows([...localRows]);
+      setStatus(`Done: ${ended}.`);
+      setSummary(
+        [
+          kind === 'synthetic' ? `synthetic ${events}×${intervalMs} ms` : 'OpenAI relay',
+          autoStop > 0 ? `auto-stop after ${autoStop}` : 'no auto-stop',
+          `received ${localRows.filter((r) => STREAM_EVENTS.has(r.event)).length} stream events`,
+          `ended: ${ended}`,
+          `progressive: ${progressive(localRows)}`,
+          `network grouping: ${readsSummary(eventsPerRead)}`,
+          browserName(navigator.userAgent),
+        ].join(' · '),
+      );
     }
   }
 
   function stop() {
+    stopReasonRef.current = 'user';
     controllerRef.current?.abort();
+  }
+
+  async function copySummary() {
+    await navigator.clipboard.writeText(summary);
+    setCopied(true);
   }
 
   return (
     <main className="mx-auto max-w-4xl p-4 font-mono text-sm">
       <h1 className="mb-2 text-lg font-bold">Streaming spike (Phase 0 diagnostic)</h1>
       <p className="mb-4">
-        Not part of the product. Checks that streamed events arrive progressively in this browser and that pressing
-        Stop reaches the server. Server-side results appear in the function logs as <code>[spike …]</code> lines.
+        Not part of the product. Checks that streamed events arrive progressively in this browser and that stopping a
+        stream reaches the server. Each run prints a result below. The server logs one <code>[spike …]</code> line per
+        run.
       </p>
 
       <fieldset className="mb-4 flex flex-wrap items-end gap-3 border p-3">
-        <legend>Synthetic stream (no API cost)</legend>
+        <legend>Settings</legend>
         <label className="flex flex-col">
-          Events
+          Stop automatically after (events, 0 = never)
+          <input className="border px-2 py-1" type="number" min={0} max={600} value={autoStop} onChange={(e) => setAutoStop(Number(e.target.value))} />
+        </label>
+        <label className="flex flex-col">
+          Synthetic events
           <input className="border px-2 py-1" type="number" min={1} max={600} value={events} onChange={(e) => setEvents(Number(e.target.value))} />
         </label>
         <label className="flex flex-col">
-          Interval (ms)
+          Synthetic interval (ms)
           <input className="border px-2 py-1" type="number" min={10} max={2000} value={intervalMs} onChange={(e) => setIntervalMs(Number(e.target.value))} />
         </label>
-        <button className="border px-3 py-1" type="button" onClick={() => void run('synthetic')}>
-          Start synthetic stream
-        </button>
       </fieldset>
 
-      <fieldset className="mb-4 flex flex-wrap items-end gap-3 border p-3">
-        <legend>Real OpenAI stream (costs a fraction of a cent)</legend>
+      <div className="mb-4 flex flex-wrap items-end gap-3">
+        <button className="border px-3 py-1" type="button" onClick={() => void run('synthetic')}>
+          Start synthetic stream (free)
+        </button>
         <label className="flex flex-col">
           Spike token
           <input className="border px-2 py-1" type="password" autoComplete="off" value={token} onChange={(e) => setToken(e.target.value)} />
         </label>
         <button className="border px-3 py-1" type="button" onClick={() => void run('openai')} disabled={token.length === 0}>
-          Start OpenAI stream
+          Start OpenAI stream (&lt; $0.001)
         </button>
-      </fieldset>
-
-      <div className="mb-4 flex items-center gap-3">
         <button className="border px-3 py-1" type="button" onClick={stop}>
-          Stop
+          Stop now
         </button>
-        <p role="status" aria-live="polite">
-          {status}
-        </p>
       </div>
-      <p className="mb-2">Progressive delivery: {progressive(rows)}</p>
-      <p className="mb-2">Network grouping: {readsSummary(eventsPerRead)}</p>
+
+      <p className="mb-2" role="status" aria-live="polite">
+        {status}
+      </p>
+
+      {summary && (
+        <section className="mb-4 border p-3" aria-label="Result of the last run">
+          <p className="mb-2 break-words">{summary}</p>
+          <button className="border px-3 py-1" type="button" onClick={() => void copySummary()}>
+            {copied ? 'Copied' : 'Copy result'}
+          </button>
+        </section>
+      )}
 
       <table className="w-full border-collapse text-left">
         <caption className="sr-only">Events received, with server send time and browser arrival time</caption>

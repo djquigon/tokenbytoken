@@ -3,6 +3,9 @@
 // per call, so it requires SPIKE_ENABLED=1 and the x-spike-token header.
 //
 //   POST /api/spike/openai   (header x-spike-token: <SPIKE_TOKEN>)
+//
+// Each request logs exactly one "[spike-openai …]" line when it ends, so the result stays visible in
+// Vercel's per-request log grouping.
 
 import OpenAI, { APIUserAbortError } from 'openai';
 
@@ -11,7 +14,8 @@ import { SAFARI_PADDING, SSE_HEADERS, notFound, spikeEnabled, sseWriter, tokenMa
 export const maxDuration = 60;
 
 const MODEL = process.env.SPIKE_MODEL ?? 'gpt-6-luna';
-const PROMPT = 'Count from 1 to 60, one number per line, with no other text.';
+// Long enough (several seconds) that a stop always lands mid-stream.
+const PROMPT = 'Count from 1 to 200, one number per line, with no other text.';
 
 export function POST(request: Request): Response {
   if (!spikeEnabled()) return notFound();
@@ -22,14 +26,10 @@ export function POST(request: Request): Response {
   const id = crypto.randomUUID().slice(0, 8);
   const started = performance.now();
   const elapsed = () => Math.round(performance.now() - started);
-  const log = (message: string) => console.log(`[spike-openai ${id}] ${message}`);
   const upstream = new AbortController();
-  let disconnectedAt: number | null = null;
+  let disconnect: { via: string; at: number } | null = null;
   const onDisconnect = (via: string) => {
-    if (disconnectedAt === null) {
-      disconnectedAt = elapsed();
-      log(`client disconnected (${via}) at ${disconnectedAt} ms; aborting upstream`);
-    }
+    disconnect ??= { via, at: elapsed() };
     upstream.abort();
   };
   request.signal.addEventListener('abort', () => onDisconnect('request.signal'));
@@ -41,6 +41,7 @@ export function POST(request: Request): Response {
       out.send('open', { id, model: MODEL, t: elapsed() });
       let deltas = 0;
       let terminal: string | null = null;
+      let failure: string | null = null;
       try {
         const client = new OpenAI({ apiKey, maxRetries: 0 });
         const stream = await client.responses.create(
@@ -48,7 +49,7 @@ export function POST(request: Request): Response {
             model: MODEL,
             input: PROMPT,
             ...(MODEL.startsWith('gpt-4') ? {} : { reasoning: { effort: 'none' as const } }),
-            max_output_tokens: 400,
+            max_output_tokens: 1000,
             temperature: 1,
             top_p: 1,
             top_logprobs: 20,
@@ -71,22 +72,24 @@ export function POST(request: Request): Response {
         }
       } catch (err) {
         if (!(err instanceof APIUserAbortError) && !upstream.signal.aborted) {
-          log(`upstream error at ${elapsed()} ms: ${err instanceof Error ? err.message : String(err)}`);
+          failure = err instanceof Error ? err.message : String(err);
           out.send('error', { t: elapsed(), message: 'upstream error (see server log)' });
         }
       } finally {
-        // The SDK may end the stream quietly when aborted instead of throwing, so always report how it ended.
-        const sinceDisconnect = disconnectedAt === null ? 'no disconnect seen' : `${elapsed() - disconnectedAt} ms after disconnect`;
-        log(
+        // The SDK may end the stream quietly when aborted instead of throwing, so report how it ended.
+        const ended =
           terminal !== null
-            ? `finished (${terminal}) at ${elapsed()} ms after ${deltas} deltas`
-            : `stream loop ended at ${elapsed()} ms without a terminal event (upstream aborted: ${upstream.signal.aborted}; ${sinceDisconnect}); ${deltas} deltas relayed; usage not reported`,
-        );
+            ? `finished (${terminal}) at ${elapsed()} ms`
+            : failure !== null
+              ? `upstream error at ${elapsed()} ms: ${failure}`
+              : `upstream stream ended at ${elapsed()} ms without a terminal event (upstream aborted: ${upstream.signal.aborted}${disconnect ? `, ${elapsed() - disconnect.at} ms after the disconnect` : ''}); usage not reported`;
+        const detected = disconnect ? `client disconnect detected via ${disconnect.via} at ${disconnect.at} ms` : 'client disconnect: not detected';
+        console.log(`[spike-openai ${id}] ${ended}; ${deltas} deltas relayed; ${detected}`);
         out.close();
       }
     },
-    cancel(reason) {
-      onDisconnect(`stream cancel(): ${String(reason ?? 'no reason')}`);
+    cancel() {
+      onDisconnect('stream cancel()');
     },
   });
 
