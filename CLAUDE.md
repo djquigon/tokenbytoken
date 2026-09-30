@@ -2,15 +2,18 @@
 
 @AGENTS.md
 
-> **Project status: Phase 0 (foundations).**
+> **Project status: Phase 1 (real chat and trace foundation).**
 >
 > **What exists:**
-> - The Next.js scaffold and tooling.
-> - The live capability probe (`scripts/probe/`) and its results (`docs/probe/`, `fixtures/probe/`).
-> - A gated streaming spike (`/spike`, `/api/spike/*`).
-> - ADRs 0001–0005.
+> - The chat (`/chat`) with streaming, Stop, retry, and every error state, backed by `/api/chat` and its
+>   full guard pipeline (ADR 0006).
+> - The label system (`src/shared/provenance/`), protocol v1, and the trace. The trace records every turn
+>   as a TraceLog and folds it into labeled facts.
+> - The Trace Inspector (every value with its label), the privacy notice, and `/privacy`.
+> - The Phase 0 probe, fixtures, and ADRs 0001–0006.
 >
-> **No product features exist yet.** Everything else in this file describes intended structure.
+> **Not built yet:** the walkthrough, the live strip, the landing page, the sample conversation, and
+> playback (Phase 2). Sections below that describe those describe intended structure.
 >
 > Items marked **PROVISIONAL** are proposals, not decisions. When one is decided, record an ADR in
 > `docs/decisions/` and update this file. Never describe planned files or commands as if they already exist.
@@ -168,12 +171,14 @@ Facts were verified on 2026-09-29. Re-verify before relying on details.
 | Model | **`gpt-6-luna` with `reasoning.effort: "none"`**, temperature 1, top_p 1, `top_logprobs: 20`, `store: false`. This is the cheapest candidate, and it passed every automatic check in the 2026-09-30 probe. Fallbacks, in cost order: `gpt-4o-mini`, `gpt-5.4-nano`, `gpt-4.1-mini` (see ADR 0001). | Decided (ADR 0001) |
 | Tokenizer | `LocalTokenizer` interface; `gpt-tokenizer` (`o200k_base`), server-side. The probe found every output token of every candidate to be one `o200k_base` token, with input counts within 1 token. | Decided (ADR 0001) |
 | Visualization | SVG/HTML rendered as pure functions of `(step, progress)` from our own clock; d3-scale/shape/interpolate; Canvas 2D for dense views; Three.js/R3F post-MVP, lazy-loaded, optional | PROVISIONAL |
-| UI | Tailwind CSS 4 with CSS-variable tokens; shadcn/ui on Base UI; Motion only for UI chrome outside the timeline | PROVISIONAL |
-| State | Zustand vanilla stores (conversation, preferences); a pure playback machine and clock exposed through `useSyncExternalStore` | PROVISIONAL |
+| UI | Tailwind CSS 4 with CSS-variable tokens (a provisional dark palette in `globals.css`); shadcn/ui on Base UI; Motion only for UI chrome outside the timeline | PROVISIONAL |
+| Model output | `react-markdown` + `remark-gfm` + `rehype-sanitize`: no raw HTML, no images, links with `rel="noopener noreferrer nofollow"` | Decided (ADR 0006) |
+| State | A Zustand vanilla store for the conversation (`src/generation/conversation-store.ts`), published at most once per animation frame. Playback: a pure machine and clock exposed through `useSyncExternalStore` (Phase 2) | Conversation decided; playback PROVISIONAL |
 | Budget | $20/month: an OpenAI hard cap at the organization level (split into production $17 and development $3 if project caps exist); an app ledger of about $0.55/day; fall back to the sample conversation when it runs out | Decided |
-| Limits | Hobby's single WAF rule; in-handler per-session and per-IP quotas and a one-stream lock; an Upstash Redis (free tier) micro-dollar ledger; BotID Basic | PROVISIONAL |
+| Limits | Per IP 30/min and 300/day; per tab session 30/day and one stream at a time; $0.55/day global and $0.15/day per IP, reserved worst-case and settled once; Upstash Redis (free tier) through two Lua scripts; BotID Basic on Vercel deployments; Hobby's WAF rule optional | Decided (ADR 0006) |
+| History | HMAC-signed replies (`v1.<kid>.<iat>.<mac>`); the previous secret is accepted during a rotation; signatures older than 24 h are dropped from the context | Decided (ADR 0006) |
 | Hosting | Vercel Hobby (personal, non-commercial project); a custom domain once purchased | Decided |
-| Tests | Vitest 5 and Playwright are installed (Chromium). Testing Library is installed. fast-check and @axe-core/playwright get added with the first tests that need them (Phase 1). | Decided |
+| Tests | Vitest 5.0.2 (pinned; typecheck mode is experimental), Testing Library + jsdom, fast-check, wasmoon (runs the production Lua scripts), Playwright (Chromium) + @axe-core/playwright against a mock OpenAI | Decided |
 
 **Data flow. Don't break these boundaries.**
 
@@ -197,33 +202,44 @@ PlaybackScript → PlaybackClock → stage views`
   capability registry in `src/server/config`.
 
 ## 5. Repository layout
-**Exists now (Phase 0):**
+**Exists now (Phase 1):**
 ```
-src/app/            layout, placeholder home page, globals.css
-src/app/spike/      streaming spike page (diagnostic; 404 unless SPIKE_ENABLED=1)
-src/app/api/spike/  spike routes: stream/ (synthetic SSE), openai/ (real relay, needs x-spike-token)
-scripts/probe/      live capability probe (candidates, prompts, api, analysis + tests, report)
-fixtures/probe/     sanitized recorded streams per model (written only by the probe)
-docs/               PLAN.md · decisions/ (ADRs) · probe/ (capability report, quality files)
-e2e/                Playwright smoke tests
+src/app/              pages: / (placeholder), /chat, /privacy; api/chat/route.ts (thin)
+src/instrumentation-client.ts   BotID client init (Vercel deployments only)
+src/server/           config.ts · chat/ (handler, http, runtime) · openai/adapter.ts · tokenizer/ ·
+                      limits/ (store contract, memory store, Redis Lua scripts) · signing/
+src/shared/           protocol/ (v1 schemas, SSE) · provenance/ (types, registry, combine, mint, read,
+                      describe) · context-policy/ · errors.ts · limits.ts · units.ts · utf8.ts · sha256.ts ·
+                      token-display.ts
+src/trace/            log · reducer · finalize · facts · align/ · reconcile · close-calls · provs
+src/generation/       client (fetch + SSE + watchdog) · conversation-store · persist (sessionStorage)
+src/components/       provenance/ (Datum, ProvBadge, format) · chat/ · inspector/ (TraceInspector)
+src/test/             test harnesses: chat route, probe fixtures, fake Redis + Lua VM
+content/claims.md     claims register (format PROVISIONAL)
+scripts/              probe/ (live capability probe) · check-client-bundle.mts
+fixtures/probe/       sanitized recorded streams per model (written only by the probe)
+e2e/                  Playwright tests · mock-openai.mts (replays the probe fixtures)
+docs/                 PLAN.md · decisions/ (ADRs 0001–0006) · probe/
 ```
-**Planned (nothing below exists yet):**
+**Planned (Phase 2 and later; nothing below exists yet):**
 ```
-src/app/          pages; api/chat/route.ts (thin)
-src/server/       chat/ · openai/adapter.ts · tokenizer/ · budget/ · limits/ · signing/ · config.ts
-src/shared/       protocol/ · provenance/ · context-policy/ · errors.ts · units.ts
-src/trace/        log · reducer · finalize · align/ · reconcile · persist/
-src/generation/   client · conversation store
 src/playback/     machine · clock · controller · compile/
 src/stages/       contract · registry · <stage-id>/{build,View,describe} · illustrative/
-src/components/   provenance/ · chat/ · viz/
-content/          stages/*.mdx (Simple/Detailed/Technical) · glossary · claims.md
-fixtures/         TraceLogs for the trace and playback tests
+src/components/   viz/
+content/          stages/*.mdx (Simple/Detailed/Technical) · glossary
+fixtures/         TraceLogs for the playback tests
 scripts/          record-fixture.ts
 ```
-The spike code gets removed or folded into `/api/chat` during Phase 1.
-Import boundaries are enforced with ESLint `no-restricted-imports` (see `docs/PLAN.md` §3.3). Client code
-never imports `src/server/**`, which is enforced by `server-only`.
+Import boundaries are enforced with ESLint `no-restricted-imports` (`eslint.config.mjs`, per
+`docs/PLAN.md` §3.3):
+- `src/shared` imports nothing from the app.
+- `src/server` and `src/trace` import only `src/shared`.
+- `src/generation` imports `src/shared` and `src/trace`.
+- Client code (`src/components`, `src/app` outside `api/`) never imports `src/server`.
+- Only `src/trace` may import `@/shared/provenance/mint`.
+
+Server modules also import `server-only`. `read()` from `@/shared/provenance/read` is for computation and
+branching. UI shows values only through `<Datum>`.
 
 ## 6. Coding conventions
 - **TypeScript:** strict mode. No `any`; use `unknown` and narrow it. Every non-null `!` needs a comment.
@@ -369,6 +385,18 @@ Simple-depth chapters group them:
   - Use `store: false`, `truncation: "disabled"`, and `safety_identifier` set to an HMAC of the anonymous
     session ID (never an IP address or personal data).
   - The SDK retries at most once, and only before any output.
+- **Server environment** (`.env.example` lists the names):
+  - `OPENAI_API_KEY`.
+  - `HISTORY_SIGNING_SECRET`, plus `_PREVIOUS` during a rotation. Required on Vercel; locally a fixed
+    development secret is used.
+  - Upstash (`KV_REST_API_URL`/`KV_REST_API_TOKEN` from the Vercel Marketplace, or the `UPSTASH_REDIS_REST_*`
+    names). Required on Vercel.
+  - When any of these is missing, `/api/chat` fails closed with `service_unavailable`. The in-memory limits
+    store is for local runs only and is refused on Vercel deployments.
+- **Moderation:** every new user message, and any earlier one not followed by a signed reply, goes to
+  `omni-moderation-latest` before generation. If the check fails, the request fails closed.
+- **BotID** runs only on Vercel preview and production deployments (`checkBotId()` can't verify anywhere
+  else).
 - **No content on the server:** never log or persist prompts or responses there. Logs contain only IDs,
   sizes, token counts, timings, status, and error codes.
 - **Client storage:** conversations live in client memory and in `sessionStorage` (raw logs, LRU-capped).
@@ -406,7 +434,15 @@ Simple-depth chapters group them:
   - A DOM test fails if digits or model text appear outside a labeled element or UI chrome.
   - A render-count test.
   - axe.
+- **Limits store contract:** one suite runs against the in-memory store and against the production Lua
+  scripts, executed by a real Lua VM (wasmoon) over a fake Redis (`src/test/fake-redis.ts`).
+- **Client bundle:** `npm run check:bundle` fails if the browser build contains a key pattern, a server
+  secret's name, the actual `OPENAI_API_KEY` from `.env.local`, or a chunk large enough to be server-only
+  code.
 - **E2E (Playwright, mocked upstream)**
+  - OpenAI is replaced by `e2e/mock-openai.mts`, reached through `OPENAI_BASE_URL`, so the real adapter
+    parses real-shaped streams. Keywords in the message pick scenarios (`SLOW`, `CUTOFF`, `UNICODE`,
+    `FAIL_429`, `QUOTA`, `FLAG_ME`).
   - Send → stream → replay → follow-up.
   - Stop.
   - Every error code.
@@ -487,8 +523,11 @@ fill in the values.
 | `npm run build` / `npm start` | Production build and server |
 | `npm run lint` | ESLint flat config (`next lint` was removed in Next.js 16) |
 | `npm run typecheck` | `next typegen` (route types), then `tsc --noEmit` |
-| `npm test` | Vitest unit tests (`src/**/*.test.ts(x)`, `scripts/**/*.test.mts`) |
-| `npm run test:e2e` | Playwright against a production build on port 3200. First run: `npx playwright install chromium` |
+| `npm test` | Vitest: unit, property, and component tests (`src/**/*.test.ts(x)`, `scripts/**/*.test.mts`) plus type tests (`src/**/*.test-d.ts(x)`) |
+| `npm run test:e2e` | Playwright against a production build on port 3200, with the mock OpenAI on port 3299. It never calls the real API. First run: `npx playwright install chromium` |
+| `npm run check:bundle` | After a build: scan the browser bundle for secrets and server-only code, and report its size |
+| `npm run check` | Typecheck, lint, unit tests, build, and the bundle check, in order |
+| `npm run mock:openai` | Start the mock OpenAI on port 3299 (see "Local chat without spending" below) |
 | `npm run probe` | Live capability probe. Needs `OPENAI_API_KEY` in `.env.local` and costs about 1–2¢. Never run it in CI. |
 
 `probe` options:
@@ -497,8 +536,12 @@ fill in the values.
 - `--max-usd=0.10` sets the budget guard.
 - `--stop-at-first-pass` stops at the first passing model.
 
-**Streaming spike:** run `SPIKE_ENABLED=1 SPIKE_TOKEN=<random> npm run dev`, then open `/spike`. Server-side
-results print as `[spike …]` log lines.
+**Local chat:** `npm run dev`, then open `/chat`. With `OPENAI_API_KEY` in `.env.local` it calls the real
+API (a typical turn costs about $0.00003), with the in-memory limits store and a development signing secret.
+Each request logs one `{"evt":"chat",…}` line of metadata.
+
+**Local chat without spending:** run `npm run mock:openai` in one terminal. In another, run
+`OPENAI_BASE_URL=http://127.0.0.1:3299/v1 npm run dev` (PowerShell: `$env:OPENAI_BASE_URL='http://127.0.0.1:3299/v1'; npm run dev`).
 
 Scripts in `scripts/` are `.mts` files that Node 24 runs directly, with no build step. Use `import type` for
 type-only imports, and include the `.mts` extension on relative imports.
@@ -525,9 +568,23 @@ type-only imports, and include the `.mts` extension on relative imports.
 - A Stop aborts the OpenAI request within about 10 ms, but only for routes with `supportsCancellation`
   (ADR 0002).
 
+**Phase 1 results (2026-09-30):** ADR 0006, plus updates to ADRs 0002 and 0003.
+- `/api/chat` runs the full guard pipeline and streams protocol v1.
+- The trace aligns tokens by bytes, labels emoji gaps, reconciles counts, and finds close calls.
+- The chat UI has Stop, retry, every error state, and the Trace Inspector.
+- Tested with 148 unit, property, component, and type tests, 15 end-to-end tests including axe, and a live
+  local run against OpenAI (about $0.0001).
+- Moderation adds about 0.9–1.5 s before the first token. The owner chose to keep it before generation,
+  so flagged text never reaches the model.
+- The chat page loads about 320 KB of gzipped JavaScript.
+
 **Open (proceeding on defaults):**
 - Pin Next.js to 16.3.8 or later (the security release; not yet published on 2026-09-30) before any public
   launch.
+- Before production, on a Preview deployment:
+  - Create the Upstash database (Vercel Marketplace) and set `HISTORY_SIGNING_SECRET`.
+  - Check the Lua scripts, BotID under the CSP, and Stop on `/api/chat`.
+- Get the chat page under its 250 KB budget in Phase 2 (for example, `zod/mini` in the browser).
 - Optional: check streaming in Safari and iOS Safari. Padding is already in place.
 - The label vocabulary (default: four labels plus What-if).
 - Exact palette values and fonts (Phase 2 design tokens, checked for contrast).

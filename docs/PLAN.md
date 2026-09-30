@@ -13,6 +13,10 @@ cheapest one that gives the best visualization outcomes. There is no formal expe
 > [`docs/decisions/`](decisions/). ADR 0001 selects `gpt-6-luna`, and ADR 0003 records the streaming findings
 > that refine §3.5. Where an ADR and this plan disagree, the ADR wins. For example, the plan says to watch
 > for chunks carrying several tokens, but the probe found OpenAI sends exactly one token per delta.
+>
+> **Phase 1 update (2026-09-30):** ADR 0006 records how the chat pipeline, limits, budget ledger, and
+> history signing were built. ADR 0003 now documents protocol v1 as implemented. The request gained a
+> tab-scoped `sessionId`. `end` carries the ledger basis, and text without tokens carries `gapTokens`.
 
 ## Decisions at a glance
 - **Hybrid timing.**

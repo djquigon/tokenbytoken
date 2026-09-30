@@ -39,9 +39,26 @@ lock, and the daily budget ledger need a shared store.
   2026-09-30; 16.3.7 is installed).
 
 ## Open verification
-- Upstash free-tier limits (commands per day, storage) against expected traffic: check in Phase 1.
 - Streaming in Safari and iOS Safari. Chrome is verified; Safari's 1 KB buffering is already handled with
   a padding comment. Optional: check once the chat exists.
+- **Upstash:** create the database through the Vercel Marketplace, then check the real Lua scripts on a
+  Preview deployment (ADR 0006).
+- **BotID:** check it together with the CSP on a Preview deployment (ADR 0006).
+
+## Resolved in Phase 1 (2026-09-30)
+- **Upstash free tier:**
+  - Limits: 500K commands/month, 256 MB, 10 GB bandwidth/month, and one database.
+  - Every command inside a Lua script is billed, so a chat turn costs about 15 commands, or ≈ 33K turns a
+    month. See ADR 0006 for what happens beyond that.
+- **Upstash environment variables:** the Marketplace integration sets `KV_REST_API_URL` and
+  `KV_REST_API_TOKEN`; the Upstash console's `UPSTASH_REDIS_REST_*` names also work. The app builds its
+  client explicitly, without JSON auto-parsing of script results.
+- **Client IP:** Vercel overwrites `x-forwarded-for` (and `x-real-ip`), so clients can't spoof it on Vercel.
+  The app reads `x-real-ip` first, and hashes the IP before it reaches Redis.
+- **BotID:**
+  - Basic is free on Hobby.
+  - `checkBotId()` returns human under `next dev` but throws under a local `next start`, so the app runs it
+    in development mode unless it is on a Vercel preview or production deployment.
 
 ## Resolved
 - **Disconnects on Vercel** (2026-09-30, `/spike` on a Preview):
@@ -49,6 +66,13 @@ lock, and the daily budget ledger need a shared store.
   - With it, `request.signal` fires, and `ReadableStream.cancel()` is not needed.
 - **Streaming on Vercel.** Delivery was progressive: arrivals were spread over ~1.5–1.9 s against the same
   span of sending. Chrome's network reads carried mostly one event, occasionally two.
+
+## Sources (Phase 1, checked 2026-09-30)
+- Upstash billing and free tier: https://upstash.com/docs/redis/overall/billing
+- Upstash Ratelimit command costs (scripts count every command): https://upstash.com/docs/redis/sdks/ratelimit-ts/costs
+- Vercel Marketplace Upstash integration: https://vercel.com/marketplace/upstash/upstash-kv
+- Vercel request headers: https://vercel.com/docs/headers/request-headers
+- BotID: https://vercel.com/docs/botid and https://vercel.com/docs/botid/local-development-behavior
 
 ## Sources (cancellation, checked 2026-09-30)
 - Cancel requests: https://vercel.com/docs/functions/functions-api-reference#cancel-requests

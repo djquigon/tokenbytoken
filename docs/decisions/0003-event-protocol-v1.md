@@ -56,3 +56,36 @@
   `stream-unicode.json` as contract fixtures, including the emoji-gap case.
 - `/api/chat` must be covered by `supportsCancellation` in `vercel.json`, with its cleanup in `after()`
   (ADR 0002).
+
+## Phase 1: the protocol as implemented (2026-09-30)
+The schemas in `src/shared/protocol/v1.ts` are the source of truth.
+- **Request:** `v`, `clientRequestId`, `sessionId`, `conversationId`, `messages`, `options.logprobs`.
+  - `sessionId` is new since the plan. It is tab-scoped and used, hashed, for limits and the safety ID.
+  - Re-sent replies must carry `sig` (ADR 0006).
+- **`start`:**
+  - `requestId`, `assistantMessageId`, `instructions` (word for word), and `settings` (what was sent).
+  - `upstreamRequest`: the exact body, opaque to the browser.
+  - `context`: what was included or dropped, and why.
+  - `inputTokens`: this app's tokenization, as IDs plus UTF-8 lengths per piece.
+  - `moderation`, `limits`, and `reference` (dated facts that the trace labels Reference).
+- **`delta`:**
+  - `logprobs` is null when not requested, and can be empty.
+  - Text that arrives with no tokens also carries `gapTokens`: this app's own tokenization of that text,
+    labeled Calculated and never shown as OpenAI's tokens.
+- **`end`:**
+  - `outcome`, `incompleteReason`, `error`, `usage`, and `outputItemTypes` (so tool calls would be visible).
+  - `textSha256` over the relayed text.
+  - `finalTokenBytes` from `response.completed`, and `providerTokenIds` (this app's vocabulary lookup).
+  - `outputTokens`, `assistantSig`, and `ledger` (what was charged, and on what basis).
+
+**Further findings**
+8. **Final logprob values are rounded.** The final list rounds to about 5 significant digits, while
+   streamed values have full precision. The trace uses streamed values, and the final list only for bytes.
+9. **Where bytes come from.** `response.output_text.done` carries logprobs without bytes; only the
+   `response.completed` output has bytes. The SDK throws on a stream `error` event instead of yielding it.
+   The adapter maps that, and any dropped connection after the stream opened, to in-band codes.
+10. **Live check (2026-09-30).**
+    - The input estimate matched within 1 token (104 vs. 103, and 147 vs. 146).
+    - Output usage was exactly the visible tokens plus 4.
+    - Every streamed token was found in `o200k_base`.
+    - One position came back with 19 alternatives, not 20.
