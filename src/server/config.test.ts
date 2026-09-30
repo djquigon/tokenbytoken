@@ -11,7 +11,9 @@ describe('server config', () => {
   it('treats empty variables as unset and rejects malformed ones', () => {
     expect(readServerEnv({ OPENAI_API_KEY: '', KV_REST_API_URL: '' })).toEqual({});
     expect(() => readServerEnv({ KV_REST_API_URL: 'not a url' })).toThrow(/KV_REST_API_URL/);
-    expect(() => readServerEnv({ HISTORY_SIGNING_SECRET: 'too-short' })).toThrow(/HISTORY_SIGNING_SECRET/);
+    expect(() => readServerEnv({ HISTORY_SIGNING_SECRET: 'too-short' })).toThrow(/HISTORY_SIGNING_SECRET \(.*32.*\)/);
+    // The message names the rule but never includes the value.
+    expect(() => readServerEnv({ HISTORY_SIGNING_SECRET: 'too-short' })).not.toThrow(/too-short/);
   });
 
   it('knows a Vercel deployment from local runs', () => {
