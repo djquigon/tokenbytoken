@@ -541,8 +541,8 @@ The probe questions double as the §4 assessment items.
 - **Direction: a "digital-rain terminal" inspired by *The Matrix*.** Green phosphor on near-black, monospace glyphs, falling characters, and a soft CRT glow. It pays homage to the genre look without copying the film. The style carries part of the lesson: **glyphs always mean text**, so the "code" on screen is literally tokens.
   - **Signature motif: token rain.**
     - The falling characters are **real token strings**. On the landing page they fill the background, picked at random from thousands of real words and numbers of the tokenizer this app uses, with all text on solid cards (ADR 0008). In the live strip they come from the user's own reply, as it arrives.
-    - Captions say what they are: "these are real tokens from a sample conversation", and "tokens arriving, timed by when this app received them".
-    - The rain is drawn on Canvas 2D. It is decorative (`aria-hidden`), has its own pause control, and is static under reduced motion.
+    - Captions say what they are where the rain teaches something: "tokens arriving, timed by when this app received them". The landing page's background rain has no caption (owner, 2026-09-30).
+    - The rain is drawn on Canvas 2D. It is decorative (`aria-hidden`) and static under reduced motion. Settings' Effects switch stops it on every page, the landing page included (ADR 0008).
     - It never falls behind body text or inside the walkthrough's lessons.
   - **"Decode" reveals.** A token chip briefly scrambles and resolves into its ID, or back into text. Headings can decode in once.
     - The final text is in the DOM from the start, so screen readers get it immediately.

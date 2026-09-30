@@ -66,9 +66,9 @@ prompt and response.
 11. **Visual identity: a "digital-rain terminal" inspired by *The Matrix*.** Green phosphor on near-black,
     with monospace glyphs.
     - Glyphs only ever represent *tokens* (text), never parameters or numbers.
-    - The token rain is made of real tokens and is captioned as such. On the landing page it fills the
-      background, picked at random from thousands of real words and numbers, and every block of text sits on
-      a solid card, never over it (ADR 0008).
+    - The token rain is made of real tokens. On the landing page it fills the background, picked at random
+      from thousands of real words and numbers, with no caption (owner, 2026-09-30). Every block of text
+      sits on a solid card, never over it (ADR 0008).
     - Real data glows; examples are wireframes.
     - Body text is pale green-white, not neon.
     - Inspired by the film, never copied from it: no film names, quotes, logos, or glyph designs, and no pill
@@ -340,7 +340,8 @@ Chapters group them (`src/playback/types.ts`):
   - **Visual effects** (token rain, glow, scanlines, decode reveals, glitches):
     - Decorative layers are `aria-hidden`.
     - Effects never sit behind body text.
-    - The rain has its own pause control (2.2.2).
+    - Settings' "Visual effects: Off" stops the rain, and Settings is on every page, the landing page
+      included (2.2.2). The choice is saved in this browser.
     - Reduced motion, `prefers-contrast: more`, and the in-app Effects toggle each turn all effects off.
     - Decode reveals keep the final text in the DOM from the start.
 - **Text alternatives**

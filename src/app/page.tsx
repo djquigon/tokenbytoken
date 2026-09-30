@@ -2,17 +2,22 @@ import Link from 'next/link';
 
 import rain from '@/content/rain-tokens.json';
 import { DecodeText } from '@/components/effects/DecodeText';
-import { RainCanvas, RainControls, RainProvider } from '@/components/effects/TokenRain';
+import { RainCanvas } from '@/components/effects/TokenRain';
+import { PrefsMenu } from '@/components/prefs/PrefsMenu';
 import { LabelChip } from '@/components/provenance/ProvBadge';
 
 // The landing page (docs/PLAN.md §1, journey step 1). Static. Behind it falls the token rain: real tokens
 // of the tokenizer this app uses, picked at random from thousands of words and numbers. Every block of
-// text sits on a solid panel, so the rain never runs behind the words.
+// text sits on a solid panel, so the rain never runs behind the words. Settings (top corner) holds the
+// Effects switch that stops it (WCAG 2.2.2).
 
 export default function Home() {
   return (
-    <RainProvider>
+    <>
       <RainCanvas pool={rain.tokens} />
+      <div className="landing-tools">
+        <PrefsMenu />
+      </div>
       <main className="landing" id="main">
         <section className="hero landing-card" aria-labelledby="hero-title">
           <div className="hero-copy">
@@ -33,9 +38,6 @@ export default function Home() {
               </Link>
             </div>
             <p className="muted small">No sign-in. The sample replays a recorded conversation and sends nothing.</p>
-            <RainControls>
-              Falling behind this page: real tokens of the tokenizer this app uses, picked at random from thousands of words and numbers.
-            </RainControls>
           </div>
         </section>
 
@@ -106,6 +108,6 @@ export default function Home() {
           </p>
         </footer>
       </main>
-    </RainProvider>
+    </>
   );
 }

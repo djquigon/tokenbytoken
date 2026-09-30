@@ -13,22 +13,39 @@ async function axeSerious(page: Page) {
 
 const walkthrough = (page: Page) => page.locator('.walkthrough');
 
-test('the landing page offers both ways in, captions its rain, and has no serious accessibility violations', async ({ page }) => {
+/** Two frames of the rain, half a second apart: identical when it holds still. */
+async function rainMoves(page: Page) {
+  const frame = () => page.locator('.rain-canvas').evaluate((c) => (c as HTMLCanvasElement).toDataURL());
+  const before = await frame();
+  await page.waitForTimeout(500);
+  return (await frame()) !== before;
+}
+
+test('the landing page offers both ways in, and has no serious accessibility violations', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('link', { name: 'Replay a sample conversation' })).toHaveAttribute('href', '/sample');
-  // The rain fills the page behind solid cards, and says what it is.
+  // The rain fills the page behind solid cards.
   await expect(page.locator('.rain-canvas')).toBeVisible();
-  await expect(page.locator('.rain-controls')).toContainText('real tokens of the tokenizer this app uses');
-  await page.getByRole('button', { name: 'Pause the rain' }).click();
-  await expect(page.getByRole('button', { name: 'Resume the rain' })).toHaveAttribute('aria-pressed', 'true');
   expect(await axeSerious(page)).toEqual([]);
 });
 
-test('under reduced motion the rain holds still and offers no pause button', async ({ page }) => {
+test('Settings stops the rain from the landing page (WCAG 2.2.2)', async ({ page }) => {
+  await page.goto('/');
+  expect(await rainMoves(page)).toBe(true);
+  await page.getByText('Settings').click();
+  await page.getByRole('group', { name: /Visual effects/ }).getByRole('button', { name: 'Off' }).click();
+  await page.keyboard.press('Escape');
+  expect(await rainMoves(page)).toBe(false);
+  // The choice is saved, so the rain stays still on the next visit.
+  await page.reload();
+  expect(await rainMoves(page)).toBe(false);
+});
+
+test('under reduced motion the rain holds still', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.locator('.rain-canvas')).toBeVisible();
-  await expect(page.getByRole('button', { name: /the rain/ })).toHaveCount(0);
+  expect(await rainMoves(page)).toBe(false);
 });
 
 test('the sample conversation replays both turns without calling the API', async ({ page }) => {

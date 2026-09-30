@@ -2,16 +2,16 @@
 
 // Token rain (docs/PLAN.md §2, "Signature motif"): the landing page's background. Every falling glyph is a
 // real token of the tokenizer this app uses, picked at random from a pool of thousands of words and
-// numbers (src/content/rain-tokens.json), and a caption says so.
+// numbers (src/content/rain-tokens.json).
 //
 // Decoration only: the canvas is aria-hidden and sits behind the page, while all text sits on solid
-// panels, never over the rain (CLAUDE.md §8). Canvas 2D at 30 fps at most; it stops when the tab is
-// hidden, has its own pause control (WCAG 2.2.2), and holds one still frame under reduced motion, more
-// contrast, or Effects off (CLAUDE.md §9).
+// panels, never over the rain (CLAUDE.md §8). Canvas 2D at 30 fps at most; it stops when the tab is hidden,
+// and holds one still frame under reduced motion, more contrast, or Effects off. Settings' Effects switch,
+// on the landing page too, is how to stop it (WCAG 2.2.2).
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 
-import { useEffectsEnabled } from '@/components/prefs/hooks';
+import { useEffectsEnabled, useHydratePrefs } from '@/components/prefs/hooks';
 import { visibleTokenText } from '@/shared/token-display';
 
 const FRAME_MS = 1000 / 30;
@@ -28,22 +28,6 @@ interface Column {
   tokens: string[];
 }
 
-interface RainState {
-  readonly paused: boolean;
-  readonly setPaused: (paused: boolean) => void;
-  readonly moving: boolean;
-}
-
-const RainContext = createContext<RainState | null>(null);
-
-/** Shares the pause state between the background canvas and its controls. */
-export function RainProvider({ children }: { children: ReactNode }) {
-  const effects = useEffectsEnabled();
-  const [paused, setPaused] = useState(false);
-  const value = useMemo(() => ({ paused, setPaused, moving: effects && !paused }), [paused, effects]);
-  return <RainContext.Provider value={value}>{children}</RainContext.Provider>;
-}
-
 function colors() {
   const css = getComputedStyle(document.documentElement);
   const get = (name: string) => css.getPropertyValue(name).trim();
@@ -52,8 +36,10 @@ function colors() {
 
 /** The background canvas: fixed behind the page, filling the window. */
 export function RainCanvas({ pool }: { pool: readonly string[] }) {
+  // Load saved preferences here too: the landing page has no other client code that does.
+  useHydratePrefs();
   const canvas = useRef<HTMLCanvasElement>(null);
-  const moving = useContext(RainContext)?.moving ?? false;
+  const moving = useEffectsEnabled();
 
   useEffect(() => {
     const el = canvas.current;
@@ -164,21 +150,5 @@ export function RainCanvas({ pool }: { pool: readonly string[] }) {
       <canvas ref={canvas} className="rain-canvas" aria-hidden="true" />
       <div className="rain-scanlines" aria-hidden="true" />
     </>
-  );
-}
-
-/** What the rain is, and its pause control (shown only when it moves). */
-export function RainControls({ children }: { children: ReactNode }) {
-  const rain = useContext(RainContext);
-  const effects = useEffectsEnabled();
-  return (
-    <p className="rain-controls">
-      <span>{children}</span>
-      {effects && rain ? (
-        <button type="button" className="btn btn-quiet" aria-pressed={rain.paused} onClick={() => rain.setPaused(!rain.paused)}>
-          {rain.paused ? 'Resume the rain' : 'Pause the rain'}
-        </button>
-      ) : null}
-    </p>
   );
 }
