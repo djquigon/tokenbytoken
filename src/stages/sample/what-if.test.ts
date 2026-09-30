@@ -29,3 +29,21 @@ describe('temperature what-if', () => {
     );
   });
 });
+
+describe('simulated picks', () => {
+  it('draws exactly n picks, only among options with a chance, following the weights', async () => {
+    const { simulatePicks, pickChances } = await import('./what-if');
+    let seed = 1;
+    const random = () => {
+      seed = (seed * 16807) % 2147483647;
+      return seed / 2147483647;
+    };
+    const counts = simulatePicks([70, 20, 10, 0], 2_000, random);
+    expect(counts.reduce((a, b) => a + b, 0)).toBe(2_000);
+    expect(counts[3]).toBe(0);
+    expect(counts[0]).toBeGreaterThan(counts[1] ?? 0);
+    expect(counts[1]).toBeGreaterThan(counts[2] ?? 0);
+    // At temperature zero every pick is the top option.
+    expect(simulatePicks(pickChances([-0.5, -1, -2], 0), 20, random)).toEqual([20, 0, 0]);
+  });
+});

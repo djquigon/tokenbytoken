@@ -37,6 +37,10 @@ export const METHODS = {
     label: 'Letters counted',
     detail: 'How many times the letter appears in the word from the question, counted by this app.',
   },
+  'simulated-picks': {
+    label: 'Simulated picks',
+    detail: 'Weighted random picks drawn on this page from the listed options’ chances at the what-if temperature. The model wasn’t asked again.',
+  },
   'temperature-what-if': {
     label: 'Chances at another temperature',
     detail:
@@ -152,6 +156,22 @@ export const RULES = {
   'context-gauge': {
     label: 'Not to scale',
     disclaimer: 'The bar lengths are schematic; the numbers beside them are the real values.',
+  },
+  'attention-duplicate-token': {
+    label: 'Rule-based pattern: duplicate token',
+    disclaimer: "Each position draws on earlier copies of the same token. A pattern found in some models' attention, not this model's.",
+  },
+  'attention-induction': {
+    label: 'Rule-based pattern: induction',
+    disclaimer: "After a repeated token, a position draws on the token that followed its earlier copy. A pattern found in some models, not this model's attention.",
+  },
+  'position-sample': {
+    label: 'Example positions',
+    disclaimer: "The same token at two positions of a sample sentence. The numbers going in are identical; they're example values, and none are shown.",
+  },
+  'feed-forward': {
+    label: 'Example feed-forward step',
+    disclaimer: "Each position is transformed on its own, with nothing passing between positions. Not this model's values.",
   },
 } as const satisfies Record<string, RuleSpec>;
 

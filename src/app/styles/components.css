@@ -270,3 +270,46 @@ button.token-chip {
   font: inherit;
   cursor: pointer;
 }
+
+/* Glossary terms (WCAG 1.4.13): a dotted underline marks a defined word; the definition floats below it. */
+.term {
+  position: relative;
+}
+.term-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--text-muted);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+.term-button:hover,
+.term-button[aria-expanded="true"] {
+  text-decoration-color: var(--text);
+}
+.term-tip {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 30;
+  width: max-content;
+  max-width: min(20rem, 80vw);
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+  white-space: normal;
+}
+.term-tip[hidden] {
+  display: none;
+}

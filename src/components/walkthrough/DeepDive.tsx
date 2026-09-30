@@ -11,9 +11,11 @@ import { DEEP_DIVE_TITLES, type DeepDiveId } from '@/content/deep-dives';
 import { read } from '@/shared/provenance/read';
 import { textBefore } from '@/stages/common';
 import { deepDiveCopy, exampleToken, recordedWrongCase, sentTemperature } from '@/stages/deep-dives';
-import { TEMPERATURE_WHAT_IF, temperatureWhatIf } from '@/stages/sample/what-if';
+import { SIMULATED_PICKS, TEMPERATURE_WHAT_IF, pickChances, simulatePicks, temperatureWhatIf } from '@/stages/sample/what-if';
+import { derive } from '@/shared/provenance';
 import type { FinalizedTrace } from '@/trace/facts';
 
+import { CheckExercise, GuessExercise } from './Exercises';
 import { fluentCaseTrace } from './fluent-case';
 import { OptionBars } from './OptionBars';
 import { RichText } from './RichText';
@@ -25,10 +27,20 @@ function TemperatureWhatIf({ trace }: { trace: FinalizedTrace }) {
   const token = exampleToken(trace);
   const sent = sentTemperature(trace);
   const [t, setT] = useState(0.5);
+  // Picks simulated at the current what-if temperature; moving the slider clears them.
+  const [picks, setPicks] = useState<number[] | null>(null);
   if (!token || !sent) return null;
   const rows = temperatureWhatIf(token, read(sent), t, WHAT_IF_ROWS);
   const top = token.alternatives[0];
-  const set = (n: number) => setT(round1(Math.min(TEMPERATURE_WHAT_IF.max, Math.max(TEMPERATURE_WHAT_IF.min, n))));
+  const set = (n: number) => {
+    setT(round1(Math.min(TEMPERATURE_WHAT_IF.max, Math.max(TEMPERATURE_WHAT_IF.min, n))));
+    setPicks(null);
+  };
+  const simulate = () => setPicks(simulatePicks(pickChances(token.alternatives.map((a) => read(a.logprob)), t), SIMULATED_PICKS, Math.random));
+  const elsewhere = picks ? picks.slice(WHAT_IF_ROWS).reduce((a, b) => a + b, 0) : 0;
+  // Each count is a What-if: drawn on this page from the chances in its row.
+  const count = (i: number, basis: (typeof rows)[number]) =>
+    derive('simulated-picks', [basis.whatIf ?? basis.sent], () => picks?.[i] ?? 0, { whatIf: true });
   const label = t === 0 ? 'zero (always the top option)' : t.toFixed(1);
   const before = textBefore(trace, token.index);
   return (
@@ -89,6 +101,7 @@ function TemperatureWhatIf({ trace }: { trace: FinalizedTrace }) {
               Temperature sent: <Datum of={sent} as="decimal" compact />
             </th>
             <th scope="col">What-if: {t === 0 ? 'zero' : t.toFixed(1)}</th>
+            {picks ? <th scope="col">Simulated picks</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -106,10 +119,26 @@ function TemperatureWhatIf({ trace }: { trace: FinalizedTrace }) {
                 <span className="what-if-bar" aria-hidden="true" />
                 {row.whatIf ? <Datum of={row.whatIf} as="pct" badge={false} /> : i === 0 ? 'every time' : 'never'}
               </td>
+              {picks ? (
+                <td data-whatif="true">
+                  <Datum of={count(i, row)} as="int" badge={false} />
+                </td>
+              ) : null}
             </tr>
           ))}
         </tbody>
       </table>
+      <p className="what-if-simulate" data-control>
+        <button type="button" className="btn" onClick={simulate}>
+          {picks ? 'Simulate again' : `Simulate ${SIMULATED_PICKS} picks at this temperature`}
+        </button>
+        {picks ? (
+          <span className="stage-note" role="status">
+            Simulated on this page; the model wasn&rsquo;t asked again.
+            {elsewhere > 0 ? ' Some picks landed on other listed options, not shown here.' : ''}
+          </span>
+        ) : null}
+      </p>
       <p className="stage-note">
         Options: <span className="legend-word">Recorded</span>. Chances: <span className="legend-word">Calculated</span> from the logprobs; the
         What-if column is <span className="legend-word">simulated on this page</span>.
@@ -119,6 +148,56 @@ function TemperatureWhatIf({ trace }: { trace: FinalizedTrace }) {
             At temperature zero, <Datum of={top.text} as="token" compact /> would be picked every time.
           </>
         ) : null}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Replays the reply on the arrival times this browser measured (docs/PLAN.md §2, Ch6). It shows how the
+ * text was delivered, network included, not how long the model took per token (CLAUDE.md A5, A6).
+ */
+function RealSpeedReplay({ trace }: { trace: FinalizedTrace }) {
+  const segments = trace.output.segments;
+  const times = segments.map((seg) => read(seg.kind === 'token' ? seg.token.arrival.browser : seg.gap.arrival.browser));
+  const texts = segments.map((seg) => read(seg.kind === 'token' ? seg.token.text : seg.gap.text));
+  const first = times[0] ?? 0;
+  const [shown, setShown] = useState<number | null>(null);
+  const frame = useRef(0);
+  useEffect(() => () => cancelAnimationFrame(frame.current), []);
+  if (segments.length === 0) return null;
+  const play = () => {
+    cancelAnimationFrame(frame.current);
+    const start = performance.now();
+    const tick = () => {
+      const elapsed = performance.now() - start;
+      let n = 0;
+      while (n < times.length && (times[n] ?? 0) - first <= elapsed) n += 1;
+      setShown(n);
+      if (n < times.length) frame.current = requestAnimationFrame(tick);
+    };
+    frame.current = requestAnimationFrame(tick);
+  };
+  const stop = () => {
+    cancelAnimationFrame(frame.current);
+    setShown(null);
+  };
+  const running = shown !== null && shown < texts.length;
+  return (
+    <div className="real-speed">
+      <p className="what-if-simulate" data-control>
+        <button type="button" className="btn" onClick={running ? stop : play}>
+          {running ? 'Stop' : shown === null ? 'Replay at the speed it arrived' : 'Replay again'}
+        </button>
+      </p>
+      {shown !== null ? (
+        <p className="real-speed-text" data-kind="recorded">
+          {texts.slice(0, shown).join('')}
+          {running ? <span className="cursor" aria-hidden="true" /> : null}
+        </p>
+      ) : null}
+      <p className="stage-note">
+        Replayed on the arrival times this browser measured, so they include the network. The time each token took to compute can&rsquo;t be observed.
       </p>
     </div>
   );
@@ -168,6 +247,9 @@ export function DeepDive({ id, trace, onClose }: { id: DeepDiveId; trace: Finali
         <p className="muted">Not available for this reply.</p>
       )}
       {id === 'temperature' && copy ? <TemperatureWhatIf trace={trace} /> : null}
+      {id === 'guess' && copy ? <GuessExercise trace={trace} /> : null}
+      {id === 'check' ? <CheckExercise /> : null}
+      {id === 'timing' ? <RealSpeedReplay trace={trace} /> : null}
       {id === 'fluent' && caseToken ? (
         <figure className="recorded-case">
           <figcaption className="stage-note">The recorded example&rsquo;s first token: the options OpenAI returned.</figcaption>

@@ -153,7 +153,7 @@ describe('compileScript', () => {
 
   it('marks every step that draws examples, and puts no Example values in the others', () => {
     for (const step of compiled(unicode).steps) {
-      const slots = [...step.scene.copy.title, ...step.scene.copy.body].filter((p) => typeof p !== 'string');
+      const slots = [...step.scene.copy.title, ...step.scene.copy.body].flatMap((p) => (typeof p !== 'string' && p.kind === 'datum' ? [p] : []));
       if (!step.scene.examples) for (const s of slots) expect(s.d.p.kind, step.key).not.toBe('example');
     }
   });
@@ -172,10 +172,12 @@ describe('compileScript', () => {
     expect(keys.some((k) => k === 'hook' || k.startsWith('pick:') || k === 'options:bars')).toBe(false);
   });
 
-  it('keeps the viewer’s place when the depth changes', () => {
-    const simple = compiled(basic, 'simple');
-    const detailed = compiled(basic, 'detailed');
-    expect(detailed.steps.map((s) => s.key)).toEqual(simple.steps.map((s) => s.key));
+  it('keeps the viewer’s place when the depth changes: Detailed only adds steps', () => {
+    const simple = compiled(basic, 'simple').steps.map((s) => s.key);
+    const detailed = compiled(basic, 'detailed').steps.map((s) => s.key);
+    // Every Simple step exists at Detailed depth, in the same order.
+    expect(detailed.filter((k) => simple.includes(k))).toEqual(simple);
+    expect(detailed).toEqual(expect.arrayContaining(['network:position', 'network:feedforward']));
   });
 
   it('shows the emoji reply’s gap-free first token and a real options list', () => {

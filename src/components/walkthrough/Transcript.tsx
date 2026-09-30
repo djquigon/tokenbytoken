@@ -5,7 +5,7 @@ import { read } from '@/shared/provenance/read';
 import { plainText } from '@/shared/sourced-text';
 import { CHAPTERS, type PlaybackScript } from '@/playback/types';
 
-import { DEEP_DIVE_TITLES } from '@/content/deep-dives';
+import { DEEP_DIVE_TITLES, EXERCISES } from '@/content/deep-dives';
 import { EXAMPLE_BANNER } from '@/content/walkthrough';
 import { DEEP_DIVE_IDS, deepDiveCopy, recordedWrongCase } from '@/stages/deep-dives';
 import type { FinalizedTrace } from '@/trace/facts';
@@ -36,7 +36,7 @@ export function Transcript({ script, trace }: { script: PlaybackScript; trace: F
       ))}
       <section aria-labelledby="transcript-deeper">
         <h3 id="transcript-deeper">Go deeper</h3>
-        {DEEP_DIVE_IDS.map((id) => {
+        {DEEP_DIVE_IDS.filter((id) => !EXERCISES.has(id)).map((id) => {
           const copy = deepDiveCopy(id, trace, id === 'fluent' ? recordedWrongCase(fluentCaseTrace()) : null);
           return copy ? (
             <section key={id} aria-labelledby={`transcript-dive-${id}`} className="transcript-dive">

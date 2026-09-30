@@ -2,7 +2,7 @@
 
 @AGENTS.md
 
-> **Project status: Phase 2 (the walkthrough), core built (ADR 0007).**
+> **Project status: Phase 2 (the walkthrough) built (ADRs 0007, 0008).**
 >
 > **What exists:**
 > - The chat (`/chat`) with streaming, Stop, retry, and every error state, backed by `/api/chat` and its
@@ -11,15 +11,17 @@
 >   as a TraceLog and folds it into labeled facts.
 > - The walkthrough beside the chat:
 >   - the Hook and chapters 1–7 at Simple and Detailed depth, with the player, chapter bar, and step mode;
->   - the token card, five deep dives, the Transcript view, and the live strip.
-> - The recorded sample conversation (`/sample`) and the landing page with its token rain.
+>   - the token card, five deep dives, two exercises, the Transcript view, and the live strip;
+>   - glossary popovers, "Is this real?" / "How do we know this?", the three lanes, and Detailed sub-scenes;
+>   - remappable shortcuts, and the first-visit tour of the chat page.
+> - The recorded sample conversation (`/sample`) and the landing page, with the token rain as its background.
 > - The Trace Inspector, the privacy notice, and `/privacy`.
 > - The claims register (generated `content/claims.md`) and the content lint.
-> - The Phase 0 probe, fixtures, and ADRs 0001–0007.
+> - The Phase 0 probe, fixtures, and ADRs 0001–0008.
 >
-> **Not built yet:** the Phase 2 items ADR 0007 lists as deferred, such as glossary popovers, "Is this
-> real?" buttons, the first-visit orientation, and some Detailed sub-scenes. Also everything after Phase 2.
-> Sections below that describe those describe intended structure.
+> **Not built yet:** the few plan items ADR 0008 lists as still open (linked highlighting, the Hook's "pick
+> another close call", an "Instant" speed), and everything after Phase 2. Sections below that describe
+> those describe intended structure.
 >
 > Items marked **PROVISIONAL** are proposals, not decisions. When one is decided, record an ADR in
 > `docs/decisions/` and update this file. Never describe planned files or commands as if they already exist.
@@ -64,7 +66,9 @@ prompt and response.
 11. **Visual identity: a "digital-rain terminal" inspired by *The Matrix*.** Green phosphor on near-black,
     with monospace glyphs.
     - Glyphs only ever represent *tokens* (text), never parameters or numbers.
-    - The token rain is made of real tokens and is captioned as such.
+    - The token rain is made of real tokens and is captioned as such. On the landing page it fills the
+      background, picked at random from thousands of real words and numbers, and every block of text sits on
+      a solid card, never over it (ADR 0008).
     - Real data glows; examples are wireframes.
     - Body text is pale green-white, not neon.
     - Inspired by the film, never copied from it: no film names, quotes, logos, or glyph designs, and no pill
@@ -227,24 +231,25 @@ src/trace/            log · reducer · finalize · facts · live (the live stri
                       reconcile · close-calls · provs
 src/generation/       client (fetch + SSE + watchdog) · conversation-store · persist (sessionStorage)
 src/playback/         machine · clock · controller · types · compile/ (compile, pacing)
-src/stages/           contract · common · scenes · deep-dives · <stage>/{build, View} for probs, context,
-                      tokenize, network, sample (+ what-if), loop, followup
-src/content/          walkthrough.ts and deep-dives.ts (all copy, with claim IDs) · claims.ts (the
-                      register) · content-lint.test.ts
-src/components/       provenance/ (Datum, ProvBadge) · chat/ (ChatApp, TurnView, Composer, LiveStrip, …) ·
-                      walkthrough/ (Walkthrough, StageView, TokenCard, DeepDive, Transcript, OptionBars, …) ·
-                      tokens/ (TokenTape) · prefs/ (store, hooks, PrefsMenu) · effects/ (TokenRain,
-                      DecodeText) · inspector/ (TraceInspector) · ui/ (icons)
+src/stages/           contract · common · scenes · lanes · deep-dives · <stage>/{build, View} for probs,
+                      context, tokenize, network (+ patterns), sample (+ what-if), loop, followup
+src/content/          walkthrough.ts, deep-dives.ts, and glossary.ts (all copy, with claim IDs) · claims.ts
+                      (the register) · rain-tokens.json (generated) · content-lint.test.ts
+src/components/       provenance/ (Datum, ProvBadge) · chat/ (ChatApp, TurnView, Composer, LiveStrip, Tour,
+                      …) · walkthrough/ (Walkthrough, StageView, TokenCard, DeepDive, Exercises, WhereFrom,
+                      Lanes, Transcript, OptionBars, …) · glossary/ (Term) · tokens/ (TokenTape) · prefs/
+                      (store, keys, hooks, PrefsMenu) · effects/ (TokenRain, DecodeText) · inspector/
+                      (TraceInspector) · ui/ (icons)
 src/test/             test harnesses: chat route, probe fixtures, fake Redis + Lua VM, sample fixtures
 content/claims.md     claims register, generated from src/content/claims.ts (npm run claims)
 scripts/              probe/ (live capability probe) · record-sample.mts · build-claims.mts ·
-                      check-client-bundle.mts
+                      build-rain-tokens.mts · check-client-bundle.mts
 fixtures/probe/       sanitized recorded streams per model (written only by the probe)
 fixtures/sample/      the recorded sample conversation and wrong-answer case (written only by
                       record-sample.mts)
 e2e/                  Playwright tests (chat, walkthrough, pages, smoke) · mock-openai.mts (replays the
                       probe fixtures)
-docs/                 PLAN.md · decisions/ (ADRs 0001–0007) · probe/
+docs/                 PLAN.md · decisions/ (ADRs 0001–0008) · probe/
 ```
 **Planned (later phases; nothing below exists yet):**
 ```
@@ -576,6 +581,7 @@ fill in the values.
 | `npm run check` | Typecheck, lint, unit tests, build, and the bundle check, in order |
 | `npm run mock:openai` | Start the mock OpenAI on port 3299 (see "Local chat without spending" below) |
 | `npm run claims` | Regenerate `content/claims.md` from `src/content/claims.ts` (a test fails if they differ) |
+| `npm run rain` | Regenerate the token rain's pool (`src/content/rain-tokens.json`) from this project's writing, plus the numbers 0 to 999 (a test checks each is one real token) |
 | `npm run record:sample` | Re-record `fixtures/sample/` through a local production build with the real key (run `npm run build` first; OPENAI_BASE_URL must be unset). At most 10 short turns, well under a cent. Never in CI. |
 | `npm run probe` | Live capability probe. Needs `OPENAI_API_KEY` in `.env.local` and costs about 1–2¢. Never run it in CI. |
 
@@ -641,21 +647,27 @@ type-only imports, and include the `.mts` extension on relative imports.
 - The sample recording cost about $0.00011. Early visual checks accidentally reached the real API, about
   $0.0006 in all; the launch configuration now forces the mock.
 
+**Phase 2 extras (2026-09-30):** ADR 0008.
+- Built everything ADR 0007 deferred:
+  - remappable shortcuts, glossary popovers, and "Is this real?" / "How do we know this?";
+  - the three lanes, the Detailed network sub-scenes, and more example attention patterns;
+  - simulated picks, the two exercises, the formatted / as-written toggle, and the real-speed replay;
+  - the first-visit tour.
+- The token rain is now the landing page's background: thousands of real tokens, picked at random.
+- The walkthrough is memoized and its announcements isolated, which brought the slowest measured
+  interaction to 160 ms.
+- Tested by 41 end-to-end tests and 208 unit tests.
+
 **Open (proceeding on defaults):**
-- **Phase 2 items not built yet** (ADR 0007, "Deferred"):
-  - glossary popovers, and "Is this real?" buttons;
-  - the first-visit orientation, and the "real or example?" check;
-  - "guess which is likely", "simulate 20 picks", and "show another example pattern";
-  - the Detailed sub-scenes, and the three lanes at Detailed depth;
-  - the raw/rendered Markdown toggle, and the real-speed replay;
-  - remappable shortcuts.
+- **Plan items still open** (ADR 0008): linked highlighting of a token across the chat and the walkthrough,
+  the Hook's "pick another close call", and an "Instant" playback speed.
 - A manual NVDA and VoiceOver pass (owner, before release).
-- **Production launch checklist** (owner approval required):
-  1. Pin Next.js to 16.3.8 or later. It's the security release, and wasn't published as of 2026-09-30.
-  2. Set Production variables: `OPENAI_API_KEY` (the production project's key), a `HISTORY_SIGNING_SECRET`
+- **Production launch checklist** (owner approval required). Next.js is pinned to the 16.3.8 security
+  release (exact, with `eslint-config-next` 16.3.8; 2026-09-30), so what remains is:
+  1. Set Production variables: `OPENAI_API_KEY` (the production project's key), a `HISTORY_SIGNING_SECRET`
      different from Preview's, and the Upstash connection for Production (the same database is fine).
-  3. Deploy, then repeat the Preview checks: a question, a follow-up, and a Stop.
-- Script size is over its warnings: 362 KB gzipped across all routes (2026-09-30), while the speed targets
+  2. Deploy, then repeat the Preview checks: a question, a follow-up, and a Stop.
+- Script size is over its warnings: 371 KB gzipped across all routes (2026-09-30), while the speed targets
   are met. Take cheap savings, such as `zod/mini` in the browser, when convenient. Size is never a blocker.
 - Optional: check streaming in Safari and iOS Safari. Padding is already in place.
 - The label vocabulary (default: four labels plus What-if).

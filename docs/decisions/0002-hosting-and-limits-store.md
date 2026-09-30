@@ -36,7 +36,8 @@ lock, and the daily budget ledger need a shared store.
 - Hobby allows only one WAF rule, so every other limit lives in the route handler and Redis.
 - If Redis is unreachable, the chat endpoint fails closed (no request is sent to OpenAI).
 - Before any public deployment, pin Next.js to the 16.3.8 security release or later (not yet published on
-  2026-09-30; 16.3.7 is installed).
+  2026-09-30; 16.3.7 is installed). **Update, 2026-09-30:** pinned to 16.3.8 exactly, with
+  `eslint-config-next` 16.3.8, once it was published.
 
 ## Open verification
 - Streaming in Safari and iOS Safari. Chrome is verified; Safari's 1 KB buffering is already handled with

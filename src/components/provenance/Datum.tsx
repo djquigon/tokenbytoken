@@ -1,6 +1,6 @@
 // The only way to show a labeled value (CLAUDE.md §3): the formatted value plus its label, as text.
 
-import type { Kind, Sourced } from '@/shared/provenance';
+import { sourceDetail, sourceLine, type Kind, type Sourced } from '@/shared/provenance';
 import { provOf, read } from '@/shared/provenance/read';
 
 import { formatValue, type Format, type FormatValues } from '@/shared/format';
@@ -41,7 +41,9 @@ export function Datum<F extends Format>({ of, as, approx = false, compact = fals
   const text = formatValue(as, read(of));
   const Tag = block ? 'div' : 'span';
   return (
-    <Tag className="datum" data-kind={p.kind} data-whatif={of.whatIf ? 'true' : undefined}>
+    // data-source and data-detail feed "Is this real?" / "How do we know this?" (WhereFrom), which lists
+    // exactly the values a step shows.
+    <Tag className="datum" data-kind={p.kind} data-whatif={of.whatIf ? 'true' : undefined} data-source={sourceLine(p)} data-detail={sourceDetail(p)}>
       {block ? (
         // Focusable so keyboard users can scroll a long block (it has a max height).
         <pre className="datum-block" dir="auto" tabIndex={0}>

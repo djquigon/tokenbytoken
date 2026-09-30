@@ -129,7 +129,7 @@ The browser build is 362 KB gzipped in total across all routes. That is a warnin
   The unit tests cover the engine, the What-if math, the sample fixtures, the claims register, and the lint.
 - **Re-recording.** Re-recording the sample means running `npm run record:sample` (real API, well under a
   cent) and reviewing the new files.
-- **Deferred from the plan's Phase 2 list:**
+- **Deferred from the plan's Phase 2 list** (all built since; see ADR 0008):
   - glossary popovers, and the "Is this real?" button on each panel;
   - the first-visit orientation, and the "real or example?" wrap-up check;
   - "guess which is likely", "simulate 20 picks", and "show another example pattern";

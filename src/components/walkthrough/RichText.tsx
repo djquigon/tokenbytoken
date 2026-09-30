@@ -1,5 +1,6 @@
 // Renders SourcedText: words as text, values through <Datum> with their labels.
 
+import { Term } from '@/components/glossary/Term';
 import { Datum } from '@/components/provenance/Datum';
 import type { SourcedText, Slot } from '@/shared/sourced-text';
 
@@ -11,7 +12,17 @@ function SlotView({ slot }: { slot: Slot }) {
 export function RichText({ text }: { text: SourcedText }) {
   return (
     <>
-      {text.map((part, i) => (typeof part === 'string' ? <span key={i}>{part}</span> : <SlotView key={i} slot={part} />))}
+      {text.map((part, i) =>
+        typeof part === 'string' ? (
+          <span key={i}>{part}</span>
+        ) : part.kind === 'term' ? (
+          <Term key={i} id={part.id}>
+            {part.text}
+          </Term>
+        ) : (
+          <SlotView key={i} slot={part} />
+        ),
+      )}
     </>
   );
 }

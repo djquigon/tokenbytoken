@@ -3,12 +3,81 @@
 // Settings: theme, effects, motion, walkthrough autoplay, shortcuts, and the live view. A disclosure (not a
 // modal), so it never traps focus; Esc closes it.
 
-import { useRef } from 'react';
+import { useId, useRef, useState } from 'react';
 
 import { SettingsIcon } from '@/components/ui/icons';
 
 import { usePrefs } from './hooks';
+import { ACTION_LABEL, DEFAULT_KEYS, SHORTCUT_ACTIONS, assignKey, keyLabel, keyName, type ShortcutAction } from './keys';
 import { prefsStore, type Preferences } from './store';
+
+/** Remaps walkthrough shortcuts (WCAG 2.1.4): choose an action, then press the new key. Esc cancels. */
+function KeyEditor() {
+  const id = useId();
+  const keys = usePrefs((s) => s.keys);
+  const [listening, setListening] = useState<ShortcutAction | null>(null);
+  const [note, setNote] = useState('');
+  return (
+    <fieldset className="pref key-editor">
+      <legend>Shortcut keys</legend>
+      <ul>
+        {SHORTCUT_ACTIONS.map((a) => (
+          <li key={a}>
+            <span id={`${id}-${a}`}>{ACTION_LABEL[a]}</span>
+            <button
+              type="button"
+              className="btn btn-quiet"
+              aria-labelledby={`${id}-${a} ${id}-${a}-key`}
+              aria-pressed={listening === a}
+              onClick={() => {
+                setListening(listening === a ? null : a);
+                setNote('');
+              }}
+              onKeyDown={(e) => {
+                if (listening !== a) return;
+                if (e.key === 'Escape') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setListening(null);
+                  setNote('Unchanged.');
+                  return;
+                }
+                const name = keyName(e);
+                if (!name) return;
+                e.preventDefault();
+                e.stopPropagation();
+                const { keymap, takenFrom } = assignKey(keys, a, name);
+                prefsStore.getState().set({ keys: keymap });
+                setListening(null);
+                setNote(
+                  takenFrom
+                    ? `${keyLabel(name)} now does “${ACTION_LABEL[a]}” instead of “${ACTION_LABEL[takenFrom]}”.`
+                    : `${keyLabel(name)} now does “${ACTION_LABEL[a]}”.`,
+                );
+              }}
+            >
+              <span id={`${id}-${a}-key`}>{listening === a ? 'Press a key…' : keys[a].map(keyLabel).join(' or ') || 'no key'}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p className="notice-hint" role="status">
+        {note}
+      </p>
+      <button
+        type="button"
+        className="btn btn-quiet"
+        onClick={() => {
+          prefsStore.getState().set({ keys: DEFAULT_KEYS });
+          setListening(null);
+          setNote('Shortcut keys reset to the defaults.');
+        }}
+      >
+        Reset the keys
+      </button>
+    </fieldset>
+  );
+}
 
 function Choice<K extends keyof Preferences>({
   name,
@@ -36,6 +105,7 @@ function Choice<K extends keyof Preferences>({
 
 export function PrefsMenu() {
   const details = useRef<HTMLDetailsElement>(null);
+  const shortcutsOn = usePrefs((s) => s.shortcuts);
   return (
     <details
       ref={details}
@@ -65,6 +135,10 @@ export function PrefsMenu() {
         <Choice name="autoplay" label="Start the walkthrough automatically" options={[{ value: false, label: 'No' }, { value: true, label: 'Yes' }]} />
         <Choice name="liveStrip" label="Live view while a reply arrives" options={[{ value: true, label: 'Show' }, { value: false, label: 'Hide' }]} />
         <Choice name="shortcuts" label="Keyboard shortcuts in the walkthrough" options={[{ value: true, label: 'On' }, { value: false, label: 'Off' }]} />
+        {shortcutsOn ? <KeyEditor /> : null}
+        <button type="button" className="btn btn-quiet" onClick={() => prefsStore.getState().set({ tourSeen: false })}>
+          Show the chat page tour again
+        </button>
       </div>
     </details>
   );

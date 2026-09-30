@@ -5,6 +5,8 @@
 import { z } from 'zod';
 import { createStore } from 'zustand/vanilla';
 
+import { DEFAULT_KEYS, SHORTCUT_ACTIONS, type Keymap } from './keys';
+
 export const PREFS_KEY = 'tbt:prefs:v1';
 
 export const DEPTHS = ['simple', 'detailed', 'technical'] as const;
@@ -20,7 +22,14 @@ const prefsSchema = z.object({
   /** The walkthrough is offered, never started automatically, unless the viewer opts in. */
   autoplay: z.boolean().catch(false),
   shortcuts: z.boolean().catch(true),
+  /** Remapped shortcut keys (WCAG 2.1.4); any malformed map falls back to the defaults. */
+  keys: z
+    .record(z.enum(SHORTCUT_ACTIONS), z.array(z.string().min(1).max(24)).max(3))
+    .catch(DEFAULT_KEYS as Record<(typeof SHORTCUT_ACTIONS)[number], string[]>)
+    .transform((k) => k as Keymap),
   liveStrip: z.boolean().catch(true),
+  /** The first-visit tour of the chat page, once seen or skipped. */
+  tourSeen: z.boolean().catch(false),
 });
 
 export type Preferences = z.infer<typeof prefsSchema>;
@@ -43,6 +52,7 @@ function apply(p: Preferences) {
   d.theme = p.theme;
   d.effects = p.effects ? 'on' : 'off';
   d.motion = p.motion;
+  d.tour = p.tourSeen ? 'seen' : 'new';
 }
 
 export interface PrefsState extends Preferences {
@@ -73,12 +83,12 @@ export const prefsStore = createStore<PrefsState>()((set, get) => ({
 }));
 
 function pick(s: PrefsState): Preferences {
-  const { theme, effects, motion, depth, speed, autoplay, shortcuts, liveStrip } = s;
-  return { theme, effects, motion, depth, speed, autoplay, shortcuts, liveStrip };
+  const { theme, effects, motion, depth, speed, autoplay, shortcuts, keys, liveStrip, tourSeen } = s;
+  return { theme, effects, motion, depth, speed, autoplay, shortcuts, keys, liveStrip, tourSeen };
 }
 
 /**
  * Runs in <head> before first paint so the page never flashes the wrong theme. Kept tiny and defensive:
  * unknown or malformed values fall back to the defaults.
  */
-export const THEME_INIT_SCRIPT = `(function(){try{var p=JSON.parse(localStorage.getItem(${JSON.stringify(PREFS_KEY)})||"{}");var d=document.documentElement.dataset;d.theme=p.theme==="light"?"light":"dark";d.effects=p.effects===false?"off":"on";d.motion=p.motion==="reduce"||p.motion==="full"?p.motion:"system";}catch(e){}})();`;
+export const THEME_INIT_SCRIPT = `(function(){try{var p=JSON.parse(localStorage.getItem(${JSON.stringify(PREFS_KEY)})||"{}");var d=document.documentElement.dataset;d.theme=p.theme==="light"?"light":"dark";d.effects=p.effects===false?"off":"on";d.motion=p.motion==="reduce"||p.motion==="full"?p.motion:"system";d.tour=p.tourSeen===true?"seen":"new";}catch(e){}})();`;

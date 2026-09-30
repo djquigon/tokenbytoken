@@ -44,3 +44,31 @@ export function temperatureWhatIf(token: OutputToken, sentTemperature: number, t
     whatIf: what ? derive('temperature-what-if', [what], (xs) => xs[i] ?? 0, { whatIf: true }) : null,
   }));
 }
+
+/** How many simulated picks to draw: enough to show variety, few enough to read. */
+export const SIMULATED_PICKS = 20;
+
+/**
+ * Weighted random picks drawn on this page from the given chances (What-if: the model isn't asked again).
+ * `random` is injected so the draw can be tested; the page passes Math.random.
+ */
+export function simulatePicks(chances: readonly number[], n: number, random: () => number): number[] {
+  const counts = chances.map(() => 0);
+  const total = chances.reduce((a, b) => a + b, 0);
+  if (total <= 0) return counts;
+  for (let k = 0; k < n; k += 1) {
+    let r = random() * total;
+    let i = 0;
+    for (; i < chances.length - 1; i += 1) {
+      r -= chances[i] ?? 0;
+      if (r < 0) break;
+    }
+    counts[i] = (counts[i] ?? 0) + 1;
+  }
+  return counts;
+}
+
+/** The chances used for picks at a temperature: the top option always, at zero. */
+export function pickChances(logprobs: readonly number[], temperature: number): number[] {
+  return temperature > 0 ? chancesAt(logprobs, temperature) : logprobs.map((_, i) => (i === 0 ? 100 : 0));
+}

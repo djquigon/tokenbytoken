@@ -1,6 +1,13 @@
 // Views for "Add it, repeat, until it ends".
 
+'use client';
+
+import { useState } from 'react';
+
+import { AssistantReply } from '@/components/chat/AssistantReply';
 import { Datum } from '@/components/provenance/Datum';
+import { ProvBadge } from '@/components/provenance/ProvBadge';
+import { provOf, read } from '@/shared/provenance/read';
 import { TokenTape, type TapeToken } from '@/components/tokens/TokenTape';
 import { ExampleFrame } from '@/components/walkthrough/ExampleFrame';
 import { OptionBars } from '@/components/walkthrough/OptionBars';
@@ -87,17 +94,57 @@ export function MontageView({
 }
 
 export function EndView({ trace, onToken }: { scene: SceneOf<'stop', 'end'>; trace: FinalizedTrace; onToken: (tokenIndex: number) => void }) {
+  // Close calls are outlined on the tape (Calculated with the displayed rule).
+  const close = new Set(read(trace.closeCalls).all);
+  const outlined = new Set(trace.output.segments.flatMap((s, i) => (s.kind === 'token' && close.has(s.token.index) ? [i] : [])));
   return (
     <div className="end-view">
       <TokenTape
         tokens={replyTape(trace)}
-        label="The whole reply as tokens. Activate a token to see its options."
+        label="The whole reply as tokens, close calls outlined. Activate a token to see its options."
+        highlight={outlined}
         onActivate={(i) => {
           const index = tokenAt(trace, i);
           if (index !== null) onToken(index);
         }}
       />
-      <p className="stage-note">Select any token to see the options OpenAI returned for it.</p>
+      <p className="stage-note" data-method="close-call">
+        Select any token to see the options OpenAI returned for it.
+        {outlined.size > 0 ? ' Outlined: the close calls, where the pick was under half the chances or the top two were close.' : ''}
+      </p>
+      <ReplyText trace={trace} />
+    </div>
+  );
+}
+
+/** The reply formatted, or as written: formatting such as bold is just characters the model wrote. */
+function ReplyText({ trace }: { trace: FinalizedTrace }) {
+  const [asWritten, setAsWritten] = useState(false);
+  const text = trace.output.finalText ?? trace.output.text;
+  return (
+    <div className="reply-text">
+      <div className="reply-text-head">
+        <div className="segmented" role="group" aria-label="Show the reply">
+          <button type="button" aria-pressed={!asWritten} onClick={() => setAsWritten(false)}>
+            Formatted
+          </button>
+          <button type="button" aria-pressed={asWritten} onClick={() => setAsWritten(true)}>
+            As written
+          </button>
+        </div>
+        <ProvBadge prov={provOf(text)} compact />
+      </div>
+      {asWritten ? (
+        <Datum of={text} as="text" block badge={false} />
+      ) : (
+        // Focusable, so a long reply can be scrolled from the keyboard.
+        <div className="reply-rendered" data-kind={provOf(text).kind} tabIndex={0} role="region" aria-label="The reply, formatted">
+          <AssistantReply text={read(text)} />
+        </div>
+      )}
+      <p className="stage-note">
+        Formatting is just characters the model wrote, such as asterisks around a word; this app turns them into bold or lists.
+      </p>
     </div>
   );
 }

@@ -3,7 +3,9 @@
 
 import {
   type RecordedWrongCase,
+  checkDive,
   contextDive,
+  guessDive,
   fluentDive,
   learningDive,
   temperatureDive,
@@ -17,7 +19,7 @@ import type { FinalizedTrace } from '@/trace/facts';
 
 import { firstToken, hookMoment } from './common';
 
-export const DEEP_DIVE_IDS: readonly DeepDiveId[] = ['fluent', 'temperature', 'context', 'learning', 'timing'];
+export const DEEP_DIVE_IDS: readonly DeepDiveId[] = ['fluent', 'temperature', 'context', 'learning', 'timing', 'guess', 'check'];
 
 /** The token the deep dives use as their example: the Hook's close call, or the first token. */
 export const exampleToken = (trace: FinalizedTrace) => hookMoment(trace)?.token ?? firstToken(trace);
@@ -67,6 +69,10 @@ export function deepDiveCopy(id: DeepDiveId, trace: FinalizedTrace, wrongCase: R
         : null;
     case 'learning':
       return learningDive({ trainingUse: request?.reference.apiDataUsedForTraining ?? null });
+    case 'guess':
+      return guessPositions(trace).length > 0 ? guessDive() : null;
+    case 'check':
+      return checkDive();
     case 'timing':
       return timingDive({
         firstText: trace.timing.durations.browserToFirstText,
@@ -74,4 +80,17 @@ export function deepDiveCopy(id: DeepDiveId, trace: FinalizedTrace, wrongCase: R
         rate: trace.timing.deliveryRate,
       });
   }
+}
+
+/**
+ * Positions for "Guess the likely option": up to three close calls from the reply (featured first), each
+ * with at least two listed options, or the first token when there are none.
+ */
+export function guessPositions(trace: FinalizedTrace): readonly number[] {
+  const { featured, all } = read(trace.closeCalls);
+  const withOptions = (i: number) => (trace.output.tokens[i]?.alternatives.length ?? 0) >= 2;
+  const picked = [...new Set([...featured, ...all])].filter(withOptions).slice(0, 3);
+  if (picked.length > 0) return picked;
+  const first = firstToken(trace);
+  return first && withOptions(first.index) ? [first.index] : [];
 }

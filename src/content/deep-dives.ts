@@ -8,7 +8,7 @@ import { slot, st, type SourcedText } from '@/shared/sourced-text';
 
 import type { ClaimId } from './claims';
 
-export type DeepDiveId = 'fluent' | 'temperature' | 'context' | 'learning' | 'timing';
+export type DeepDiveId = 'fluent' | 'temperature' | 'context' | 'learning' | 'timing' | 'guess' | 'check';
 
 export const DEEP_DIVE_TITLES: Readonly<Record<DeepDiveId, string>> = {
   fluent: 'Why fluent answers can be wrong',
@@ -16,7 +16,12 @@ export const DEEP_DIVE_TITLES: Readonly<Record<DeepDiveId, string>> = {
   context: 'Context limits and history',
   learning: 'Does it learn from me?',
   timing: 'How long did it take?',
+  guess: 'Guess the likely option',
+  check: 'Real or example? A quick check',
 };
+
+/** The deep dives that are interactive exercises; the Transcript lists only the others. */
+export const EXERCISES: ReadonlySet<DeepDiveId> = new Set(['guess', 'check']);
 
 export interface DeepDiveCopy {
   readonly paragraphs: readonly SourcedText[];
@@ -101,3 +106,56 @@ export const timingDive = (v: { firstText: Sourced<number> | null; total: Source
   ].filter((p) => p.length > 0),
   claims: ['C013'],
 });
+
+export const guessDive = (): DeepDiveCopy => ({
+  paragraphs: [
+    st`Before you see the percentages: which option did the model score highest? These are real positions from your reply, with the real options OpenAI returned.`,
+  ],
+  claims: ['C034', 'C011'],
+});
+
+export const checkDive = (): DeepDiveCopy => ({
+  paragraphs: [
+    st`Sort each thing from the walkthrough: real data from your conversation, or a teaching example? Values this app worked out from what was recorded count as real data.`,
+  ],
+  claims: ['C027', 'C031'],
+});
+
+/** The "real or example?" items (docs/PLAN.md §1, optional wrap-up). Answers match the labels the walkthrough shows. */
+export const REAL_OR_EXAMPLE = [
+  {
+    thing: 'The options listed for a token, in “The options for the next token”',
+    answer: 'real',
+    why: 'Real: these token strings are what OpenAI returned (Recorded).',
+  },
+  {
+    thing: 'The percentages beside those options',
+    answer: 'real',
+    why: 'Real data, worked out by this app from the logprobs OpenAI returned (Calculated).',
+  },
+  {
+    thing: 'The arrows between tokens in “Inside the network”',
+    answer: 'example',
+    why: 'An example: a teaching pattern. The API doesn’t expose this model’s attention.',
+  },
+  {
+    thing: 'The number of layers drawn',
+    answer: 'example',
+    why: 'An example: OpenAI hasn’t published how many layers this model has.',
+  },
+  {
+    thing: 'Your message split into tokens',
+    answer: 'real',
+    why: 'Real data, computed by this app with the tokenizer it assumes this model uses (Calculated).',
+  },
+  {
+    thing: 'Where the pointer landed in “A weighted random pick”',
+    answer: 'example',
+    why: 'An example: the random draw itself can’t be observed, only the token it produced.',
+  },
+  {
+    thing: 'The instructions shown in “What gets sent”',
+    answer: 'real',
+    why: 'Real: sent by this app, word for word (Recorded).',
+  },
+] as const satisfies readonly { thing: string; answer: 'real' | 'example'; why: string }[];

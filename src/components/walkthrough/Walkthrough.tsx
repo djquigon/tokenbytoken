@@ -4,10 +4,11 @@
 // viewer controls. React renders once per step; within-step motion is the --p custom property, written by
 // the controller's progress stream straight to the stage element.
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
+import { Fragment, memo, useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
 
 import { DecodeText } from '@/components/effects/DecodeText';
 import { usePrefs, useReducedMotion } from '@/components/prefs/hooks';
+import { ACTION_LABEL, SHORTCUT_ACTIONS, actionFor, keyLabel, keyName } from '@/components/prefs/keys';
 import { DEPTHS, SPEEDS, prefsStore, type Depth } from '@/components/prefs/store';
 import {
   ChapterNextIcon,
@@ -22,15 +23,19 @@ import { DEEP_DIVE_TITLES, type DeepDiveId } from '@/content/deep-dives';
 import { EXAMPLE_BANNER } from '@/content/walkthrough';
 import { compileScript } from '@/playback/compile/compile';
 import { createPlaybackController, type PlaybackController } from '@/playback/controller';
-import { CHAPTERS, type ChapterId, type PlaybackScript } from '@/playback/types';
+import { CHAPTERS, type ChapterId, type PlaybackScript, type Step } from '@/playback/types';
 import { read } from '@/shared/provenance/read';
 import { plainText } from '@/shared/sourced-text';
 import type { FinalizedTrace } from '@/trace/facts';
 
+import { laneOf } from '@/stages/lanes';
+
 import { DeepDive } from './DeepDive';
+import { Lanes } from './Lanes';
 import { RichText } from './RichText';
 import { StageView } from './StageView';
 import { TokenCard } from './TokenCard';
+import { WhereFrom } from './WhereFrom';
 import { Transcript } from './Transcript';
 
 const DEPTH_LABEL: Record<Depth, string> = { simple: 'Simple', detailed: 'Detailed', technical: 'Technical' };
@@ -39,12 +44,12 @@ const EXAMPLE_CHAPTERS = new Set(['network', 'options', 'pick', 'loop']);
 const DIVES_BY_CHAPTER: Partial<Record<ChapterId, readonly DeepDiveId[]>> = {
   context: ['context', 'learning'],
   network: ['learning'],
-  options: ['fluent'],
+  options: ['fluent', 'guess'],
   pick: ['temperature'],
   loop: ['timing', 'fluent'],
   followup: ['context', 'learning'],
 };
-const ALL_DIVES: readonly DeepDiveId[] = ['fluent', 'temperature', 'context', 'learning', 'timing'];
+const ALL_DIVES: readonly DeepDiveId[] = ['fluent', 'temperature', 'context', 'learning', 'timing', 'guess', 'check'];
 const ANNOUNCE_EVERY_MS = 2_000;
 
 const browserClock = {
@@ -58,7 +63,8 @@ const minutes = (ms: number) => {
   return `≈ ${m} min`;
 };
 
-export function Walkthrough({
+/** Memoized: the chat page re-renders on pane switches and selection changes, which shouldn't redo this. */
+export const Walkthrough = memo(function Walkthrough({
   trace,
   onFinished,
   autoplay = false,
@@ -71,6 +77,7 @@ export function Walkthrough({
   const depth = usePrefs((s) => s.depth);
   const speed = usePrefs((s) => s.speed);
   const shortcuts = usePrefs((s) => s.shortcuts);
+  const keys = usePrefs((s) => s.keys);
   const reduced = useReducedMotion();
   const compiled = useMemo(() => compileScript(trace, { depth }), [trace, depth]);
   const script = compiled.ok ? compiled.script : null;
@@ -124,21 +131,13 @@ export function Walkthrough({
   const [transcript, setTranscript] = useState(false);
   const [focusToken, setFocusToken] = useState<number | null>(null);
   const [deepDive, setDeepDive] = useState<DeepDiveId | null>(null);
+  const [whereFrom, setWhereFrom] = useState(false);
+  const stepView = useRef<HTMLDivElement>(null);
   const [showKeys, setShowKeys] = useState(false);
   // The offer's buttons disappear once used, so focus moves to the player's main button instead of the page.
   const [focusPlayer, setFocusPlayer] = useState(false);
 
-  // One polite description per step, at most every 2 s while playing (CLAUDE.md §8).
-  const [announcement, setAnnouncement] = useState('');
-  const lastAnnounce = useRef(0);
   const current = snapshot ? snapshot.script.steps[snapshot.step] : undefined;
-  useEffect(() => {
-    if (!current || !snapshot) return;
-    const now = performance.now();
-    if (snapshot.status === 'playing' && now - lastAnnounce.current < ANNOUNCE_EVERY_MS) return;
-    lastAnnounce.current = now;
-    setAnnouncement(`Step ${current.index + 1} of ${snapshot.script.steps.length}. ${plainText(current.describe, read as never)}`);
-  }, [current, snapshot]);
 
   if (!script || !controller || !snapshot || !current) {
     return (
@@ -155,25 +154,27 @@ export function Walkthrough({
   const dives = offer ? [] : current.index === script.steps.length - 1 ? ALL_DIVES : (DIVES_BY_CHAPTER[current.chapter] ?? []);
   const playing = snapshot.status === 'playing';
 
+  // Shortcuts come from the viewer's keymap (remappable in Settings, WCAG 2.1.4).
   const onKeyDown = (e: KeyboardEvent) => {
-    if (!shortcuts || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'Escape' && showKeys) {
+      e.preventDefault();
+      setShowKeys(false);
+      return;
+    }
+    if (!shortcuts) return;
     const target = e.target as HTMLElement;
     if (target.closest('input, textarea, select, [contenteditable="true"]')) return;
-    const act = (fn: () => void) => {
-      e.preventDefault();
-      fn();
-    };
-    if (e.key === ' ') {
-      // Space keeps its usual meaning on controls (it activates them).
-      if (target.closest('button, a, summary')) return;
-      act(() => dispatch({ type: 'toggle' }));
-    } else if (e.key === 'k') act(() => dispatch({ type: 'toggle' }));
-    else if (e.key === 'ArrowRight') act(() => dispatch({ type: e.shiftKey ? 'nextChapter' : 'next' }));
-    else if (e.key === 'ArrowLeft') act(() => dispatch({ type: e.shiftKey ? 'prevChapter' : 'prev' }));
-    else if (e.key === 'Home') act(() => dispatch({ type: 'seek', step: 0 }));
-    else if (e.key === 'End') act(() => dispatch({ type: 'seek', step: script.steps.length - 1 }));
-    else if (e.key === '?') act(() => setShowKeys((v) => !v));
-    else if (e.key === 'Escape' && showKeys) act(() => setShowKeys(false));
+    const name = keyName(e);
+    const action = actionFor(keys, name);
+    if (!action) return;
+    // Space keeps its usual job on controls: it activates them.
+    if (name === 'Space' && target.closest('button, a, summary')) return;
+    e.preventDefault();
+    if (action === 'toggle') dispatch({ type: 'toggle' });
+    else if (action === 'next' || action === 'prev' || action === 'nextChapter' || action === 'prevChapter') dispatch({ type: action });
+    else if (action === 'first') dispatch({ type: 'seek', step: 0 });
+    else if (action === 'last') dispatch({ type: 'seek', step: script.steps.length - 1 });
+    else setShowKeys((v) => !v);
   };
 
   const skip = () => {
@@ -210,68 +211,91 @@ export function Walkthrough({
         <Transcript script={script} trace={trace} />
       ) : (
         <>
+          <Lanes trace={trace} lane={laneOf(scene)} detailed={depth !== 'simple'} />
           {EXAMPLE_CHAPTERS.has(current.chapter) && scene.examples ? (
             <p className="banner-examples">
               <span className="example-tag-inline">Contains examples</span> <RichText text={EXAMPLE_BANNER} />
             </p>
           ) : null}
-          <div
-            className="stage"
-            data-stage={scene.stage}
-            data-view={scene.view}
-            data-step-mode={snapshot.stepMode ? 'true' : undefined}
-            key={current.key}
-          >
-            <StageView
-              scene={scene}
-              trace={trace}
-              onToken={(i) => {
-                dispatch({ type: 'pause' });
-                setDeepDive(null);
-                setFocusToken(i);
-              }}
-            />
-          </div>
-          <div className="caption">
-            <h3 className="caption-title">
-              <RichText text={scene.copy.title} />
-            </h3>
-            <p className="caption-body">
-              <RichText text={scene.copy.body} />
-            </p>
-            {depth !== 'simple' && scene.copy.detail ? (
-              <p className="caption-detail">
-                <RichText text={scene.copy.detail} />
+          {/* The step itself: what "Is this real?" reads its labels from. */}
+          <div ref={stepView} className="step-view">
+            <div
+              className="stage"
+              data-stage={scene.stage}
+              data-view={scene.view}
+              data-step-mode={snapshot.stepMode ? 'true' : undefined}
+              key={current.key}
+            >
+              <StageView
+                scene={scene}
+                trace={trace}
+                onToken={(i) => {
+                  dispatch({ type: 'pause' });
+                  setDeepDive(null);
+                  setFocusToken(i);
+                }}
+              />
+            </div>
+            <div className="caption">
+              <h3 className="caption-title">
+                <RichText text={scene.copy.title} />
+              </h3>
+              <p className="caption-body">
+                <RichText text={scene.copy.body} />
               </p>
-            ) : null}
-            {depth === 'technical' && scene.copy.technical ? (
-              <details className="technical">
-                <summary>Technical details</summary>
-                <p>
-                  <RichText text={scene.copy.technical} />
+              {depth !== 'simple' && scene.copy.detail ? (
+                <p className="caption-detail">
+                  <RichText text={scene.copy.detail} />
                 </p>
-              </details>
+              ) : null}
+              {depth === 'technical' && scene.copy.technical ? (
+                <details className="technical">
+                  <summary>Technical details</summary>
+                  <p>
+                    <RichText text={scene.copy.technical} />
+                  </p>
+                </details>
+              ) : null}
+            </div>
+          </div>
+          <div className="caption-tools">
+            <button
+              type="button"
+              className="btn btn-quiet"
+              aria-expanded={whereFrom}
+              aria-controls="where-from"
+              onClick={() => {
+                dispatch({ type: 'pause' });
+                setWhereFrom((v) => !v);
+              }}
+            >
+              {depth === 'simple' ? 'Is this real?' : 'How do we know this?'}
+            </button>
+            {dives.length > 0 ? (
+              <nav className="go-deeper" aria-label="Go deeper">
+                <span className="eyebrow">Go deeper</span>
+                {dives.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className="btn btn-quiet"
+                    aria-expanded={deepDive === id}
+                    onClick={() => {
+                      dispatch({ type: 'pause' });
+                      setFocusToken(null);
+                      setDeepDive(deepDive === id ? null : id);
+                    }}
+                  >
+                    {DEEP_DIVE_TITLES[id]}
+                  </button>
+                ))}
+              </nav>
             ) : null}
           </div>
-          {dives.length > 0 ? (
-            <nav className="go-deeper" aria-label="Go deeper">
-              <span className="eyebrow">Go deeper</span>
-              {dives.map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  className="btn btn-quiet"
-                  aria-expanded={deepDive === id}
-                  onClick={() => {
-                    dispatch({ type: 'pause' });
-                    setFocusToken(null);
-                    setDeepDive(deepDive === id ? null : id);
-                  }}
-                >
-                  {DEEP_DIVE_TITLES[id]}
-                </button>
-              ))}
-            </nav>
+          {whereFrom ? (
+            <section id="where-from" className="where-from-panel panel" aria-label={depth === 'simple' ? 'Is this real?' : 'How do we know this?'}>
+              <WhereFrom root={stepView} stepKey={current.key} detailed={depth !== 'simple'} />
+            </section>
           ) : null}
           {focusToken !== null ? <TokenCard trace={trace} index={focusToken} onClose={() => setFocusToken(null)} /> : null}
           {deepDive ? <DeepDive id={deepDive} trace={trace} onClose={() => setDeepDive(null)} /> : null}
@@ -299,31 +323,50 @@ export function Walkthrough({
       )}
 
       {showKeys ? (
-        <div className="shortcut-help panel" role="dialog" aria-label="Keyboard shortcuts">
+        <section className="shortcut-help panel" aria-label="Keyboard shortcuts">
           <ul>
-            <li>
-              <kbd>Space</kbd> or <kbd>K</kbd>: play or pause
-            </li>
-            <li>
-              <kbd>←</kbd> <kbd>→</kbd>: previous or next step
-            </li>
-            <li>
-              <kbd>Shift</kbd> + <kbd>←</kbd> <kbd>→</kbd>: previous or next chapter
-            </li>
-            <li>
-              <kbd>Home</kbd> <kbd>End</kbd>: first or last step
-            </li>
-            <li>
-              <kbd>?</kbd>: show or hide this list. Shortcuts work only while the walkthrough has focus, and can be turned off in Settings.
-            </li>
+            {SHORTCUT_ACTIONS.map((a) => (
+              <li key={a}>
+                {keys[a].length > 0 ? (
+                  keys[a].map((k, i) => (
+                    <Fragment key={k}>
+                      {i > 0 ? ' or ' : ''}
+                      <kbd>{keyLabel(k)}</kbd>
+                    </Fragment>
+                  ))
+                ) : (
+                  <span className="muted">no key</span>
+                )}
+                : {ACTION_LABEL[a]}
+              </li>
+            ))}
           </ul>
-        </div>
+          <p className="muted">Shortcuts work only while the walkthrough has focus. Change them or turn them off in Settings. Esc closes this list.</p>
+        </section>
       ) : null}
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {announcement}
-      </div>
+      <Announcer step={current} total={script.steps.length} playing={playing} />
       {playing ? null : <span className="sr-only">Paused.</span>}
     </section>
+  );
+});
+
+/**
+ * One polite description per step, at most every 2 s while playing, and a full one when paused (CLAUDE.md
+ * §8). Its own component, so an announcement re-renders only this, not the whole walkthrough.
+ */
+function Announcer({ step, total, playing }: { step: Step; total: number; playing: boolean }) {
+  const [text, setText] = useState('');
+  const last = useRef(0);
+  useEffect(() => {
+    const now = performance.now();
+    if (playing && now - last.current < ANNOUNCE_EVERY_MS) return;
+    last.current = now;
+    setText(`Step ${step.index + 1} of ${total}. ${plainText(step.describe, read as never)}`);
+  }, [step, total, playing]);
+  return (
+    <div className="sr-only" aria-live="polite" aria-atomic="true">
+      {text}
+    </div>
   );
 }
 

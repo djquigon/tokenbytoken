@@ -6,7 +6,7 @@ import type { FinalizedTrace } from '@/trace/facts';
 import { CardsView, ExtrasView, LayoutView } from '@/stages/context/View';
 import { GaugeView, PackingView } from '@/stages/followup/View';
 import { DecodeView, EndView, MomentView, MontageView } from '@/stages/loop/View';
-import { AttentionView, LookupView, PrefillView } from '@/stages/network/View';
+import { AttentionView, FeedForwardView, LookupView, PositionView, PrefillView } from '@/stages/network/View';
 import { BarsView, HookView, StripView, UnavailableView } from '@/stages/probs/View';
 import { DrawView, SettingsView } from '@/stages/sample/View';
 import type { Scene } from '@/stages/scenes';
@@ -29,10 +29,12 @@ export function StageView({ scene, trace, onToken }: { scene: Scene; trace: Fina
       if (scene.view === 'callouts') return <CalloutsView scene={scene} />;
       return <CountView scene={scene} />;
     case 'embed':
+      if (scene.view === 'position') return <PositionView scene={scene} />;
       return <LookupView scene={scene} />;
     case 'layers':
       if (scene.view === 'prefill') return <PrefillView scene={scene} />;
       if (scene.view === 'attention') return <AttentionView scene={scene} />;
+      if (scene.view === 'feedforward') return <FeedForwardView scene={scene} />;
       return <DecodeView scene={scene} />;
     case 'sample':
       if (scene.view === 'draw') return <DrawView scene={scene} />;

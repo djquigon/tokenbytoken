@@ -13,12 +13,12 @@ async function axeSerious(page: Page) {
 
 const walkthrough = (page: Page) => page.locator('.walkthrough');
 
-test('the landing page offers both ways in, labels its rain, and has no serious accessibility violations', async ({ page }) => {
+test('the landing page offers both ways in, captions its rain, and has no serious accessibility violations', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('link', { name: 'Replay a sample conversation' })).toHaveAttribute('href', '/sample');
-  const caption = page.locator('.token-rain figcaption');
-  await expect(caption).toContainText('real tokens from the sample conversation');
-  await expect(caption.locator('[data-kind="recorded"]').first()).toBeVisible();
+  // The rain fills the page behind solid cards, and says what it is.
+  await expect(page.locator('.rain-canvas')).toBeVisible();
+  await expect(page.locator('.rain-controls')).toContainText('real tokens of the tokenizer this app uses');
   await page.getByRole('button', { name: 'Pause the rain' }).click();
   await expect(page.getByRole('button', { name: 'Resume the rain' })).toHaveAttribute('aria-pressed', 'true');
   expect(await axeSerious(page)).toEqual([]);
@@ -27,7 +27,7 @@ test('the landing page offers both ways in, labels its rain, and has no serious 
 test('under reduced motion the rain holds still and offers no pause button', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await expect(page.locator('.token-rain canvas')).toBeVisible();
+  await expect(page.locator('.rain-canvas')).toBeVisible();
   await expect(page.getByRole('button', { name: /the rain/ })).toHaveCount(0);
 });
 

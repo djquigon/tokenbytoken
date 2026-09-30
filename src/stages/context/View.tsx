@@ -16,7 +16,12 @@ const ROLE_LABEL: Record<InputRunFacts['role'], string> = {
 function MessageCard({ run, i, clamp = true }: { run: InputRunFacts; i: number; clamp?: boolean }) {
   return (
     <div className="context-card" data-role={run.role} style={{ '--i': i } as React.CSSProperties}>
-      <p className="eyebrow">{ROLE_LABEL[run.role]}</p>
+      <p className="context-card-head">
+        <span className="eyebrow">{ROLE_LABEL[run.role]}</span>
+        <span className="context-count">
+          <Datum of={run.count} as="int" compact /> tokens
+        </span>
+      </p>
       <div className={clamp ? 'context-text clamp' : 'context-text'}>
         <Datum of={run.text} as="text" compact />
       </div>

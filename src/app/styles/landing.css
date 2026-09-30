@@ -1,20 +1,57 @@
-/* The landing page (docs/PLAN.md §1, journey step 1). */
+/* The landing page (docs/PLAN.md §1, journey step 1): the token rain fills the window behind the page, and
+ * every block of text sits on a solid card, so the rain never runs behind the words (CLAUDE.md §8). */
+
+/* The rain: fixed behind everything, never taking pointer events. */
+.rain-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+/* Scanlines over the rain only; off with Effects, more contrast, and the light theme. */
+.rain-scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.2) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+:root[data-effects="off"] .rain-scanlines,
+:root[data-theme="light"] .rain-scanlines {
+  display: none;
+}
+@media (prefers-contrast: more) {
+  .rain-scanlines {
+    display: none;
+  }
+}
 
 .landing {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
-  max-width: 72rem;
+  gap: var(--space-6);
+  max-width: 50rem;
   margin: 0 auto;
-  padding: var(--space-8) var(--space-4);
+  padding: clamp(var(--space-6), 10vh, 6rem) var(--space-4) var(--space-8);
+}
+.landing-card {
+  padding: var(--space-6);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  box-shadow:
+    0 0 24px var(--glow),
+    0 16px 48px rgb(0 0 0 / 0.5);
+}
+:root[data-theme="light"] .landing-card {
+  box-shadow: 0 10px 32px rgb(11 58 28 / 0.14);
 }
 
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  align-items: center;
-  gap: var(--space-8);
-}
 .hero-copy {
   display: flex;
   flex-direction: column;
@@ -22,7 +59,7 @@
 }
 .hero-title {
   font-family: var(--font-mono);
-  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: 0.06em;
@@ -30,7 +67,7 @@
   text-shadow: 0 0 18px var(--glow);
 }
 .lede {
-  max-width: 36rem;
+  max-width: 38rem;
   font-size: 1.15rem;
 }
 .cta {
@@ -40,6 +77,19 @@
 }
 .small {
   font-size: 0.85rem;
+}
+.rain-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.rain-controls > span {
+  flex: 1 1 18rem;
 }
 
 /* Decode reveal: the overlay sits exactly over the real text while it resolves. */
@@ -54,61 +104,10 @@
   pointer-events: none;
 }
 
-/* Token rain: a framed panel beside the copy, never behind text. */
-.token-rain {
-  --rain-h: 22rem;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-.token-rain canvas {
-  display: block;
-  width: 100%;
-  height: var(--rain-h);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--bg-raised);
-}
-/* Scanlines: decoration over the rain only, off with Effects, more contrast, and the light theme. */
-.token-rain::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--rain-h);
-  border-radius: var(--radius);
-  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.18) 0 1px, transparent 1px 3px);
-  pointer-events: none;
-}
-:root[data-effects="off"] .token-rain::after,
-:root[data-theme="light"] .token-rain::after {
-  display: none;
-}
-@media (prefers-contrast: more) {
-  .token-rain::after {
-    display: none;
-  }
-}
-.token-rain figcaption {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-.token-rain figcaption .datum {
-  display: inline;
-}
-
 .landing-section {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  max-width: 48rem;
 }
 .landing-section h2 {
   font-family: var(--font-mono);
@@ -138,22 +137,15 @@
   font-size: 0.78rem;
 }
 .landing-footer {
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
+  padding-block: var(--space-4);
   color: var(--text-muted);
   font-size: 0.9rem;
 }
 
-@media (max-width: 52rem) {
-  .hero {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-6);
-  }
-  .token-rain {
-    --rain-h: 13rem;
-  }
-}
 @media (max-width: 30rem) {
+  .landing-card {
+    padding: var(--space-4);
+  }
   .label-key > div {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-1);

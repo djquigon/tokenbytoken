@@ -9,6 +9,8 @@
 import type { Sourced } from '@/shared/provenance';
 import { read } from '@/shared/provenance/read';
 import { slot, st, type SourcedText } from '@/shared/sourced-text';
+
+import { term } from './glossary';
 import type { StopReason } from '@/trace/facts';
 
 import type { PickKind } from '@/stages/common';
@@ -44,9 +46,9 @@ function pickSentence(p: PickCopy, lead: 'Here' | 'Later,'): SourcedText {
 export const hook = (v: { tokens: Sourced<number>; pick: PickCopy; closeCall: boolean }): SceneCopy => ({
   title: v.closeCall ? st`A close call in your reply` : st`Your reply's first token`,
   body: v.closeCall
-    ? [...st`Your reply came back as ${slot('int', v.tokens)} tokens, written one at a time, with options at every step. `, ...pickSentence(v.pick, 'Here')]
-    : st`Your reply came back as ${slot('int', v.tokens)} tokens, written one at a time, with options at every step. Its first step: ${slot('token', v.pick.chosen)} was picked at ${slot('pct', v.pick.pct)}.`,
-  detail: st`At every step the model scored many possible next tokens. A close call means several wordings were likely, or a less likely one was picked. It doesn't mean the answer is uncertain or wrong.`,
+    ? [...st`Your reply came back as ${slot('int', v.tokens)} ${term('token', 'tokens')}, written one at a time, with options at every step. `, ...pickSentence(v.pick, 'Here')]
+    : st`Your reply came back as ${slot('int', v.tokens)} ${term('token', 'tokens')}, written one at a time, with options at every step. Its first step: ${slot('token', v.pick.chosen)} was picked at ${slot('pct', v.pick.pct)}.`,
+  detail: st`At every step the model scored many possible next tokens. A ${term('close-call', 'close call')} means several wordings were likely, or a less likely one was picked. It doesn't mean the answer is uncertain or wrong.`,
   claims: ['C017', 'C012', 'C011'],
 });
 
@@ -55,8 +57,8 @@ export const hook = (v: { tokens: Sourced<number>; pick: PickCopy; closeCall: bo
 export const contextCards = (v: { earlier: Sourced<number> | null }): SceneCopy => ({
   title: st`What gets sent`,
   body: v.earlier
-    ? st`Before anything is generated, this app assembles one input: its instructions, the ${slot('int', v.earlier)} earlier messages it re-sends, and your new message.`
-    : st`Before anything is generated, this app assembles one input: its own instructions and your message. Nothing else is looked up.`,
+    ? st`Before anything is generated, this app assembles one ${term('context', 'input')}: its instructions, the ${slot('int', v.earlier)} earlier messages it re-sends, and your new message.`
+    : st`Before anything is generated, this app assembles one ${term('context', 'input')}: its own instructions and your message. Nothing else is looked up.`,
   detail: st`Apps can add instructions you don't see. This app shows its own, word for word.`,
   claims: ['C018', 'C019'],
 });
@@ -70,7 +72,7 @@ export const contextLayout = (): SceneCopy => ({
 
 export const contextExtras = (): SceneCopy => ({
   title: st`What else went with it`,
-  body: st`OpenAI's moderation model checked your message first. This app offered no tools or search, and the reply contains no tool calls.`,
+  body: st`OpenAI's ${term('moderation', 'moderation model')} checked your message first. This app offered no tools or search, and the reply contains no tool calls.`,
   detail: st`Open "View the full request" to see every field this app sent, including its settings, store: false (don't keep the reply), and a hashed ID in place of anything about you.`,
   claims: ['C006', 'C021'],
 });
@@ -86,7 +88,7 @@ export const tokenizeChips = (v: { count: Sourced<number> }): SceneCopy => ({
 
 export const tokenizeIds = (): SceneCopy => ({
   title: st`Each token is a number`,
-  body: st`Each token is an entry in a fixed vocabulary, so the model receives numbers like these. Limits and prices are counted in tokens.`,
+  body: st`Each token is an entry in a ${term('vocabulary', 'fixed vocabulary')}, so the model receives numbers like these. Limits and prices are counted in tokens.`,
   detail: st`These IDs come from the tokenizer this app assumes. The API returns token text, never IDs.`,
   claims: ['C023', 'C024'],
 });
@@ -138,23 +140,44 @@ export const EXAMPLE_BANNER_CLAIMS = ['C027'] as const;
 
 export const networkLookup = (): SceneCopy => ({
   title: st`Each token becomes a list of numbers`,
-  body: st`Each token picks out a list of numbers the model learned in training. What's computed from them is working notes, discarded afterwards.`,
+  body: st`Each token picks out a list of ${term('parameters', 'numbers the model learned in training')}. What's computed from them is ${term('working-notes', 'working notes')}, discarded afterwards.`,
   detail: st`The learned numbers stay fixed while in use: chatting doesn't change them.`,
   claims: ['C028', 'C046'],
 });
 
 export const networkLayers = (): SceneCopy => ({
   title: st`Up through many layers`,
-  body: st`The notes pass up through many layers. All the positions of your input are processed together, layer by layer.`,
+  body: st`The notes pass up through many ${term('layer', 'layers')}. All the positions of your input are processed together, layer by layer.`,
   detail: st`OpenAI hasn't published how many layers this model has. Between attention steps, feed-forward steps transform each position on its own.`,
   claims: ['C029', 'C027', 'C032'],
 });
 
 export const networkAttentionSample = (): SceneCopy => ({
   title: st`Attention: drawing on earlier text`,
-  body: st`Attention lets each position draw on itself and earlier positions, never later ones. In this example, each draws on the token before it.`,
+  body: st`${term('attention', 'Attention')} lets each position draw on itself and earlier positions, never later ones. The drawing shows an example of how that can look.`,
   detail: st`Word order is encoded too. In many modern models, position is applied inside attention.`,
   claims: ['C030', 'C032'],
+});
+
+/** What each example attention pattern shows, beside its drawing. */
+export const ATTENTION_PATTERN_NOTES = {
+  'attention-previous-token': 'Each position draws on itself and the token before it.',
+  'attention-duplicate-token': 'Each position draws on earlier copies of the same token.',
+  'attention-induction': 'At a repeated token, a position draws on the token that followed its earlier copy, which helps continue a pattern seen before.',
+} as const;
+export const ATTENTION_PATTERN_CLAIMS = { 'attention-previous-token': ['C030', 'C031'], 'attention-duplicate-token': ['C052', 'C031'], 'attention-induction': ['C053', 'C031'] } as const;
+
+export const networkPosition = (): SceneCopy => ({
+  title: st`Where each token sits`,
+  body: st`The same token at two positions starts out as the same list of numbers. Position is added so attention can tell them apart.`,
+  detail: st`In many modern models, position is applied inside attention rather than added at the start.`,
+  claims: ['C032'],
+});
+
+export const networkFeedForward = (): SceneCopy => ({
+  title: st`Each position on its own`,
+  body: st`Between attention steps, a feed-forward step transforms each position on its own. Nothing passes between positions here.`,
+  claims: ['C032'],
 });
 
 export const networkAttentionYours = (): SceneCopy => ({
@@ -174,7 +197,7 @@ export const optionsUnavailable = (): SceneCopy => ({
 
 export const optionsStrip = (v: { vocabulary: Sourced<number> | null }): SceneCopy => ({
   title: st`A score for every possible token`,
-  body: st`At the last position, the network scores every possible next token. The scores become percentages; together they cover every possible token.`,
+  body: st`At the last position, the network ${term('score', 'scores')} every possible next token. The scores become percentages; together they cover every possible token.`,
   detail: v.vocabulary ? st`That's every entry in the vocabulary: ${slot('int', v.vocabulary, true)} in the tokenizer this app assumes.` : undefined,
   claims: ['C033'],
 });
@@ -182,7 +205,7 @@ export const optionsStrip = (v: { vocabulary: Sourced<number> | null }): SceneCo
 export const optionsBars = (v: { chosen: Sourced<string>; pct: Sourced<number>; listed: Sourced<number> }): SceneCopy => ({
   title: st`The real options for the first token`,
   body: st`These are the real top options OpenAI returned for your reply's first token. ${slot('token', v.chosen)} was picked, at ${slot('pct', v.pct)}.`,
-  detail: st`OpenAI returned ${slot('int', v.listed)} alternatives here; every other token shares the rest.`,
+  detail: st`OpenAI returned ${slot('int', v.listed)} alternatives here, each with a ${term('logprob', 'logprob')}; every other token shares the rest.`,
   claims: ['C034', 'C011'],
 });
 
@@ -197,7 +220,7 @@ export const optionsMeaning = (): SceneCopy => ({
 
 export const pickDraw = (v: { chosen: Sourced<string> }): SceneCopy => ({
   title: st`A weighted random pick`,
-  body: st`A separate step picks one token at random, weighted by the percentages. This time it picked ${slot('token', v.chosen)}.`,
+  body: st`A separate step makes a ${term('sampling', 'weighted random pick')}: one token at random, weighted by the percentages. This time it picked ${slot('token', v.chosen)}.`,
   detail: st`Likelier tokens win more often, not always. The pick happens outside the network, and this app sees only its result, never the draw.`,
   claims: ['C036'],
 });
@@ -206,7 +229,7 @@ export const pickSettings = (v: { temperature: Sourced<number> | null; topP: Sou
   title: st`The settings this app sent`,
   body:
     v.temperature && v.topP
-      ? st`This app sent temperature ${slot('decimal', v.temperature)} and top_p ${slot('decimal', v.topP)}, so these percentages are the chances of each pick. It's one reason the same question can get different replies.`
+      ? st`This app sent ${term('temperature', 'temperature')} ${slot('decimal', v.temperature)} and ${term('top-p', 'top_p')} ${slot('decimal', v.topP)}, so these percentages are the chances of each pick. It's one reason the same question can get different replies.`
       : st`The pick is random, weighted by the percentages. It's one reason the same question can get different replies.`,
   detail: st`OpenAI doesn't document its sampler in detail; this assumes standard sampling. Lower temperatures would make the likeliest token likelier; higher ones would spread the chances out.`,
   claims: ['C037', 'C039', 'C038'],
@@ -216,7 +239,7 @@ export const pickSettings = (v: { temperature: Sourced<number> | null; topP: Sou
 
 export const loopAppend = (): SceneCopy => ({
   title: st`Add it, then do it again`,
-  body: st`The picked token joins the text, and the network runs again, only for the new position, reusing saved work. It can't go back and edit.`,
+  body: st`The picked token joins the text, and the network runs again, only for the new position, reusing ${term('saved-work', 'saved work')}. It can't go back and edit.`,
   claims: ['C040', 'C041'],
 });
 
@@ -239,7 +262,7 @@ export const loopMontage = (v: { tokens: Sourced<number>; first: boolean }): Sce
 
 export function stopCopy(reason: StopReason, limit: Sourced<number> | null): SceneCopy {
   const endings: Record<StopReason, SourcedText> = {
-    end_marker: st`The model wrote its end marker, a special token meaning "done". (This app infers it: OpenAI reported the reply complete, and no stop words were set.)`,
+    end_marker: st`The model wrote its ${term('end-marker', 'end marker')}, a special token meaning "done". (This app infers it: OpenAI reported the reply complete, and no stop words were set.)`,
     output_limit: limit
       ? st`The reply reached this app's length limit of ${slot('int', limit)} tokens, so it stops mid-way.`
       : st`The reply reached this app's length limit, so it stops mid-way.`,
@@ -265,8 +288,8 @@ export const followupPacking = (v: { included: Sourced<number>; dropped: Sourced
   body: v.dropped
     ? st`The model doesn't remember earlier messages. This app sent the conversation again: ${slot('int', v.included)} messages. ${slot('int', v.dropped)} older ones were left out to fit.`
     : st`The model doesn't remember earlier messages. This app sent the conversation again: ${slot('int', v.included)} messages, including this one.`,
-  detail: st`Stopped or unfinished replies aren't sent again. Chat "memory" features in other apps also work by adding saved text to the input.`,
-  claims: ['C044', 'C045'],
+  detail: st`Stopped or unfinished replies aren't sent again. Chat apps with "memory" features save details and supply them as context in later chats: that's still context, not learning.`,
+  claims: ['C044', 'C045', 'C054'],
 });
 
 export const followupGauge = (v: {
@@ -278,8 +301,8 @@ export const followupGauge = (v: {
   title: st`How much fits`,
   body: [
     ...(v.input
-      ? st`This request used ${slot('int', v.input)} input tokens, within this app's budget of ${slot('int', v.budget)}. The model's documented limit is ${slot('int', v.window)}.`
-      : st`This app's budget is ${slot('int', v.budget)} input tokens per request. The model's documented limit is ${slot('int', v.window)}.`),
+      ? st`This request used ${slot('int', v.input)} input tokens, within this app's budget of ${slot('int', v.budget)}. The model's documented ${term('context-limit', 'limit')} is ${slot('int', v.window)}.`
+      : st`This app's budget is ${slot('int', v.budget)} input tokens per request. The model's documented ${term('context-limit', 'limit')} is ${slot('int', v.window)}.`),
   ],
   detail: v.cached
     ? st`OpenAI reported ${slot('int', v.cached)} tokens cached: saved results for an identical start of the request. They don't change the reply or give the model memory.`

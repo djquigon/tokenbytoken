@@ -474,3 +474,220 @@
   color: var(--text-muted);
   font-size: 0.85rem;
 }
+
+/* Shortcut key editor (Settings). */
+.key-editor ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.key-editor li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+}
+.key-editor li .btn {
+  min-width: 6rem;
+  font-family: var(--font-mono);
+}
+.key-editor li .btn[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+.prefs-panel {
+  max-height: calc(100dvh - 5rem);
+  overflow-y: auto;
+}
+
+/* The step (stage + caption), and the row of tools under it. */
+.step-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.caption-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+/* "Is this real?" / "How do we know this?" */
+.where-from-panel {
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9rem;
+}
+.where-from {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.where-from li[data-kind] strong {
+  font-weight: 600;
+}
+.where-from li[data-kind="recorded"] {
+  border-left: 3px solid var(--recorded);
+  padding-left: var(--space-2);
+}
+.where-from li[data-kind="calculated"] {
+  border-left: 3px dotted var(--calculated);
+  padding-left: var(--space-2);
+}
+.where-from li[data-kind="reference"] {
+  border-left: 3px double var(--reference);
+  padding-left: var(--space-2);
+}
+.where-from li[data-kind="example"] {
+  border-left: 3px dashed var(--example);
+  padding-left: var(--space-2);
+}
+.where-from-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.where-from-table caption {
+  margin-bottom: var(--space-2);
+  color: var(--text-muted);
+  text-align: left;
+}
+.where-from-table th,
+.where-from-table td {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.where-from-table thead th {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* The three lanes: a ticker at Simple depth, three rows at Detailed. The current lane is marked by an
+ * underline or an inset bar and "(this step)" text, never by color alone. */
+.lane-ticker {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+.lane-name[aria-current="true"] {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.lanes {
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
+}
+.lane {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.lane[data-lane="model"] {
+  border-style: dashed;
+}
+.lane[aria-current="true"] {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.lane-title {
+  font-weight: 600;
+}
+.lane-note {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+.lane-events {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.5rem;
+}
+.lane-event + .lane-event::before {
+  content: "→";
+  margin-right: 0.5rem;
+  color: var(--text-muted);
+}
+.lanes .datum {
+  display: inline;
+}
+@media (max-width: 40rem) {
+  .lane {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+}
+.what-if-simulate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+/* Exercises: guess the likely option; real or example? */
+.exercise {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.exercise-progress {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+.exercise-choices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.exercise-choices > p {
+  flex-basis: 100%;
+}
+.exercise-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.moment-gap {
+  color: var(--accent);
+}
+.check-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-left: 1.25rem;
+  list-style: decimal;
+}
+.check-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.exercise-score {
+  font-weight: 600;
+}
+.real-speed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.real-speed-text {
+  min-height: 3rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  white-space: pre-wrap;
+}

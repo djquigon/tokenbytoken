@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from 'zustand';
 
-import { useHydratePrefs } from '@/components/prefs/hooks';
+import { useHydratePrefs, usePrefs } from '@/components/prefs/hooks';
 import { PrefsMenu } from '@/components/prefs/PrefsMenu';
 import { prefsStore } from '@/components/prefs/store';
 import { Datum } from '@/components/provenance/Datum';
@@ -22,6 +22,7 @@ import { clientMs } from '@/shared/units';
 
 import { Composer } from './Composer';
 import { PrivacyNotice } from './PrivacyNotice';
+import { Tour } from './Tour';
 import { TurnView } from './TurnView';
 
 /** The browser gives up on a silent stream after this long; the server sends a heartbeat every 15 s. */
@@ -59,6 +60,8 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
   const storageNote = useStore(store, (s) => s.storageNote);
   const privacyAccepted = useStore(store, (s) => s.privacyAccepted);
   const announcement = useStore(store, (s) => s.announcement);
+  const tourSeen = usePrefs((s) => s.tourSeen);
+  const prefsReady = usePrefs((s) => s.hydrated);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -105,6 +108,11 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
   }, []);
 
   const locked = pendingId !== null;
+  // Stable, so the memoized walkthrough doesn't re-render when the chat does.
+  const shownId = selected?.id ?? null;
+  const onFinished = useCallback(() => {
+    setPendingId((p) => (p !== null && p === shownId ? null : p));
+  }, [shownId]);
 
   return (
     <div className="app">
@@ -146,6 +154,7 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
           <h1 className="sr-only">Chat</h1>
           {storageNote ? <p className="notice">{storageNote}</p> : null}
           {sample ? <SampleNote turns={turns} /> : null}
+          {!sample && (!tourSeen || !prefsReady) ? <Tour ready={hydrated && prefsReady} /> : null}
           {!sample && (!hydrated || turns.length === 0) ? (
             <p className="chat-empty">
               Ask a question. When the reply arrives, a walkthrough shows how it was made, step by step, using your own
@@ -186,9 +195,7 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
               key={selected.id}
               trace={selectedTrace}
               autoplay={autoplayId === selected.id}
-              onFinished={() => {
-                if (pendingId === selected.id) setPendingId(null);
-              }}
+              onFinished={onFinished}
             />
           ) : (
             <div className="walkthrough-intro">

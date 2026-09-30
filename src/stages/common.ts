@@ -149,6 +149,12 @@ export const SAMPLE_SENTENCE = ['The', ' cat', ' sat', ' on', ' the', ' mat'] as
 export const sampleSentence = (): Sourced<readonly string[], 'example'> =>
   illustrate('sample-sentence', 'sample', [], () => SAMPLE_SENTENCE);
 
+/** A neutral sample with a repeat, for the duplicate-token and induction patterns (tokens repeat exactly). */
+export const SAMPLE_REPEAT = [' red', ' fox', ' saw', ' a', ' red', ' fox'] as const;
+
+export const repeatSentence = (): Sourced<readonly string[], 'example'> =>
+  illustrate('sample-sentence', 'sample-repeat', [], () => SAMPLE_REPEAT);
+
 export const exampleScores = (seed: string, cells: number): Sourced<number[], 'example'> =>
   illustrate('vocab-scores', seed, [], () => {
     const r = prng(`scores:${seed}`);

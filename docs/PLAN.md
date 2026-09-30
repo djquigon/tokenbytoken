@@ -540,7 +540,7 @@ The probe questions double as the §4 assessment items.
 ### Visual direction & interaction model
 - **Direction: a "digital-rain terminal" inspired by *The Matrix*.** Green phosphor on near-black, monospace glyphs, falling characters, and a soft CRT glow. It pays homage to the genre look without copying the film. The style carries part of the lesson: **glyphs always mean text**, so the "code" on screen is literally tokens.
   - **Signature motif: token rain.**
-    - The falling characters are **real token strings**. On the landing page they come from the sample conversation. In the live strip they come from the user's own reply, as it arrives.
+    - The falling characters are **real token strings**. On the landing page they fill the background, picked at random from thousands of real words and numbers of the tokenizer this app uses, with all text on solid cards (ADR 0008). In the live strip they come from the user's own reply, as it arrives.
     - Captions say what they are: "these are real tokens from a sample conversation", and "tokens arriving, timed by when this app received them".
     - The rain is drawn on Canvas 2D. It is decorative (`aria-hidden`), has its own pause control, and is static under reduced motion.
     - It never falls behind body text or inside the walkthrough's lessons.
@@ -642,7 +642,7 @@ The probe questions double as the §4 assessment items.
 Avoid `gpt-4.1-nano` (shuts down 2026‑10‑23) and `gpt-5-nano` (shuts down 2026‑12‑11; no logprobs).
 
 **Next.js**
-- The current version is **16.3.7**. A **security release, 16.3.8, is due 2026‑09‑30**, so pin to 16.3.8 or later.
+- The current version is **16.3.7**. A **security release, 16.3.8, is due 2026‑09‑30**, so pin to 16.3.8 or later. (Pinned to 16.3.8 on 2026‑09‑30.)
 - Turbopack is the default bundler.
 - `middleware.ts` has been renamed `proxy.ts`.
 - The **Edge runtime is deprecated**, so everything runs on Node.

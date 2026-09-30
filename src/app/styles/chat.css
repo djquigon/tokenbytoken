@@ -173,8 +173,14 @@
 }
 /* Before hydration only: hide what this browser's storage says isn't needed (CHAT_PRELOAD_SCRIPT). */
 :root[data-conversation="yes"] .chat-empty,
-:root[data-privacy="accepted"] .notice-privacy {
+:root[data-privacy="accepted"] .notice-privacy,
+:root[data-tour="seen"] .tour {
   display: none;
+}
+.tour-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 .turns {
   display: flex;

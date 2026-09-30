@@ -1,84 +1,88 @@
 'use client';
 
-// Token rain (docs/PLAN.md §2, "Signature motif"): falling glyphs that are real token strings from a
-// recorded reply, never invented characters. Each column reads down in the reply's own order.
+// Token rain (docs/PLAN.md §2, "Signature motif"): the landing page's background. Every falling glyph is a
+// real token of the tokenizer this app uses, picked at random from a pool of thousands of words and
+// numbers (src/content/rain-tokens.json), and a caption says so.
 //
-// Decoration only: the canvas is aria-hidden, a caption says what the tokens are, and it never sits behind
-// text. Canvas 2D at 30 fps at most; it stops when offscreen or the tab is hidden, has its own pause
-// control (WCAG 2.2.2), and shows one still frame under reduced motion, more contrast, or Effects off
-// (CLAUDE.md §8–9).
+// Decoration only: the canvas is aria-hidden and sits behind the page, while all text sits on solid
+// panels, never over the rain (CLAUDE.md §8). Canvas 2D at 30 fps at most; it stops when the tab is
+// hidden, has its own pause control (WCAG 2.2.2), and holds one still frame under reduced motion, more
+// contrast, or Effects off (CLAUDE.md §9).
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { useEffectsEnabled } from '@/components/prefs/hooks';
 import { visibleTokenText } from '@/shared/token-display';
 
 const FRAME_MS = 1000 / 30;
-const FONT_PX = 14;
-const ROW_PX = 22;
+const FONT_PX = 15;
+const ROW_PX = 24;
 /** Tokens per falling stream. */
-const TRAIL = 12;
+const TRAIL = 14;
 
 interface Column {
   x: number;
   y: number;
   speed: number;
-  start: number;
+  /** This stream's tokens, newest last; drawn fresh from the pool each time the stream restarts. */
+  tokens: string[];
 }
 
-/** A small deterministic generator, so the layout is the same on every visit (it's decoration, not data). */
-function seeded(seed: number) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+interface RainState {
+  readonly paused: boolean;
+  readonly setPaused: (paused: boolean) => void;
+  readonly moving: boolean;
+}
+
+const RainContext = createContext<RainState | null>(null);
+
+/** Shares the pause state between the background canvas and its controls. */
+export function RainProvider({ children }: { children: ReactNode }) {
+  const effects = useEffectsEnabled();
+  const [paused, setPaused] = useState(false);
+  const value = useMemo(() => ({ paused, setPaused, moving: effects && !paused }), [paused, effects]);
+  return <RainContext.Provider value={value}>{children}</RainContext.Provider>;
 }
 
 function colors() {
   const css = getComputedStyle(document.documentElement);
   const get = (name: string) => css.getPropertyValue(name).trim();
-  return { bg: get('--bg-raised'), head: get('--recorded'), tail: get('--text-muted'), font: get('--font-plex-mono') || 'monospace' };
+  return { bg: get('--bg'), head: get('--recorded'), tail: get('--text-muted'), font: get('--font-plex-mono') || 'monospace' };
 }
 
-export function TokenRain({ tokens, children }: { tokens: readonly string[]; /** The caption: what the tokens are. */ children: ReactNode }) {
+/** The background canvas: fixed behind the page, filling the window. */
+export function RainCanvas({ pool }: { pool: readonly string[] }) {
   const canvas = useRef<HTMLCanvasElement>(null);
-  const effects = useEffectsEnabled();
-  const [paused, setPaused] = useState(false);
-  const moving = effects && !paused;
+  const moving = useContext(RainContext)?.moving ?? false;
 
   useEffect(() => {
     const el = canvas.current;
     const ctx = el?.getContext('2d');
-    if (!el || !ctx || tokens.length === 0) return;
-    const shown = tokens.map(visibleTokenText);
-    const random = seeded(tokens.length * 7919);
+    if (!el || !ctx || pool.length === 0) return;
+    // Shown without the leading space (whitespace is invisible in running text anyway).
+    const shown = pool.map((t) => visibleTokenText(t.trimStart()));
+    // The rain is decoration, not data, so an ordinary random pick is fine here.
+    const pick = () => shown[Math.floor(Math.random() * shown.length)] ?? '';
+    const stream = () => Array.from({ length: TRAIL }, pick);
     let columns: Column[] = [];
     let palette = colors();
     let width = 0;
     let height = 0;
 
     const layout = () => {
-      const dpr = window.devicePixelRatio || 1;
-      width = el.clientWidth;
-      height = el.clientHeight;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      width = window.innerWidth;
+      height = window.innerHeight;
       el.width = Math.round(width * dpr);
       el.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      // Columns fit a typical token (the longest may overlap a neighbor slightly), and start at spread-out
-      // points of the reply so neighbors don't repeat the same words.
-      const lengths = shown.map((t) => t.length).sort((a, b) => a - b);
-      const typical = Math.min(10, Math.max(5, lengths[Math.floor(lengths.length * 0.8)] ?? 6));
-      const colWidth = typical * FONT_PX * 0.62 + 12;
+      const colWidth = 7 * FONT_PX * 0.62 + 18;
       const count = Math.max(1, Math.floor(width / colWidth));
       columns = Array.from({ length: count }, (_, i) => ({
         x: i * (width / count) + 6,
-        y: random() * (height + TRAIL * ROW_PX),
-        speed: 0.6 + random() * 1.1,
-        start: Math.floor(((i + random() * 0.5) / count) * shown.length),
+        y: Math.random() * (height + TRAIL * ROW_PX),
+        speed: 0.5 + Math.random() * 1.2,
+        tokens: stream(),
       }));
     };
 
@@ -91,11 +95,10 @@ export function TokenRain({ tokens, children }: { tokens: readonly string[]; /**
         for (let k = 0; k < TRAIL; k += 1) {
           const y = col.y - k * ROW_PX;
           if (y < -ROW_PX || y > height + ROW_PX) continue;
-          // The head is the newest token (bottom); older ones fade above it, so each column reads downward.
-          const text = shown[(col.start + TRAIL - 1 - k) % shown.length] ?? '';
-          ctx.globalAlpha = k === 0 ? 1 : Math.max(0.12, 0.75 - k * 0.08);
+          // The head (bottom) is brightest; older tokens fade above it. Kept dim: it's a background.
+          ctx.globalAlpha = k === 0 ? 0.75 : Math.max(0.06, 0.42 - k * 0.03);
           ctx.fillStyle = k === 0 ? palette.head : palette.tail;
-          ctx.fillText(text, col.x, y);
+          ctx.fillText(col.tokens[TRAIL - 1 - k] ?? '', col.x, y);
         }
       }
       ctx.globalAlpha = 1;
@@ -106,7 +109,7 @@ export function TokenRain({ tokens, children }: { tokens: readonly string[]; /**
         col.y += col.speed * 2;
         if (col.y - TRAIL * ROW_PX > height) {
           col.y = -ROW_PX;
-          col.start = (col.start + TRAIL) % shown.length;
+          col.tokens = stream();
         }
       }
     };
@@ -118,7 +121,6 @@ export function TokenRain({ tokens, children }: { tokens: readonly string[]; /**
 
     let frame = 0;
     let last = 0;
-    let visible = true;
     const loop = (t: number) => {
       frame = requestAnimationFrame(loop);
       if (t - last < FRAME_MS) return;
@@ -127,24 +129,18 @@ export function TokenRain({ tokens, children }: { tokens: readonly string[]; /**
       draw();
     };
     const start = () => {
-      if (moving && visible && !document.hidden && frame === 0) frame = requestAnimationFrame(loop);
+      if (moving && !document.hidden && frame === 0) frame = requestAnimationFrame(loop);
     };
     const stop = () => {
       cancelAnimationFrame(frame);
       frame = 0;
     };
 
-    const resize = new ResizeObserver(() => {
+    const onResize = () => {
       layout();
       draw();
-    });
-    resize.observe(el);
-    const onScreen = new IntersectionObserver(([entry]) => {
-      visible = entry?.isIntersecting ?? false;
-      if (visible) start();
-      else stop();
-    });
-    onScreen.observe(el);
+    };
+    window.addEventListener('resize', onResize);
     const onVisibility = () => (document.hidden ? stop() : start());
     document.addEventListener('visibilitychange', onVisibility);
     // Redraw in the new colors when the theme changes.
@@ -157,24 +153,32 @@ export function TokenRain({ tokens, children }: { tokens: readonly string[]; /**
     start();
     return () => {
       stop();
-      resize.disconnect();
-      onScreen.disconnect();
-      theme.disconnect();
+      window.removeEventListener('resize', onResize);
       document.removeEventListener('visibilitychange', onVisibility);
+      theme.disconnect();
     };
-  }, [tokens, moving]);
+  }, [pool, moving]);
 
   return (
-    <figure className="token-rain">
-      <canvas ref={canvas} aria-hidden="true" />
-      <figcaption>
-        <span>{children}</span>
-        {effects ? (
-          <button type="button" className="btn btn-quiet" aria-pressed={paused} onClick={() => setPaused((p) => !p)}>
-            {paused ? 'Resume the rain' : 'Pause the rain'}
-          </button>
-        ) : null}
-      </figcaption>
-    </figure>
+    <>
+      <canvas ref={canvas} className="rain-canvas" aria-hidden="true" />
+      <div className="rain-scanlines" aria-hidden="true" />
+    </>
+  );
+}
+
+/** What the rain is, and its pause control (shown only when it moves). */
+export function RainControls({ children }: { children: ReactNode }) {
+  const rain = useContext(RainContext);
+  const effects = useEffectsEnabled();
+  return (
+    <p className="rain-controls">
+      <span>{children}</span>
+      {effects && rain ? (
+        <button type="button" className="btn btn-quiet" aria-pressed={rain.paused} onClick={() => rain.setPaused(!rain.paused)}>
+          {rain.paused ? 'Resume the rain' : 'Pause the rain'}
+        </button>
+      ) : null}
+    </p>
   );
 }

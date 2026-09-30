@@ -662,3 +662,80 @@
   max-width: 40rem;
   color: var(--text-muted);
 }
+
+/* Detailed sub-scenes of "Inside the network": position and feed-forward (Example drawings). */
+.position-view,
+.feedforward {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.position-sentence {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  white-space: pre;
+}
+.position-row {
+  display: grid;
+  grid-template-columns: minmax(3rem, 6rem) minmax(7rem, 9rem) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  opacity: clamp(0, calc(var(--reveal) * 2), 1);
+}
+.position-row + .position-row {
+  opacity: clamp(0, calc(var(--reveal) * 2 - 1), 1);
+}
+.position-at {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.ff-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  gap: 4px;
+}
+.ff-cell {
+  height: 3.2rem;
+  border: 1px dashed var(--example);
+  border-radius: var(--radius-sm);
+  background: var(--hatch);
+  opacity: clamp(0.2, calc(var(--reveal) * 1.5), 1);
+}
+
+/* The end step's reply text: formatted, or as written. */
+.reply-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.reply-text-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.reply-rendered {
+  max-height: 16rem;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.context-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+.context-count {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.context-count .datum {
+  display: inline;
+}

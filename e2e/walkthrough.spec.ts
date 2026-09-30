@@ -62,9 +62,9 @@ test('works from the keyboard alone: play, pause, steps, chapters, and the short
   await expect(stepCount(page)).toHaveText(/^Step 1 of \d+$/);
 
   await page.keyboard.press('?');
-  await expect(page.getByRole('dialog', { name: 'Keyboard shortcuts' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Keyboard shortcuts' })).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('dialog', { name: 'Keyboard shortcuts' })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'Keyboard shortcuts' })).toHaveCount(0);
 });
 
 test('a token card opens from the reply, closes with Escape, and returns focus', async ({ page }) => {
@@ -143,7 +143,7 @@ test('the walkthrough shows numbers only as labeled values', async ({ page }) =>
     const found = await walkthrough(page).evaluate((root) => {
       // UI chrome that may hold digits: the player (step count, speeds), and the live-region text, which
       // spells each label out. Method descriptions state their own rule.
-      const allowed = '[data-kind], [data-method], .player, .offer, [aria-live]';
+      const allowed = '[data-kind], [data-method], [data-control], .player, .offer, [aria-live]';
       const out: string[] = [];
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
       for (let n = walker.nextNode(); n; n = walker.nextNode()) {
