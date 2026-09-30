@@ -4,7 +4,11 @@
 //   GET /api/spike/stream?events=40&intervalMs=150
 //
 // Each request logs exactly one "[spike …]" line when it ends. Vercel's Logs view groups lines per
-// request, so a single summary line keeps the result visible there.
+// request, so a single summary line keeps the result visible there. With request cancellation
+// enabled (vercel.json), Vercel may terminate the function on disconnect, so the line is written
+// from after(), which keeps the function alive until it has been logged.
+
+import { after } from 'next/server';
 
 import { SAFARI_PADDING, SSE_HEADERS, notFound, spikeEnabled, sseWriter } from '../sse';
 
@@ -26,12 +30,14 @@ export function GET(request: Request): Response {
   let sent = 0;
   let stop: (() => void) | null = null;
   let finished = false;
+  const summary = Promise.withResolvers<string>();
+  after(async () => console.log(await summary.promise));
 
   const finish = (how: string) => {
     if (finished) return;
     finished = true;
     stop?.();
-    console.log(`[spike ${id}] synthetic ${events}×${intervalMs} ms: ${how}; sent ${sent} of ${events} events`);
+    summary.resolve(`[spike ${id}] synthetic ${events}×${intervalMs} ms: ${how}; sent ${sent} of ${events} events`);
   };
   request.signal.addEventListener('abort', () => finish(`client disconnect detected via request.signal at ${elapsed()} ms`));
 

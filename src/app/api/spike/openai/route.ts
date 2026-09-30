@@ -5,8 +5,10 @@
 //   POST /api/spike/openai   (header x-spike-token: <SPIKE_TOKEN>)
 //
 // Each request logs exactly one "[spike-openai …]" line when it ends, so the result stays visible in
-// Vercel's per-request log grouping.
+// Vercel's per-request log grouping. With request cancellation enabled (vercel.json), Vercel may
+// terminate the function on disconnect, so the line is written from after().
 
+import { after } from 'next/server';
 import OpenAI, { APIUserAbortError } from 'openai';
 
 import { SAFARI_PADDING, SSE_HEADERS, notFound, spikeEnabled, sseWriter, tokenMatches } from '../sse';
@@ -27,9 +29,15 @@ export function POST(request: Request): Response {
   const started = performance.now();
   const elapsed = () => Math.round(performance.now() - started);
   const upstream = new AbortController();
+  const summary = Promise.withResolvers<string>();
+  after(async () => console.log(await summary.promise));
   let disconnect: { via: string; at: number } | null = null;
   const onDisconnect = (via: string) => {
-    disconnect ??= { via, at: elapsed() };
+    if (disconnect === null) {
+      disconnect = { via, at: elapsed() };
+      // Safety net: still report if the upstream loop never ends after the disconnect.
+      setTimeout(() => summary.resolve(`[spike-openai ${id}] upstream loop still running 5 s after a disconnect via ${via}`), 5_000);
+    }
     upstream.abort();
   };
   request.signal.addEventListener('abort', () => onDisconnect('request.signal'));
@@ -84,7 +92,7 @@ export function POST(request: Request): Response {
               ? `upstream error at ${elapsed()} ms: ${failure}`
               : `upstream stream ended at ${elapsed()} ms without a terminal event (upstream aborted: ${upstream.signal.aborted}${disconnect ? `, ${elapsed() - disconnect.at} ms after the disconnect` : ''}); usage not reported`;
         const detected = disconnect ? `client disconnect detected via ${disconnect.via} at ${disconnect.at} ms` : 'client disconnect: not detected';
-        console.log(`[spike-openai ${id}] ${ended}; ${deltas} deltas relayed; ${detected}`);
+        summary.resolve(`[spike-openai ${id}] ${ended}; ${deltas} deltas relayed; ${detected}`);
         out.close();
       }
     },
