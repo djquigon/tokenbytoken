@@ -642,6 +642,120 @@ export const CLAIMS = {
     ],
     checked: '2026-09-30',
   },
+  C089: {
+    text: "An artificial neuron multiplies each input by a weight, adds them up with a bias, and passes the total through a nonlinear function (without which stacked layers would collapse into one linear calculation); networks stack layers of them, and the weights and biases are the learned parameters.",
+    where: "FAQ (“What is a neural network?”)",
+    sources: [
+      "Google Machine Learning Crash Course, \"Neural networks: Nodes and hidden layers\" (updated 2025-12-03): https://developers.google.com/machine-learning/crash-course/neural-networks/nodes-hidden-layers",
+      "Google Machine Learning Crash Course, \"Neural networks: Activation functions\" (updated 2025-08-25): https://developers.google.com/machine-learning/crash-course/neural-networks/activation-functions",
+      "IBM, \"What is a neural network?\" (2021-10-06): https://www.ibm.com/think/topics/neural-networks",
+      "Nobel Committee for Physics, \"Scientific Background to the Nobel Prize in Physics 2024\" (2024-10-08): https://www.nobelprize.org/prizes/physics/2024/advanced-information/",
+    ],
+    checked: '2026-10-01',
+  },
+  C090: {
+    text: "Training compares the output with the right answer as a loss, then gradient descent nudges every weight to lower it, with backpropagation working backwards through the layers to find each direction; Rumelhart, Hinton and Williams showed this lets hidden layers learn useful features.",
+    where: "FAQ (“How does a neural network learn?”)",
+    sources: [
+      "Google Machine Learning Crash Course, \"Linear regression: Gradient descent\" (updated 2026-02-03): https://developers.google.com/machine-learning/crash-course/linear-regression/gradient-descent",
+      "Google Machine Learning Crash Course, \"Training using backpropagation\" (updated 2025-12-15): https://developers.google.com/machine-learning/crash-course/neural-networks/backpropagation",
+      "Rumelhart, Hinton & Williams, Nature 323, 533–536 (1986-10-09): https://www.nature.com/articles/323533a0",
+      "Nobel Committee for Physics, \"Scientific Background to the Nobel Prize in Physics 2024\" (2024-10-08): https://www.nobelprize.org/prizes/physics/2024/advanced-information/ (the method had been used before; Linnainmaa 1970, Werbos 1982)",
+    ],
+    checked: '2026-10-01',
+  },
+  C091: {
+    text: "Language models are pretrained by predicting each next token of real text, so the text supplies the answers (self-supervised); then they are fine-tuned on human-written examples and human rankings (RLHF). People preferred a fine-tuned 1.3-billion-parameter model over the 175-billion-parameter GPT-3, and fine-tuning took under 2% of pretraining’s computing.",
+    where: "FAQ (“How does a neural network learn?”)",
+    sources: [
+      "IBM, \"What is self-supervised learning?\" (2023-12-05): https://www.ibm.com/think/topics/self-supervised-learning",
+      "Ouyang et al., \"Training language models to follow instructions with human feedback\" (2022-03-04): https://arxiv.org/abs/2203.02155",
+      "OpenAI, \"Aligning language models to follow instructions\" (2022-01-27): https://openai.com/index/instruction-following/",
+    ],
+    checked: '2026-10-01',
+  },
+  C092: {
+    text: "Artificial neural networks are loosely modeled on the brain (units for neurons, connection strengths for synapses), but real neurons are far more complex: imitating a detailed model of one cortical neuron took a 5-to-8-layer artificial network. The human brain has about 86 billion neurons; parameters correspond to connections, not neurons.",
+    where: "FAQ (“Is a neural network like a brain?”)",
+    sources: [
+      "Royal Swedish Academy of Sciences, Nobel Prize in Physics 2024 popular information (2024-10-08): https://www.nobelprize.org/prizes/physics/2024/popular-information/",
+      "MIT News, \"Explained: Neural networks\" (2017-04-14): https://news.mit.edu/2017/explained-neural-networks-deep-learning-0414",
+      "Beniaguev, Segev & London, Neuron 109(17) (2021-08-10): https://pubmed.ncbi.nlm.nih.gov/34380016/",
+      "Azevedo et al., J Comp Neurol 513(5) (2009; 86.1 ± 8.1 billion neurons): https://doi.org/10.1002/cne.21974",
+    ],
+    checked: '2026-10-01',
+  },
+  C093: {
+    text: "A tiny teaching network has 21 parameters; GPT-2 had 1.5 billion; GPT-3 had 175 billion in 96 layers, trained on 300 billion tokens; gpt-oss-120b has 117 billion, with 4 of 128 experts (about 5.1 billion parameters) used per token; OpenAI’s GPT-4 report gave no further details about architecture, including model size.",
+    where: "FAQ (“What is a neural network?”); FAQ (“How big are these networks?”)",
+    sources: [
+      "Google Machine Learning Crash Course, \"Neural networks: Nodes and hidden layers\": https://developers.google.com/machine-learning/crash-course/neural-networks/nodes-hidden-layers",
+      "OpenAI, \"Better language models and their implications\" (2019-02-14): https://openai.com/index/better-language-models/",
+      "Brown et al., \"Language Models are Few-Shot Learners\" (2020-05-28), Table 2.1 and §2.2: https://arxiv.org/abs/2005.14165",
+      "OpenAI, \"Introducing gpt-oss\" (2025-08-05): https://openai.com/index/introducing-gpt-oss/",
+      "OpenAI, \"GPT-4 Technical Report\" (2023-03-15), §2: https://arxiv.org/abs/2303.08774",
+    ],
+    checked: '2026-10-01',
+  },
+  C094: {
+    text: "The core ideas of neural networks are decades old, and the field twice fell out of favor as early limits were found and funding dried up; scale (large datasets, graphics chips, better training methods) made deep networks work, starting with image recognition, then the transformer and fine-tuning with human feedback led to chatbots.",
+    where: "FAQ (“How did neural networks lead to today’s chatbots?”)",
+    sources: [
+      "Nobel Committee for Physics, \"Scientific Background to the Nobel Prize in Physics 2024\" (2024-10-08): https://www.nobelprize.org/prizes/physics/2024/advanced-information/",
+      "UK House of Lords, \"AI in the UK: ready, willing and able?\" (2018-04-16), Appendix 4 (the first and second \"AI winters\"): https://publications.parliament.uk/pa/ld201719/ldselect/ldai/100/10018.htm",
+      "Krizhevsky, Sutskever & Hinton (NIPS 2012): https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html",
+    ],
+    checked: '2026-10-01',
+  },
+  C095: {
+    text: "Milestones to the late 1990s: McCulloch and Pitts’s neuron model (1943), Rosenblatt’s perceptron learning from examples (1958), Minsky and Papert’s “Perceptrons” on their limits (1969), Hopfield’s network (1982), backpropagation training hidden layers (1986), LeCun’s convolutional network reading ZIP codes (1989), and LSTM (1997).",
+    where: "FAQ (“How did neural networks lead to today’s chatbots?”)",
+    sources: [
+      "McCulloch & Pitts, Bulletin of Mathematical Biophysics 5(4):115–133 (1943): https://doi.org/10.1007/BF02478259",
+      "Rosenblatt, Psychological Review 65(6):386–408 (1958): https://doi.org/10.1037/h0042519; Cornell University (2019-09-25), on the 1958 IBM 704 demonstration: https://as.cornell.edu/news/professors-perceptron-paved-way-ai-60-years-too-soon",
+      "Minsky & Papert, \"Perceptrons\" (MIT Press, 1969): https://mitpress.mit.edu/9780262630221/perceptrons/; Nobel Committee for Physics, \"Scientific Background to the Nobel Prize in Physics 2024\" (2024-10-08): https://www.nobelprize.org/prizes/physics/2024/advanced-information/ (the book led to a pause in funding)",
+      "Hopfield, PNAS 79(8):2554–2558 (1982): https://doi.org/10.1073/pnas.79.8.2554",
+      "Rumelhart, Hinton & Williams, Nature 323:533–536 (1986): https://doi.org/10.1038/323533a0",
+      "LeCun et al., Neural Computation 1(4):541–551 (1989): https://doi.org/10.1162/neco.1989.1.4.541; the Nobel background (used by US banks to read checks from the mid-1990s)",
+      "Hochreiter & Schmidhuber, Neural Computation 9(8):1735–1780 (1997): https://doi.org/10.1162/neco.1997.9.8.1735",
+    ],
+    checked: '2026-10-01',
+  },
+  C096: {
+    text: "Milestones from 2012 to 2017: AlexNet, trained on 2 graphics chips, won ImageNet with 15.3% error against 26.2%; word embeddings (2013); attention for translation (2014); the transformer (2017).",
+    where: "FAQ (“How did neural networks lead to today’s chatbots?”)",
+    sources: [
+      "Krizhevsky, Sutskever & Hinton (NIPS 2012), and the ILSVRC 2012 results: https://image-net.org/challenges/LSVRC/2012/results.html",
+      "Mikolov et al. (2013-01-16): https://arxiv.org/abs/1301.3781",
+      "Bahdanau, Cho & Bengio (2014-09-01): https://arxiv.org/abs/1409.0473",
+      "Vaswani et al. (2017-06-12): https://arxiv.org/abs/1706.03762",
+    ],
+    checked: '2026-10-01',
+  },
+  C097: {
+    text: "Milestones from 2018 to 2024: GPT (2018), GPT-2 with 1.5 billion parameters and a staged release (2019), the Turing Award to Bengio, Hinton and LeCun (2019), scaling laws (2020), GPT-3 with 175 billion parameters (2020), InstructGPT (2022), ChatGPT (2022-11-30, trained with InstructGPT’s methods), and the Nobel Prize in Physics to Hopfield and Hinton (2024).",
+    where: "FAQ (“How did neural networks lead to today’s chatbots?”)",
+    sources: [
+      "OpenAI, \"Improving language understanding with unsupervised learning\" (2018-06-11): https://openai.com/index/language-unsupervised/",
+      "OpenAI, \"Better language models and their implications\" (2019-02-14): https://openai.com/index/better-language-models/",
+      "ACM, 2018 A.M. Turing Award (announced 2019-03-27): https://awards.acm.org/about/2018-turing",
+      "Kaplan et al. (2020-01-23): https://arxiv.org/abs/2001.08361",
+      "Brown et al. (2020-05-28): https://arxiv.org/abs/2005.14165",
+      "OpenAI, \"Aligning language models to follow instructions\" (2022-01-27): https://openai.com/index/instruction-following/",
+      "OpenAI, \"Introducing ChatGPT\" (2022-11-30): https://openai.com/index/chatgpt/",
+      "NobelPrize.org, Physics 2024 press release (2024-10-08): https://www.nobelprize.org/prizes/physics/2024/press-release/",
+    ],
+    checked: '2026-10-01',
+  },
+  C098: {
+    text: "Earlier language networks read text one step at a time, so training waited on each step; the transformer used attention alone, so whole texts train in parallel (the base model trained in 12 hours on 8 GPUs); OpenAI describes GPT-4 as a Transformer-style model pretrained to predict the next token.",
+    where: "FAQ (“What made the transformer such a big deal?”)",
+    sources: [
+      "Vaswani et al., \"Attention Is All You Need\" (2017-06-12; NIPS 2017), §1 and §5.2: https://arxiv.org/abs/1706.03762",
+      "OpenAI, \"GPT-4 Technical Report\" (2023-03-15), §2: https://arxiv.org/abs/2303.08774",
+    ],
+    checked: '2026-10-01',
+  },
 } as const satisfies Record<string, Claim>;
 
 export type ClaimId = keyof typeof CLAIMS;

@@ -21,7 +21,7 @@ describe('FAQ', () => {
       expect(e.claims.length, e.id).toBeGreaterThan(0);
       for (const c of e.claims) expect(CLAIMS[c], `${e.id}: ${c}`).toBeDefined();
       expect(e.sources.length, e.id).toBeGreaterThan(0);
-      for (const s of e.sources) {
+      for (const s of [...e.sources, ...(e.timeline ?? []).map((m) => m.source)]) {
         expect(s.url, e.id).toMatch(/^https:\/\//);
         for (const date of [s.published, s.updated]) if (date !== undefined) expect(date, e.id).toMatch(/^\d{4}(-\d{2}){0,2}$/);
       }
@@ -32,9 +32,18 @@ describe('FAQ', () => {
     // A bare number is a digit that doesn't continue a name, as "4" does in "GPT-4o" or "1" in "R1".
     const bare = /(?<![\p{L}\p{N}-])\p{N}/u;
     for (const e of entries) {
-      for (const text of [e.question, ...[e.short, ...e.answer].flatMap((t) => t.filter((p) => typeof p === 'string'))]) {
+      const prose = [e.short, ...e.answer, ...(e.timeline ?? []).map((m) => m.what)];
+      for (const text of [e.question, ...prose.flatMap((t) => t.filter((p) => typeof p === 'string'))]) {
         expect(text, e.id).not.toMatch(bare);
       }
+    }
+  });
+
+  it('keeps every history in order, each milestone dated', () => {
+    for (const e of entries) {
+      const whens = (e.timeline ?? []).map((m) => m.when);
+      for (const w of whens) expect(w, e.id).toMatch(/^\d{4}(-\d{2}){0,2}$/);
+      expect(whens, e.id).toEqual([...whens].sort());
     }
   });
 
@@ -46,7 +55,8 @@ describe('FAQ', () => {
   });
 
   it('uses every documented number it keeps', () => {
-    const used = new Set(entries.flatMap((e) => [e.short, ...e.answer].flatMap((t) => t.flatMap((p) => (typeof p !== 'string' && p.kind === 'datum' ? [p.d] : [])))));
+    const prose = (e: (typeof entries)[number]) => [e.short, ...e.answer, ...(e.timeline ?? []).map((m) => m.what)];
+    const used = new Set(entries.flatMap((e) => prose(e).flatMap((t) => t.flatMap((p) => (typeof p !== 'string' && p.kind === 'datum' ? [p.d] : [])))));
     for (const [name, fact] of Object.entries(FACTS)) expect(used.has(fact), name).toBe(true);
   });
 });

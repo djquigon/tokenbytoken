@@ -51,6 +51,21 @@ const CANARIES: Doc = {
 const IEA_2026: Doc = { title: 'IEA, “Key Questions on Energy and AI”', url: 'https://www.iea.org/reports/key-questions-on-energy-and-ai' };
 const GOOGLE_PROMPT: Doc = { title: 'Elsworth et al. (Google), “Measuring the environmental impact of delivering AI at Google Scale”', url: 'https://arxiv.org/abs/2508.15734' };
 const ALTMAN_QUERY: Doc = { title: 'Sam Altman, “The Gentle Singularity”', url: 'https://blog.samaltman.com/the-gentle-singularity' };
+const MLCC_NODES: Doc = {
+  title: 'Google Machine Learning Crash Course, “Neural networks: Nodes and hidden layers”',
+  url: 'https://developers.google.com/machine-learning/crash-course/neural-networks/nodes-hidden-layers',
+};
+const GPT_2: Doc = { title: 'OpenAI, “Better language models and their implications”', url: 'https://openai.com/index/better-language-models/' };
+const GPT_3: Doc = { title: 'Brown et al., “Language Models are Few-Shot Learners”', url: 'https://arxiv.org/abs/2005.14165' };
+const GPT_OSS: Doc = { title: 'OpenAI, “Introducing gpt-oss”', url: 'https://openai.com/index/introducing-gpt-oss/' };
+const INSTRUCT_GPT: Doc = { title: 'OpenAI, “Aligning language models to follow instructions”', url: 'https://openai.com/index/instruction-following/' };
+const NEURON_AS_NETWORK: Doc = { title: 'Beniaguev, Segev & London, “Single cortical neurons as deep artificial neural networks”', url: 'https://pubmed.ncbi.nlm.nih.gov/34380016/' };
+const NEURON_COUNT: Doc = { title: 'Azevedo et al., Journal of Comparative Neurology', url: 'https://doi.org/10.1002/cne.21974' };
+const ALEXNET: Doc = {
+  title: 'Krizhevsky, Sutskever & Hinton, “ImageNet Classification with Deep Convolutional Neural Networks”',
+  url: 'https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html',
+};
+const TRANSFORMER: Doc = { title: 'Vaswani et al., “Attention Is All You Need”', url: 'https://arxiv.org/abs/1706.03762' };
 const NOBEL_CHEMISTRY: Doc = { title: 'NobelPrize.org, “The Nobel Prize in Chemistry 2024” (press release)', url: 'https://www.nobelprize.org/prizes/chemistry/2024/press-release/' };
 const GPT_4O_CARD: Doc = { title: 'OpenAI, “GPT-4o System Card”', url: 'https://openai.com/index/gpt-4o-system-card/' };
 
@@ -118,4 +133,34 @@ export const FACTS = {
   geminiPromptWh: documented(GOOGLE_PROMPT, 0.24),
   chatgptQueryWh: documented(ALTMAN_QUERY, 0.34),
   nobelYear: documented(NOBEL_CHEMISTRY, '2024'),
+
+  /** Learned numbers (weights and biases) in the beginner course's tiny example network. */
+  toyNetworkParams: documented(MLCC_NODES, 21),
+  /** Model sizes, in billions of parameters, and GPT-3's layers and training tokens (billions). */
+  gpt2ParamsBillion: documented(GPT_2, 1.5),
+  gpt3ParamsBillion: documented(GPT_3, 175),
+  gpt3Layers: documented(GPT_3, 96),
+  gpt3TrainingTokensBillion: documented(GPT_3, 300),
+  gptOssParamsBillion: documented(GPT_OSS, 117),
+  gptOssActiveBillion: documented(GPT_OSS, 5.1),
+  gptOssExperts: documented(GPT_OSS, 128),
+  gptOssExpertsPerToken: documented(GPT_OSS, 4),
+  /** InstructGPT: the fine-tuned model people preferred, and the GPT-3 it was compared with (billions of parameters). */
+  instructSmallBillion: documented(INSTRUCT_GPT, 1.3),
+  instructGpt3Billion: documented(INSTRUCT_GPT, 175),
+  /** Fine-tuning's share of the computing used for pretraining (an upper bound). */
+  fineTuneComputePct: documented(INSTRUCT_GPT, 2),
+  /** How deep an artificial network had to be to imitate a detailed model of one brain cell. */
+  corticalLayersFrom: documented(NEURON_AS_NETWORK, 5),
+  corticalLayersTo: documented(NEURON_AS_NETWORK, 8),
+  /** Neurons in the adult human brain, in billions. */
+  brainNeuronsBillion: documented(NEURON_COUNT, 86),
+
+  /** AlexNet at the ImageNet challenge: its top-5 error, the runner-up's, and the graphics chips it trained on. */
+  alexnetErrorPct: documented(ALEXNET, 15.3),
+  runnerUpErrorPct: documented(ALEXNET, 26.2),
+  alexnetGpus: documented(ALEXNET, 2),
+  /** The original transformer's base model: training time in hours, on one machine with this many graphics chips. */
+  transformerBaseHours: documented(TRANSFORMER, 12),
+  transformerGpus: documented(TRANSFORMER, 8),
 } as const;

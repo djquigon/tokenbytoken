@@ -186,10 +186,10 @@
   font-variant-numeric: tabular-nums;
 }
 /* In running prose a value flows with the words, badge and all, instead of forming a box. */
-:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note, .faq-answer, .faq-short) .datum {
+:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note, .faq-answer, .faq-short, .faq-timeline-what) .datum {
   display: inline;
 }
-:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note, .faq-answer, .faq-short) .datum .prov-badge {
+:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note, .faq-answer, .faq-short, .faq-timeline-what) .datum .prov-badge {
   margin-left: 0.3em;
   vertical-align: 0.1em;
 }

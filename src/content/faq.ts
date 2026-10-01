@@ -24,12 +24,22 @@ export interface FaqSource {
   readonly url: string;
 }
 
+/** One dated step in a history: what happened, and the source it's dated by. */
+export interface FaqMilestone {
+  /** When, as the source dates it (YYYY, YYYY-MM, or YYYY-MM-DD). Shown like a citation's date. */
+  readonly when: string;
+  readonly what: SourcedText;
+  readonly source: FaqSource;
+}
+
 export interface FaqEntry {
   /** The answer's anchor: /faq#<id>. */
   readonly id: string;
   readonly question: string;
   readonly short: SourcedText;
   readonly answer: readonly SourcedText[];
+  /** A history, oldest first, shown after the answer. */
+  readonly timeline?: readonly FaqMilestone[];
   readonly claims: readonly ClaimId[];
   readonly sources: readonly FaqSource[];
   /** Where to see it on this site. */
@@ -194,6 +204,296 @@ const media: FaqEntry = {
     { by: 'OpenAI', title: 'GPT-4o System Card', published: '2024-08-08', url: 'https://openai.com/index/gpt-4o-system-card/' },
   ],
   see: { href: '/sample', label: 'See a reply written one token at a time' },
+};
+
+// Neural networks ------------------------------------------------------------------------------------
+
+const NOBEL_BACKGROUND: FaqSource = {
+      by: 'Nobel Committee for Physics',
+      title: 'Scientific Background to the Nobel Prize in Physics 2024',
+      published: '2024-10-08',
+      url: 'https://www.nobelprize.org/prizes/physics/2024/advanced-information/',
+    };
+
+const neuralNetwork: FaqEntry = {
+  id: 'neural-network',
+  question: 'What is a neural network?',
+  short: st`A large set of simple calculations arranged in layers, whose numbers are learned from examples. Each unit takes in numbers, weighs them, adds them up, and passes a result on to the next layer.`,
+  answer: [
+    st`Each unit, often called an artificial neuron, multiplies each of its inputs by a weight, adds them up with one more number called a bias, and passes the total through a simple function, such as one that turns negative totals into zero. That last step matters: without it, any stack of layers would add up to a single, far less capable calculation.`,
+    st`A network stacks many layers of these units, each feeding the next. Its weights and biases are its ${term('parameters', 'learned parameters')}. A tiny example network in Google's beginner course has ${slot('int', FACTS.toyNetworkParams)} of them; GPT-3, a large language model, had ${slot('int', FACTS.gpt3ParamsBillion)} billion.`,
+    st`In a language model, the inputs are ${term('token', 'tokens')} turned into lists of numbers, and the last layer produces a score for every possible next token. Everything in between is layers of these simple calculations, repeated at enormous scale.`,
+  ],
+  claims: ['C089', 'C093', 'C028', 'C017'],
+  sources: [
+    {
+      by: 'Google for Developers',
+      title: 'Neural networks: Nodes and hidden layers (Machine Learning Crash Course)',
+      updated: '2025-12-03',
+      url: 'https://developers.google.com/machine-learning/crash-course/neural-networks/nodes-hidden-layers',
+    },
+    {
+      by: 'Google for Developers',
+      title: 'Neural networks: Activation functions (Machine Learning Crash Course)',
+      updated: '2025-08-25',
+      url: 'https://developers.google.com/machine-learning/crash-course/neural-networks/activation-functions',
+    },
+    { by: 'IBM', title: 'What is a neural network?', published: '2021-10-06', url: 'https://www.ibm.com/think/topics/neural-networks' },
+    NOBEL_BACKGROUND,
+    { by: 'Brown et al.', title: 'Language Models are Few-Shot Learners', venue: 'arXiv', published: '2020-05-28', url: 'https://arxiv.org/abs/2005.14165' },
+  ],
+  see: { href: '/sample', label: 'See example drawings of a network' },
+};
+
+const training: FaqEntry = {
+  id: 'training',
+  question: 'How does a neural network learn?',
+  short: st`By trial and error at enormous scale. It makes a prediction, measures how wrong it was, and nudges every weight a little toward a better answer, then repeats over vast numbers of examples.`,
+  answer: [
+    st`Training starts from random weights. For each example, the network's output is compared with the right answer, and the gap is measured as a single number: the error, or “loss”.`,
+    st`Then every weight is nudged slightly in the direction that lowers the error, a method called gradient descent. Working out that direction for every weight at once is the job of backpropagation, which works backwards through the layers. A landmark paper by Rumelhart, Hinton and Williams showed that this lets a network's hidden layers learn useful features on their own.`,
+    st`For a language model, the right answers come free with the text. The task is to predict each next token of real writing, so any text can serve as training material, with no one labeling it. This first stage is called pretraining.`,
+    st`Then the model is fine-tuned to act as an assistant, on example answers written by people and on people's rankings of its replies: reinforcement learning from human feedback. In OpenAI's study, people preferred replies from a fine-tuned model with ${slot('decimal', FACTS.instructSmallBillion)} billion parameters over those of GPT-3, with ${slot('int', FACTS.instructGpt3Billion)} billion. Fine-tuning took less than ${slot('percent', FACTS.fineTuneComputePct)} of the computing used for pretraining.`,
+    st`All of this happens before you use the model. Chatting with it doesn't change its weights.`,
+  ],
+  claims: ['C090', 'C091', 'C046'],
+  sources: [
+    {
+      by: 'Google for Developers',
+      title: 'Linear regression: Gradient descent (Machine Learning Crash Course)',
+      updated: '2026-02-03',
+      url: 'https://developers.google.com/machine-learning/crash-course/linear-regression/gradient-descent',
+    },
+    {
+      by: 'Google for Developers',
+      title: 'Training using backpropagation (Machine Learning Crash Course)',
+      updated: '2025-12-15',
+      url: 'https://developers.google.com/machine-learning/crash-course/neural-networks/backpropagation',
+    },
+    {
+      by: 'Rumelhart, Hinton & Williams',
+      title: 'Learning representations by back-propagating errors',
+      venue: 'Nature',
+      published: '1986-10-09',
+      url: 'https://www.nature.com/articles/323533a0',
+    },
+    { by: 'IBM', title: 'What is self-supervised learning?', published: '2023-12-05', url: 'https://www.ibm.com/think/topics/self-supervised-learning' },
+    {
+      by: 'Ouyang et al.',
+      title: 'Training language models to follow instructions with human feedback',
+      venue: 'arXiv',
+      published: '2022-03-04',
+      url: 'https://arxiv.org/abs/2203.02155',
+    },
+    { by: 'OpenAI', title: 'Aligning language models to follow instructions', published: '2022-01-27', url: 'https://openai.com/index/instruction-following/' },
+  ],
+};
+
+const brains: FaqEntry = {
+  id: 'brains',
+  question: 'Is a neural network like a brain?',
+  short: st`Only loosely. The idea was inspired by brain cells, but an artificial neuron is a few lines of arithmetic, while a real neuron is a living cell and far more complex.`,
+  answer: [
+    st`The analogy goes like this: units stand in for neurons, and adjustable connection strengths stand in for the synapses between them. The first artificial neurons were modeled on a simplified idea of brain cells: add up the incoming signals, and fire past a threshold.`,
+    st`Real neurons are much more complex. In one study, it took an artificial network ${slot('int', FACTS.corticalLayersFrom)} to ${slot('int', FACTS.corticalLayersTo)} layers deep to imitate a detailed computer model of a single brain cell. The human brain has about ${slot('int', FACTS.brainNeuronsBillion)} billion neurons.`,
+    st`Comparing sizes is tricky, too: a model's parameters correspond to connections, not to neurons. So “neural network” names an idea borrowed from biology. It isn't a claim that a model works like a mind.`,
+  ],
+  claims: ['C092'],
+  sources: [
+    {
+      by: 'Royal Swedish Academy of Sciences',
+      title: 'They used physics to find patterns in information (Nobel Prize in Physics 2024, popular information)',
+      published: '2024-10-08',
+      url: 'https://www.nobelprize.org/prizes/physics/2024/popular-information/',
+    },
+    { by: 'MIT News (Larry Hardesty)', title: 'Explained: Neural networks', published: '2017-04-14', url: 'https://news.mit.edu/2017/explained-neural-networks-deep-learning-0414' },
+    {
+      by: 'Beniaguev, Segev & London',
+      title: 'Single cortical neurons as deep artificial neural networks',
+      venue: 'Neuron',
+      published: '2021-08-10',
+      url: 'https://pubmed.ncbi.nlm.nih.gov/34380016/',
+    },
+    {
+      by: 'Azevedo et al.',
+      title: 'Equal numbers of neuronal and nonneuronal cells make the human brain an isometrically scaled-up primate brain',
+      venue: 'Journal of Comparative Neurology',
+      published: '2009-02-18',
+      url: 'https://doi.org/10.1002/cne.21974',
+    },
+  ],
+};
+
+const size: FaqEntry = {
+  id: 'size',
+  question: 'How big are these networks?',
+  short: st`Huge, and the sizes of the biggest aren't public. Published models range from about a billion learned numbers to well over a hundred billion, but OpenAI doesn't say how big its hosted models are.`,
+  answer: [
+    st`GPT-2 had ${slot('decimal', FACTS.gpt2ParamsBillion)} billion parameters. GPT-3 had ${slot('int', FACTS.gpt3ParamsBillion)} billion, in ${slot('int', FACTS.gpt3Layers)} layers, and was trained on ${slot('int', FACTS.gpt3TrainingTokensBillion)} billion tokens of text.`,
+    st`Some newer models don't use all their parameters for every token. OpenAI's open-weight gpt-oss-120b, which anyone can download and inspect, has ${slot('int', FACTS.gptOssParamsBillion)} billion parameters. Its layers are split into ${slot('int', FACTS.gptOssExperts)} “experts”, and each token passes through only ${slot('int', FACTS.gptOssExpertsPerToken)} of them, about ${slot('decimal', FACTS.gptOssActiveBillion)} billion parameters in all. This design is called a mixture of experts.`,
+    st`For the models behind its chatbots, OpenAI stopped publishing sizes: its GPT-4 report gave no further details about the architecture, including model size. That's why this site can't say how big the model answering you is.`,
+  ],
+  claims: ['C093', 'C027'],
+  sources: [
+    { by: 'OpenAI', title: 'Better language models and their implications', published: '2019-02-14', url: 'https://openai.com/index/better-language-models/' },
+    { by: 'Brown et al.', title: 'Language Models are Few-Shot Learners', venue: 'arXiv', published: '2020-05-28', url: 'https://arxiv.org/abs/2005.14165' },
+    { by: 'OpenAI', title: 'Introducing gpt-oss', published: '2025-08-05', url: 'https://openai.com/index/introducing-gpt-oss/' },
+    { by: 'OpenAI', title: 'GPT-4 Technical Report', venue: 'arXiv', published: '2023-03-15', url: 'https://arxiv.org/abs/2303.08774' },
+  ],
+};
+
+const history: FaqEntry = {
+  id: 'history',
+  question: 'How did neural networks lead to today’s chatbots?',
+  short: st`Through decades of ideas, each building on the last. A mathematical neuron became a network that learns, deep networks took off with big data and graphics chips, the transformer made huge language models practical, and training with human feedback turned them into chatbots.`,
+  answer: [
+    st`The core ideas are old. The first artificial neurons and learning machines came in the early days of computing, and the training method used today was popularized long before chatbots. In between, neural networks twice fell out of favor, as early limits were found and funding dried up.`,
+    st`What changed was scale. Large datasets, graphics chips that do the arithmetic in parallel, and better training methods made very deep networks work, starting with a landmark win in image recognition. Then the transformer made language models fast to train at enormous size, and fine-tuning with human feedback turned them into assistants.`,
+  ],
+  timeline: [
+    {
+      when: '1943-12',
+      what: st`McCulloch and Pitts describe an early, influential mathematical model of a neuron: a unit that combines on-or-off signals and fires an on-or-off signal.`,
+      source: { by: 'McCulloch & Pitts', title: 'A logical calculus of the ideas immanent in nervous activity', venue: 'Bulletin of Mathematical Biophysics', url: 'https://doi.org/10.1007/BF02478259' },
+    },
+    {
+      when: '1958',
+      what: st`Frank Rosenblatt's perceptron learns from examples: in a public demonstration, it learned to tell cards marked on the left from cards marked on the right.`,
+      source: { by: 'Rosenblatt', title: 'The perceptron: A probabilistic model for information storage and organization in the brain', venue: 'Psychological Review', url: 'https://doi.org/10.1037/h0042519' },
+    },
+    {
+      when: '1969',
+      what: st`Minsky and Papert's book “Perceptrons” sets out what such networks can't compute. Funding and interest in neural networks fell away for years.`,
+      source: { by: 'Minsky & Papert', title: 'Perceptrons (MIT Press)', url: 'https://mitpress.mit.edu/9780262630221/perceptrons/' },
+    },
+    {
+      when: '1982-04',
+      what: st`John Hopfield's network stores patterns and recovers a whole pattern from a partial or distorted one, an idea borrowed from physics.`,
+      source: { by: 'Hopfield', title: 'Neural networks and physical systems with emergent collective computational abilities', venue: 'PNAS', url: 'https://doi.org/10.1073/pnas.79.8.2554' },
+    },
+    {
+      when: '1986-10-09',
+      what: st`Rumelhart, Hinton and Williams show that backpropagation can train networks with hidden layers, and that those layers learn useful features of their own.`,
+      source: { by: 'Rumelhart, Hinton & Williams', title: 'Learning representations by back-propagating errors', venue: 'Nature', url: 'https://doi.org/10.1038/323533a0' },
+    },
+    {
+      when: '1989-12',
+      what: st`Yann LeCun and colleagues train a convolutional network to read handwritten ZIP codes. Networks like it were later used to read handwritten checks.`,
+      source: { by: 'LeCun et al.', title: 'Backpropagation Applied to Handwritten Zip Code Recognition', venue: 'Neural Computation', url: 'https://doi.org/10.1162/neco.1989.1.4.541' },
+    },
+    {
+      when: '1997-11',
+      what: st`Long short-term memory (LSTM) networks learn to carry information across long sequences, such as the words of a sentence.`,
+      source: { by: 'Hochreiter & Schmidhuber', title: 'Long Short-Term Memory', venue: 'Neural Computation', url: 'https://doi.org/10.1162/neco.1997.9.8.1735' },
+    },
+    {
+      when: '2012',
+      what: st`AlexNet, a deep network trained on ${slot('int', FACTS.alexnetGpus)} graphics chips, wins the ImageNet image-recognition challenge with an error rate of ${slot('percent', FACTS.alexnetErrorPct)}, against ${slot('percent', FACTS.runnerUpErrorPct)} for the next-best entry. Deep learning takes off.`,
+      source: {
+        by: 'Krizhevsky, Sutskever & Hinton',
+        title: 'ImageNet Classification with Deep Convolutional Neural Networks',
+        venue: 'NIPS',
+        url: 'https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html',
+      },
+    },
+    {
+      when: '2013-01-16',
+      what: st`Word embeddings: words become lists of numbers, learned so that words used in similar ways get similar lists.`,
+      source: { by: 'Mikolov et al.', title: 'Efficient Estimation of Word Representations in Vector Space', venue: 'arXiv', url: 'https://arxiv.org/abs/1301.3781' },
+    },
+    {
+      when: '2014-09-01',
+      what: st`Attention: a translation network learns to focus on the relevant words of the sentence it's translating, instead of squeezing the whole sentence into one summary.`,
+      source: { by: 'Bahdanau, Cho & Bengio', title: 'Neural Machine Translation by Jointly Learning to Align and Translate', venue: 'arXiv', url: 'https://arxiv.org/abs/1409.0473' },
+    },
+    {
+      when: '2017-06-12',
+      what: st`The transformer drops step-by-step reading for attention alone, so training runs in parallel. It becomes the design behind today's large language models.`,
+      source: { by: 'Vaswani et al.', title: 'Attention Is All You Need', venue: 'arXiv', url: 'https://arxiv.org/abs/1706.03762' },
+    },
+    {
+      when: '2018-06-11',
+      what: st`OpenAI's GPT: a transformer pretrained to predict the next token on lots of unlabeled text, then fine-tuned for each task.`,
+      source: { by: 'OpenAI', title: 'Improving language understanding with unsupervised learning', url: 'https://openai.com/index/language-unsupervised/' },
+    },
+    {
+      when: '2019-02-14',
+      what: st`GPT-2, with ${slot('decimal', FACTS.gpt2ParamsBillion)} billion parameters, writes fluent paragraphs. Citing misuse concerns, OpenAI releases it in stages.`,
+      source: { by: 'OpenAI', title: 'Better language models and their implications', url: 'https://openai.com/index/better-language-models/' },
+    },
+    {
+      when: '2019-03-27',
+      what: st`Yoshua Bengio, Geoffrey Hinton and Yann LeCun receive the Turing Award, computing's highest honor, for deep learning.`,
+      source: { by: 'ACM', title: 'Fathers of the Deep Learning Revolution Receive ACM A.M. Turing Award', url: 'https://awards.acm.org/about/2018-turing' },
+    },
+    {
+      when: '2020-01-23',
+      what: st`Scaling laws: a language model's errors fall predictably as its size, its training data, and its computing power grow.`,
+      source: { by: 'Kaplan et al.', title: 'Scaling Laws for Neural Language Models', venue: 'arXiv', url: 'https://arxiv.org/abs/2001.08361' },
+    },
+    {
+      when: '2020-05-28',
+      what: st`GPT-3, with ${slot('int', FACTS.gpt3ParamsBillion)} billion parameters, does new tasks from a few examples in the prompt, without retraining.`,
+      source: { by: 'Brown et al.', title: 'Language Models are Few-Shot Learners', venue: 'arXiv', url: 'https://arxiv.org/abs/2005.14165' },
+    },
+    {
+      when: '2022-01-27',
+      what: st`InstructGPT: fine-tuning with human feedback makes a language model follow instructions far better.`,
+      source: { by: 'OpenAI', title: 'Aligning language models to follow instructions', url: 'https://openai.com/index/instruction-following/' },
+    },
+    {
+      when: '2022-11-30',
+      what: st`ChatGPT launches as a free research preview, trained with the same human-feedback methods as InstructGPT.`,
+      source: { by: 'OpenAI', title: 'Introducing ChatGPT', url: 'https://openai.com/index/chatgpt/' },
+    },
+    {
+      when: '2024-10-08',
+      what: st`The Nobel Prize in Physics goes to John Hopfield and Geoffrey Hinton, for foundational discoveries that enable machine learning with neural networks.`,
+      source: { by: 'NobelPrize.org', title: 'The Nobel Prize in Physics 2024 (press release)', url: 'https://www.nobelprize.org/prizes/physics/2024/press-release/' },
+    },
+  ],
+  claims: ['C094', 'C095', 'C096', 'C097'],
+  sources: [
+    NOBEL_BACKGROUND,
+    {
+      by: 'UK House of Lords Select Committee on Artificial Intelligence',
+      title: 'AI in the UK: ready, willing and able? (Appendix 4)',
+      published: '2018-04-16',
+      url: 'https://publications.parliament.uk/pa/ld201719/ldselect/ldai/100/10018.htm',
+    },
+    {
+      by: 'Cornell University',
+      title: 'Professor’s perceptron paved the way for AI – 60 years too soon',
+      published: '2019-09-25',
+      url: 'https://as.cornell.edu/news/professors-perceptron-paved-way-ai-60-years-too-soon',
+    },
+    { by: 'ImageNet', title: 'ILSVRC 2012 results', url: 'https://image-net.org/challenges/LSVRC/2012/results.html' },
+  ],
+};
+
+const transformer: FaqEntry = {
+  id: 'transformer',
+  question: 'What made the transformer such a big deal?',
+  short: st`It let every position in a text draw directly on earlier positions through attention, and it could be trained in parallel on graphics chips. That made it practical to train far bigger language models on far more text.`,
+  answer: [
+    st`Earlier language networks read text one token at a time, passing a running summary along. That made training slow, because each step had to wait for the one before.`,
+    st`The transformer dropped that step-by-step reading for ${term('attention', 'attention')} alone. In a language model, each position can draw on itself and earlier positions, never later ones, in every layer.`,
+    st`Without the step-by-step reading, a whole training text can be processed at once, which suits graphics chips. The original paper's base model trained in ${slot('int', FACTS.transformerBaseHours)} hours on one machine with ${slot('int', FACTS.transformerGpus)} graphics chips.`,
+    st`The GPT models are transformers: OpenAI describes GPT-4 as a Transformer-style model, pretrained to predict the next token. This site's walkthrough shows an example view of attention.`,
+  ],
+  claims: ['C098', 'C030'],
+  sources: [
+    { by: 'Vaswani et al.', title: 'Attention Is All You Need', venue: 'NIPS', published: '2017-06-12', url: 'https://arxiv.org/abs/1706.03762' },
+    {
+      by: 'Bahdanau, Cho & Bengio',
+      title: 'Neural Machine Translation by Jointly Learning to Align and Translate',
+      venue: 'ICLR',
+      published: '2014-09-01',
+      url: 'https://arxiv.org/abs/1409.0473',
+    },
+    { by: 'OpenAI', title: 'GPT-4 Technical Report', venue: 'arXiv', published: '2023-03-15', url: 'https://arxiv.org/abs/2303.08774' },
+  ],
+  see: { href: '/sample', label: 'See an example of attention' },
 };
 
 // Inside the black box --------------------------------------------------------------------------------
@@ -422,6 +722,7 @@ const impact: FaqEntry = {
 
 export const FAQ: readonly FaqSection[] = [
   { id: 'how-it-works', title: 'How it works', entries: [terms, knowledge, falseAnswers, differentAnswers, learning, media] },
+  { id: 'neural-networks', title: 'Neural networks', entries: [neuralNetwork, training, brains, size, history, transformer] },
   { id: 'inside-the-black-box', title: 'Inside the black box', entries: [blackBox, explanations, understanding, consciousness] },
   { id: 'risks-and-impact', title: 'Risks and impact', entries: [goingRogue, impact] },
 ];

@@ -13,7 +13,7 @@ for a page answering them simply. This site's accuracy rules (CLAUDE.md §3) app
 ## Decisions
 
 ### The page (`/faq`, static)
-- **Twelve questions in three sections:**
+- **Eighteen questions in four sections:**
   - **How it works:**
     - AI vs. machine learning vs. LLMs
     - where knowledge comes from, and whether it looks things up
@@ -21,6 +21,13 @@ for a page answering them simply. This site's accuracy rules (CLAUDE.md §3) app
     - different answers to the same question
     - learning from conversations
     - images, video, and voice
+  - **Neural networks** (added 2026-10-01, at the owner's request for more on neural networks and their history):
+    - what a neural network is
+    - how it learns (gradient descent, backpropagation, pretraining, fine-tuning with human feedback)
+    - whether it's like a brain
+    - how big networks are, and why the hosted ones' sizes aren't public
+    - how neural networks led to today's chatbots, with a dated timeline from 1943 to 2024
+    - what made the transformer such a big deal
   - **Inside the black box:**
     - the black box
     - asking a model to explain itself
@@ -34,6 +41,7 @@ for a page answering them simply. This site's accuracy rules (CLAUDE.md §3) app
   - a few paragraphs;
   - where it applies, a link into the sample;
   - its sources, each with its publication date.
+- **Timelines.** A history can carry dated milestones, oldest first, each with its own source link. A milestone's year is shown like a citation's date (a `<time>` element), so it needs no label.
 - **Layout.** On wide screens, a sticky list of the questions sits beside the answers. On narrow screens it sits above them. Each answer has its own anchor (`/faq#black-box`).
 - **Header and footer.** The page uses the landing page's header and footer bars, now shared components (`src/components/site/`).
   - The footer links to the FAQ.
@@ -44,7 +52,7 @@ for a page answering them simply. This site's accuracy rules (CLAUDE.md §3) app
 - **Wording.** The model's verbs stay plain, and the content lint covers the new copy. It allows two exceptions:
   - the popular term "hallucinations", where the FAQ names and explains it;
   - the title and address of OpenAI's paper that uses the word.
-- **Claims.** Every answer lists the claims it rests on. C056 to C088 are new, and 14 existing claims now also note the FAQ in their "where".
+- **Claims.** Every answer lists the claims it rests on. C056 to C098 are new (C089 to C098 for the neural-network section, checked 2026-10-01), and 14 existing claims now also note the FAQ in their "where".
 - **No bare numbers.** Every figure is a Reference value, with its document and the date it was checked, shown through `<Datum>` with its badge.
   - Answers avoid bare years and model version numbers; citation dates in the source lists are exempt.
   - A new `percent` format shows a documented percentage as the source states it ("14%", not "14.0%").
@@ -60,6 +68,19 @@ Five research passes checked every figure against its primary source. Correction
 - **Autoregressive images.** OpenAI calls only GPT-4o's image generation autoregressive, and has disclosed no architecture for its later image models.
 - **"Going rogue".** The FAQ follows the International AI Safety Report 2026: current systems show early signs of the relevant abilities, but not at levels that would allow a loss of control.
   - The test results it cites (Apollo Research, Palisade Research, Anthropic) are described as contrived scenarios, as their authors describe them.
+
+### Neural-network sources (checked 2026-10-01)
+Two more research passes checked the new section. Corrections that changed the copy:
+- **The first neuron model.** McCulloch and Pitts's 1943 neuron is "an early, influential" model, not the first: Lapicque's 1907 model is older.
+- **The perceptron.** Its 1958 public demonstration ran as a program on an IBM 704 computer, not on the Mark I machine.
+- **Backpropagation.**
+  - Rumelhart, Hinton and Williams *showed* that backpropagation trains hidden layers that learn useful features. They didn't invent it; the Nobel background names Linnainmaa (1970) and Werbos (1982).
+  - Deep networks stayed hard to train until the 2000s.
+- **AlexNet.** Its 15.3% error came from an ensemble trained with extra data. The FAQ gives it as the challenge result, against 26.2% for the runner-up.
+- **Learning from human feedback** predates InstructGPT. The FAQ says InstructGPT applied it, not that it introduced it.
+- **Model sizes.**
+  - GPT-4's report gave "no further details" about architecture, including model size. OpenAI has published no size for later hosted models.
+  - Parameters correspond to the brain's connections, not its neurons. So the FAQ doesn't compare 86 billion neurons with model parameter counts.
 
 ## Consequences
 - **Tests:**

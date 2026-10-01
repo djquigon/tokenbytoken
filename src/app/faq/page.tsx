@@ -34,6 +34,23 @@ function Answer({ entry }: { entry: FaqEntry }) {
           </p>
         ))}
       </div>
+      {entry.timeline ? (
+        <ol className="faq-timeline" aria-label="Milestones, oldest first">
+          {entry.timeline.map((m) => (
+            <li key={`${m.when} ${m.source.url}`}>
+              <time dateTime={m.when} className="faq-timeline-when">
+                {m.when.slice(0, 4)}
+              </time>
+              <p className="faq-timeline-what">
+                <RichText text={m.what} />{' '}
+                <a href={m.source.url} rel="noopener noreferrer" className="faq-timeline-source">
+                  {m.source.by}
+                </a>
+              </p>
+            </li>
+          ))}
+        </ol>
+      ) : null}
       {entry.see ? (
         <Link href={entry.see.href} className="faq-see">
           {entry.see.label} <ArrowRightIcon />
