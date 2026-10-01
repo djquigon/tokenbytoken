@@ -8,6 +8,8 @@ export interface FormatValues {
   /** A setting such as temperature: up to two decimals, no trailing zeros. */
   readonly decimal: number;
   readonly pct: number;
+  /** A percentage as a document states it (the FAQ's figures): up to one decimal, no trailing zeros. */
+  readonly percent: number;
   readonly ms: number;
   /** A moment in epoch milliseconds, shown as its UTC date. */
   readonly date: number;
@@ -42,6 +44,8 @@ export function formatValue<F extends Format>(format: F, value: FormatValues[F])
       if (v >= 99.5) return `${(Math.floor(v * 100) / 100).toFixed(2)}%`;
       return `${v.toFixed(v < 10 ? 2 : 1)}%`;
     }
+    case 'percent':
+      return `${(value as number).toLocaleString('en-US', { maximumFractionDigits: 1 })}%`;
     case 'ms': {
       const v = value as number;
       return v < 1_000 ? `${Math.round(v)} ms` : `${(v / 1_000).toFixed(2)} s`;

@@ -2,7 +2,7 @@
 
 @AGENTS.md
 
-> **Project status: Phase 2 (the walkthrough) built (ADRs 0007, 0008).**
+> **Project status: Phase 2 (the walkthrough) built (ADRs 0007, 0008), in the "operator terminal" look (ADR 0009), plus a FAQ (ADR 0010).**
 >
 > **What exists:**
 > - The chat (`/chat`) with streaming, Stop, retry, and every error state, backed by `/api/chat` and its
@@ -17,7 +17,8 @@
 > - The recorded sample conversation (`/sample`) and the landing page, with the token rain as its background.
 > - The Trace Inspector, the privacy notice, and `/privacy`.
 > - The claims register (generated `content/claims.md`) and the content lint.
-> - The Phase 0 probe, fixtures, and ADRs 0001–0008.
+> - The FAQ (`/faq`): twelve sourced answers, every number a labeled Reference value (ADR 0010).
+> - The Phase 0 probe, fixtures, and ADRs 0001–0010.
 >
 > **Not built yet:** the few plan items ADR 0008 lists as still open (linked highlighting, the Hook's "pick
 > another close call", an "Instant" speed), and everything after Phase 2. Sections below that describe
@@ -70,6 +71,8 @@ prompt and response.
       from thousands of real words and numbers, with no caption (owner, 2026-09-30). Every block of text
       sits on a solid card, never over it (ADR 0008).
     - Real data glows; examples are wireframes.
+    - The look is an "operator terminal" (ADR 0009): framed bars, near-square corners, phosphor borders, a
+      filled green primary button. Label hues: Recorded green, Calculated cyan, Reference blue, Example orange.
     - Body text is pale green-white, not neon.
     - Inspired by the film, never copied from it: no film names, quotes, logos, or glyph designs, and no pill
       motif.
@@ -206,6 +209,8 @@ PlaybackScript → PlaybackClock → stage views`
   - Only `src/trace/` mints Recorded values.
   - Reference values come only from `src/server/config`, each with its source. The server echoes them in
     the `start` event, and `src/trace/` labels them Reference.
+  - One exception: the FAQ's documented facts (`src/content/faq-facts.ts`) mint Reference values, each
+    with the document it comes from and the date it was checked (ADR 0010). Lint allows no other module.
   - Downstream code can pass a label through or weaken it, never strengthen it.
 - **Playback isolation.** Playback never imports generation or server code, never influences generation,
   and never mutates traces.
@@ -219,8 +224,9 @@ PlaybackScript → PlaybackClock → stage views`
 ## 5. Repository layout
 **Exists now (Phases 1–2):**
 ```
-src/app/              pages: / (landing), /chat, /sample, /privacy; api/chat/route.ts (thin);
-                      styles/ (tokens, base, components, chat, walkthrough, stages, inspector, landing)
+src/app/              pages: / (landing), /chat, /sample, /faq, /privacy; api/chat/route.ts (thin);
+                      styles/ (tokens, base, components, chat, walkthrough, stages, inspector, pages,
+                      landing)
 src/instrumentation-client.ts   BotID client init (Vercel deployments only)
 src/server/           config.ts · chat/ (handler, http, runtime) · openai/adapter.ts · tokenizer/ ·
                       limits/ (store contract, memory store, Redis Lua scripts) · signing/
@@ -233,13 +239,14 @@ src/generation/       client (fetch + SSE + watchdog) · conversation-store · p
 src/playback/         machine · clock · controller · types · compile/ (compile, pacing)
 src/stages/           contract · common · scenes · lanes · deep-dives · <stage>/{build, View} for probs,
                       context, tokenize, network (+ patterns), sample (+ what-if), loop, followup
-src/content/          walkthrough.ts, deep-dives.ts, and glossary.ts (all copy, with claim IDs) · claims.ts
-                      (the register) · rain-tokens.json (generated) · content-lint.test.ts
+src/content/          walkthrough.ts, deep-dives.ts, glossary.ts, and faq.ts (all copy, with claim IDs) ·
+                      faq-facts.ts (the FAQ's documented numbers) · claims.ts (the register) ·
+                      rain-tokens.json (generated) · content-lint.test.ts
 src/components/       provenance/ (Datum, ProvBadge) · chat/ (ChatApp, TurnView, Composer, LiveStrip, Tour,
                       …) · walkthrough/ (Walkthrough, StageView, TokenCard, DeepDive, Exercises, WhereFrom,
                       Lanes, Transcript, OptionBars, …) · glossary/ (Term) · tokens/ (TokenTape) · prefs/
                       (store, keys, hooks, PrefsMenu) · effects/ (TokenRain, DecodeText) · inspector/
-                      (TraceInspector) · ui/ (icons)
+                      (TraceInspector) · site/ (SiteHeader, SiteFooter) · ui/ (icons)
 src/test/             test harnesses: chat route, probe fixtures, fake Redis + Lua VM, sample fixtures
 content/claims.md     claims register, generated from src/content/claims.ts (npm run claims)
 scripts/              probe/ (live capability probe) · record-sample.mts · build-claims.mts ·
@@ -249,7 +256,7 @@ fixtures/sample/      the recorded sample conversation and wrong-answer case (wr
                       record-sample.mts)
 e2e/                  Playwright tests (chat, walkthrough, pages, smoke) · mock-openai.mts (replays the
                       probe fixtures)
-docs/                 PLAN.md · decisions/ (ADRs 0001–0008) · probe/
+docs/                 PLAN.md · decisions/ (ADRs 0001–0010) · probe/
 ```
 **Planned (later phases; nothing below exists yet):**
 ```

@@ -7,7 +7,8 @@ import nextTs from "eslint-config-next/typescript";
 const forbid = (...groups) => groups.flat();
 const APP_LAYERS = ["@/server/**", "@/trace/**", "@/generation/**", "@/components/**", "@/app/**"];
 const REACT = ["react", "react-dom", "react/*", "next", "next/*"];
-// Only src/trace/ mints Recorded and Reference values (CLAUDE.md §4).
+// Only src/trace/ mints Recorded and Reference values (CLAUDE.md §4). One exception: the FAQ's documented
+// facts (src/content/faq-facts.ts) mint Reference values, each with its document (ADR 0010).
 const MINT = ["**/provenance/mint", "@/shared/provenance/mint"];
 
 const layer = (files, groups, message, ignores = []) => ({
@@ -39,6 +40,12 @@ const eslintConfig = defineConfig([
     ["src/generation/**/*.{ts,tsx}"],
     forbid(["@/server/**", "@/components/**", "@/app/**"], MINT),
     "src/generation imports only src/shared and src/trace.",
+  ),
+  layer(
+    ["src/content/**/*.{ts,tsx}"],
+    forbid(["@/server/**"], MINT),
+    "Copy never imports server code, and only src/trace mints labels (and faq-facts.ts, Reference only).",
+    ["src/content/faq-facts.ts"],
   ),
   layer(
     ["src/components/**/*.{ts,tsx}", "src/app/**/*.{ts,tsx}", "src/instrumentation-client.ts"],

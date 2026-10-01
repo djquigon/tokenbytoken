@@ -1,5 +1,5 @@
 /*
- * Design tokens (CLAUDE.md §2.11, §8). Dark "digital-rain terminal" by default; light "green-bar printout".
+ * Design tokens (CLAUDE.md §2.11, §8). Dark "operator terminal" by default; light "green-bar printout".
  * - Body text is pale green-white, never saturated phosphor green.
  * - Label hues are reserved for labels, and never the only cue (badges always show the label word).
  * - Every text/background pair here is checked for WCAG contrast in src/app/styles/tokens.test.ts.
@@ -8,57 +8,61 @@
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #030b06;
-  --bg-raised: #06110a;
-  --surface: #0a1a10;
-  --surface-2: #0f2317;
-  --border: #1f3d2a;
-  --border-strong: #4c8c61;
-  --text: #d9f2df;
-  --text-muted: #a3c4ab;
-  --accent: #62ff9e;
-  --glow: rgb(98 255 158 / 0.35);
-  --recorded: #62ff9e;
-  --calculated: #62e6f5;
-  --reference: #ffcb5c;
-  --example: #bcb8de;
-  --danger: #ffa0a0;
+  --bg: #030906;
+  --bg-raised: #051009;
+  --surface: #07140c;
+  --surface-2: #0b1d12;
+  --border: #1b3d28;
+  --border-strong: #2f8a52;
+  --text: #d4ecd9;
+  --text-muted: #94b89f;
+  --accent: #46e587;
+  /* Text on a filled accent button. */
+  --accent-ink: #02160a;
+  --glow: rgb(70 229 135 / 0.35);
+  --recorded: #52eb8f;
+  --calculated: #44d1d4;
+  --reference: #79acff;
+  --example: #ffa562;
+  --danger: #ff9a9a;
   --focus: #9dffc0;
-  --token-a: #0f2a19;
-  --token-b: #13301e;
-  --hatch: rgb(188 184 222 / 0.14);
+  --token-a: #0a1c11;
+  --token-b: #0d2215;
+  --hatch: rgb(255 165 98 / 0.12);
   --shadow: 0 0 0 1px var(--border), 0 12px 32px rgb(0 0 0 / 0.45);
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f4f9f2;
+  --bg: #f3f8f1;
   --bg-raised: #ffffff;
   --surface: #ffffff;
-  --surface-2: #e6f2e4;
-  --border: #bcd6c2;
-  --border-strong: #5a8a68;
-  --text: #0b3a1c;
-  --text-muted: #3e6a4b;
-  --accent: #07692c;
+  --surface-2: #e5f0e3;
+  --border: #bcd5c1;
+  --border-strong: #4f8a61;
+  --text: #0a361a;
+  --text-muted: #3b6648;
+  --accent: #0b7032;
+  --accent-ink: #ffffff;
   --glow: transparent;
   --recorded: #07692c;
-  --calculated: #086a7e;
-  --reference: #875700;
-  --example: #57537d;
+  --calculated: #07647a;
+  --reference: #1d4fb8;
+  --example: #9a4400;
   --danger: #a31919;
   --focus: #07692c;
-  --token-a: #e3f0e1;
-  --token-b: #d6e9d3;
-  --hatch: rgb(87 83 125 / 0.1);
+  --token-a: #e3efe0;
+  --token-b: #d7e8d3;
+  --hatch: rgb(154 68 0 / 0.1);
   --shadow: 0 0 0 1px var(--border), 0 8px 24px rgb(11 58 28 / 0.08);
 }
 
 :root {
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
-  --radius: 0.5rem;
-  --radius-sm: 0.3rem;
+  /* Near-square corners: the terminal look. */
+  --radius: 4px;
+  --radius-sm: 2px;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;

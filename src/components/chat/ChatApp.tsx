@@ -13,6 +13,7 @@ import { useHydratePrefs, usePrefs } from '@/components/prefs/hooks';
 import { PrefsMenu } from '@/components/prefs/PrefsMenu';
 import { prefsStore } from '@/components/prefs/store';
 import { Datum } from '@/components/provenance/Datum';
+import { LabelChip } from '@/components/provenance/ProvBadge';
 import { Walkthrough } from '@/components/walkthrough/Walkthrough';
 import { sendTurn } from '@/generation/client';
 import { createConversationStore, traceOf, type Turn } from '@/generation/conversation-store';
@@ -122,13 +123,16 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
         </Link>
         <nav aria-label="Site">
           {sample ? (
-            <Link href="/chat">Ask your own question</Link>
+            <Link href="/chat" className="nav-own-line">
+              Ask your own question
+            </Link>
           ) : (
             <button type="button" className="btn btn-quiet" onClick={clear} disabled={turns.length === 0 && !streaming}>
               Clear conversation
             </button>
           )}
           <PrefsMenu />
+          <Link href="/faq">FAQ</Link>
           <Link href="/privacy">Privacy</Link>
         </nav>
       </header>
@@ -198,20 +202,58 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
               onFinished={onFinished}
             />
           ) : (
-            <div className="walkthrough-intro">
-              <p className="eyebrow">How it works</p>
-              <p>
-                After a reply arrives, this panel walks through how it was made: what this app sent, how the text became tokens, the
-                options the model scored at each step, and the weighted random pick. Every value is labeled: Recorded, Calculated,
-                Reference, or Example.
-              </p>
-            </div>
+            <WalkthroughIntro />
           )}
         </aside>
       </div>
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
       </div>
+    </div>
+  );
+}
+
+/** Before the first reply: the steps the walkthrough covers, each with the labels of the values it shows. */
+function WalkthroughIntro() {
+  return (
+    <div className="walkthrough-intro">
+      <h2 className="section-title">How it works</h2>
+      <p className="intro-lede">
+        After a reply arrives, this panel walks through how it was made, step by step, using your own message and the real data behind the
+        reply.
+      </p>
+      <ol className="intro-steps">
+        <li className="intro-step">
+          <h3>Your message</h3>
+          <p>What this app sends: its instructions, the chat so far, and your message.</p>
+          <p className="intro-labels">
+            <LabelChip kind="recorded" />
+          </p>
+        </li>
+        <li className="intro-step">
+          <h3>Text becomes tokens</h3>
+          <p>Your message is split into tokens, the small pieces of text a model works with.</p>
+          <p className="intro-labels">
+            <LabelChip kind="calculated" />
+          </p>
+        </li>
+        <li className="intro-step">
+          <h3>Next-token choices</h3>
+          <p>At every step, the real options for the next token, as percentages. Drawings of the network in between are examples.</p>
+          <p className="intro-labels">
+            <LabelChip kind="calculated" />
+            <LabelChip kind="example" />
+          </p>
+        </li>
+        <li className="intro-step">
+          <h3>The reply is built</h3>
+          <p>A weighted random pick adds one token at a time, until the reply ends.</p>
+          <p className="intro-labels">
+            <LabelChip kind="recorded" />
+          </p>
+        </li>
+      </ol>
+      <p className="intro-note">Every value is labeled Recorded, Calculated, Reference, or Example, always as a word, never just a color.</p>
     </div>
   );
 }

@@ -24,6 +24,8 @@ describe('formatValue', () => {
 
   it('formats the other kinds', () => {
     expect(formatValue('int', 12345)).toBe('12,345');
+    expect(formatValue('percent', 14)).toBe('14%');
+    expect(formatValue('percent', 1.5)).toBe('1.5%');
     expect(formatValue('ms', 216.4)).toBe('216 ms');
     expect(formatValue('ms', 1234)).toBe('1.23 s');
     expect(formatValue('usd', 0.000025)).toBe('$0.000025');

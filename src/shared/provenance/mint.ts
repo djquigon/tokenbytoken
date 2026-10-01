@@ -1,6 +1,7 @@
 // Minting Recorded and Reference values. Lint restricts this module to src/trace/ (CLAUDE.md §4): the
 // trace is the only place that turns recorded events into facts, and it labels the reference values the
-// server echoes as Reference, never Recorded.
+// server echoes as Reference, never Recorded. The one other user is src/content/faq-facts.ts, which mints
+// only Reference values, each with the document it comes from (ADR 0010).
 
 import { make } from './combine';
 import type { ProvOf, RecordedSource, ReferenceSource, Sourced } from './types';

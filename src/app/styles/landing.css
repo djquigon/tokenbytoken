@@ -1,5 +1,7 @@
-/* The landing page (docs/PLAN.md §1, journey step 1): the token rain fills the window behind the page, and
- * every block of text sits on a solid card, so the rain never runs behind the words (CLAUDE.md §8). */
+/* The landing page (docs/PLAN.md §1, journey step 1): a header bar, the hero (the pitch beside a real
+ * next-token moment), three feature cards, the label key, and a footer bar. The token rain fills the window
+ * behind it all, and every block of text sits on a solid panel, so the rain never runs behind the words
+ * (CLAUDE.md §8). */
 
 /* The rain: fixed behind everything, never taking pointer events. */
 .rain-canvas {
@@ -29,15 +31,21 @@
   }
 }
 
-.landing {
+/* Above the rain (the header and footer bars are in pages.css). */
+.landing-page {
   position: relative;
   z-index: 1;
+}
+
+.landing {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  max-width: 50rem;
+  gap: var(--space-8);
+  width: 100%;
+  max-width: 76rem;
   margin: 0 auto;
-  padding: clamp(var(--space-6), 10vh, 6rem) var(--space-4) var(--space-8);
+  padding: clamp(var(--space-6), 7vh, 4.5rem) var(--space-4) clamp(var(--space-8), 8vh, 5rem);
 }
 .landing-card {
   padding: var(--space-6);
@@ -45,13 +53,26 @@
   border-radius: var(--radius);
   background: var(--bg);
   box-shadow:
-    0 0 24px var(--glow),
+    0 0 24px -6px var(--glow),
     0 16px 48px rgb(0 0 0 / 0.5);
 }
 :root[data-theme="light"] .landing-card {
   box-shadow: 0 10px 32px rgb(11 58 28 / 0.14);
 }
 
+/* Hero: the pitch beside the graphic; one column on narrow screens. */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-8);
+  padding: clamp(var(--space-6), 4vw, 3rem);
+}
+@media (min-width: 64rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+}
 .hero-copy {
   display: flex;
   flex-direction: column;
@@ -59,34 +80,37 @@
 }
 .hero-title {
   font-family: var(--font-mono);
-  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-size: clamp(2.3rem, 5.4vw, 4.2rem);
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-shadow: 0 0 18px var(--glow);
 }
+.hero-subtitle {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
 .lede {
-  max-width: 38rem;
-  font-size: 1.15rem;
+  max-width: 36rem;
+  font-size: 1.1rem;
 }
 .cta {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+.btn-large {
+  min-height: 3rem;
+  padding: 0.65rem 1.3rem;
+  font-size: 1rem;
 }
 .small {
   font-size: 0.85rem;
-}
-/* Settings in the top corner, on a solid chip (never text over the rain); its Effects switch stops it. */
-.landing-tools {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-4);
-  z-index: 2;
-}
-.landing-tools .prefs-menu > summary {
-  background: var(--bg);
 }
 
 /* Decode reveal: the overlay sits exactly over the real text while it resolves. */
@@ -101,50 +125,269 @@
   pointer-events: none;
 }
 
-.landing-section {
+/* The next-token graphic: the reply so far, curves out to the options, then the legend. The curves and
+ * the options stack under the text when the graphic is narrow. */
+.next-token {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+.next-token-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+.next-token-fan {
+  display: none;
+}
+@container (min-width: 30rem) {
+  .next-token-body {
+    grid-template-columns: minmax(0, 0.85fr) 2.75rem minmax(0, 1.4fr);
+    align-items: center;
+    gap: 0;
+  }
+  .next-token-context {
+    padding-right: var(--space-2);
+  }
+  .next-token-fan {
+    position: relative;
+    display: block;
+    align-self: stretch;
+  }
+  .next-token-fan svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  /* Even rows, so each curve meets the middle of its row. */
+  .next-token-body > .option-list {
+    grid-auto-rows: 1fr;
+    align-self: stretch;
+    padding-left: var(--space-2);
+  }
+}
+.next-token-fan path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent) 45%, transparent);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.next-token-fan path[data-chosen="true"] {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+/* Chips outside the walkthrough: the same boxes as its token tapes. */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.chip-row .token-chip:has(.token-id) {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.15rem 0.45rem;
+}
+/* The position being predicted: a dashed box with a lit cursor (still: nothing here blinks). */
+.token-next {
+  width: 1.75rem;
+  min-height: 2rem;
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(var(--accent), var(--accent)) center / 0.5rem 1.05rem no-repeat;
+  box-shadow: 0 0 10px -2px var(--glow);
+}
+.figure-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.figure-legend .prov-badge {
+  margin-right: 0.2rem;
+}
+.figure-source {
+  flex-basis: 100%;
+}
+
+/* Feature cards: numbered, each with a small real-data graphic. */
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+/* The section's title sits on a solid tab, never on the rain. */
+.features > .section-title {
+  align-self: flex-start;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+.feature-grid {
+  counter-reset: feature;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-6);
+}
+.feature-card {
+  counter-increment: feature;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
-.landing-section h2 {
+.feature-card h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   font-family: var(--font-mono);
-  font-size: 1.05rem;
-  letter-spacing: 0.12em;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.learn-list {
-  display: grid;
+/* The number is generated content with empty alternative text: the list gives each card's position. */
+.feature-card h3::before {
+  content: counter(feature, decimal-leading-zero);
+  content: counter(feature, decimal-leading-zero) / "";
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  box-shadow: 0 0 10px var(--glow);
+}
+.feature-card > p {
+  color: var(--text-muted);
+}
+.feature-demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+}
+.moment-rows {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-3);
 }
-.learn-list li {
-  padding-left: var(--space-3);
-  border-left: 2px solid var(--border-strong);
+.feature-demo .option-list {
+  font-size: 0.9rem;
+}
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-block: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.feature-link svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* What the second request carried: who wrote each part and its token count, then its text (one line). */
+.context-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+.context-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 0.1rem var(--space-2);
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.context-row[data-role="instructions"] {
+  border-left-style: double;
+}
+.context-row[data-role="user"] {
+  background: var(--surface-2);
+}
+.context-role {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.context-row-count {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.context-row .context-row-text {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+.context-row-count .datum {
+  display: inline;
+}
+
+/* What's real here: the four labels side by side on wide screens. */
+.real-key {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 .label-key {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   gap: var(--space-3);
 }
 .label-key > div {
-  display: grid;
-  grid-template-columns: 9rem minmax(0, 1fr);
-  align-items: baseline;
-  gap: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+}
+.label-key dt {
+  display: flex;
 }
 .label-key .prov-badge {
   font-size: 0.78rem;
 }
-.landing-footer {
-  padding-block: var(--space-4);
+.label-key dd {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
 }
 
 @media (max-width: 30rem) {
   .landing-card {
     padding: var(--space-4);
-  }
-  .label-key > div {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-1);
   }
 }

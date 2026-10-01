@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-/* Design system: tokens first, then base elements, shared components, and each area of the app. */
+/* Design system: tokens first, then base elements, shared components, each area of the app, and the site
+ * pages (the shared header and footer, the FAQ) before the landing page that builds on them. */
 @import "./styles/tokens.css";
 @import "./styles/base.css";
 @import "./styles/components.css";
@@ -8,4 +9,5 @@
 @import "./styles/walkthrough.css";
 @import "./styles/stages.css";
 @import "./styles/inspector.css";
+@import "./styles/pages.css";
 @import "./styles/landing.css";

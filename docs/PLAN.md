@@ -148,7 +148,7 @@ Every view is anchored to the user's own conversation. Views of the model's insi
 
 **Safety, cost, and pages**
 - The server-side API key, limits, and a budget circuit-breaker. No conversation content is stored on the server.
-- The landing page, the sample conversation, and privacy and about pages.
+- The landing page, the sample conversation, and privacy and about pages. A FAQ was added on 2026-09-30 (ADR 0010).
 
 ### Deferred
 - **Deeper content:**
@@ -513,11 +513,11 @@ The brief's three categories map onto Recorded, Calculated, and Example. We add 
    |---|---|
    | Recorded | Solid outline, filled dot, **phosphor green with a soft glow** ("real signal") |
    | Calculated | Solid outline, dotted underline, ƒ glyph, **cyan** |
-   | Reference | Book glyph and citation, **amber** (a classic terminal color) |
-   | Example | A **"wireframe simulation"**: dashed outline, faint wide hatching (never behind text), **violet-grey with no glow**, and an **EXAMPLE** tag |
+   | Reference | Double outline, book glyph and citation, **blue** |
+   | Example | A **"wireframe simulation"**: dashed outline, faint wide hatching (never behind text), **orange with no glow**, and an **EXAMPLE** tag |
    | What‑if | "?" corner tag |
 
-   Real data glows; examples are wireframes. The hues are provisional and must pass the contrast check on both themes. Hue is never the only cue.
+   Real data glows; examples are wireframes. The hues pass the contrast check on both themes (Reference blue and Example orange since the redesign, ADR 0009). Hue is never the only cue.
 
 ### Misconceptions we design against
 The probe questions double as the §4 assessment items.
@@ -550,8 +550,8 @@ The probe questions double as the §4 assessment items.
   - **Palette** (provisional tokens, checked for contrast in Phase 2). The dark theme is the default.
     - A near-black background with a faint green tint.
     - **Body text is pale green-white, not neon.** Long passages of saturated green on black cause glare and halation.
-    - Saturated phosphor green is reserved for **Recorded** and a few accents.
-    - Cyan, amber, and violet-grey go to the other labels (see the labeling table).
+    - Saturated phosphor green is for **Recorded** and the accent (filled primary buttons, option bars, highlights). Labels are told apart by word, glyph, and border, never hue (ADR 0009).
+    - Cyan, blue, and orange go to the other labels (see the labeling table).
   - **Light theme: "green-bar printout".** Pale paper with faint green bands (decorative, never behind body text) and dark green ink, like continuous-feed terminal printouts.
   - **Typography.**
     - Monospace for tokens, IDs, labels, and short headings, e.g. IBM Plex Mono or JetBrains Mono via `next/font`.

@@ -5,7 +5,9 @@
 import { memo, useMemo, useState } from 'react';
 
 import { Datum } from '@/components/provenance/Datum';
+import { LabelChip } from '@/components/provenance/ProvBadge';
 import { TraceInspector } from '@/components/inspector/TraceInspector';
+import { AssistantIcon, UserIcon } from '@/components/ui/icons';
 import type { AppError } from '@/shared/errors';
 import { read } from '@/shared/provenance/read';
 import { traceOf, type Turn } from '@/generation/conversation-store';
@@ -92,25 +94,39 @@ export const TurnView = memo(function TurnView({
   return (
     <article className="turn" aria-labelledby={`turn-${index}-q`} data-selected={selected ? 'true' : undefined}>
       <div className="msg msg-user">
-        <h2 id={`turn-${index}-q`} className="sr-only">
-          Your message {index + 1}
-        </h2>
-        <p dir="auto">{turn.user.content}</p>
+        <span className="msg-avatar" aria-hidden="true">
+          <UserIcon />
+        </span>
+        <div className="msg-body">
+          <h2 id={`turn-${index}-q`} className="msg-name">
+            You<span className="sr-only">, message {index + 1}</span>
+          </h2>
+          <p dir="auto">{turn.user.content}</p>
+        </div>
       </div>
 
       {live.terminal !== 'http_error' ? (
         <div className="msg msg-assistant" aria-busy={active} data-kind="recorded">
-          <h2 className="sr-only">Reply {index + 1} (Recorded: reported by OpenAI)</h2>
-          {active && !reply ? (
-            <p className="waiting">{live.phase === 'sending' ? 'Sending…' : 'Waiting for the first text…'}</p>
-          ) : null}
-          {live.text ? <AssistantReply text={live.text} /> : null}
-          {live.refusal ? (
-            <p className="refusal" dir="auto">
-              <strong>The model declined:</strong> {live.refusal}
-            </p>
-          ) : null}
-          {active && reply ? <span className="cursor" aria-hidden="true" /> : null}
+          <span className="msg-avatar" aria-hidden="true">
+            <AssistantIcon />
+          </span>
+          <div className="msg-body">
+            {/* The reply's text is exactly what OpenAI returned, so its label is Recorded. */}
+            <h2 className="msg-name">
+              Assistant<span className="sr-only">, reply {index + 1},</span> <LabelChip kind="recorded" />
+              <span className="sr-only">, reported by OpenAI</span>
+            </h2>
+            {active && !reply ? (
+              <p className="waiting">{live.phase === 'sending' ? 'Sending…' : 'Waiting for the first text…'}</p>
+            ) : null}
+            {live.text ? <AssistantReply text={live.text} /> : null}
+            {live.refusal ? (
+              <p className="refusal" dir="auto">
+                <strong>The model declined:</strong> {live.refusal}
+              </p>
+            ) : null}
+            {active && reply ? <span className="cursor" aria-hidden="true" /> : null}
+          </div>
         </div>
       ) : null}
 

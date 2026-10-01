@@ -1,28 +1,33 @@
 /* Shared components: buttons, controls, panels, notices, labels, token chips. */
 
 /* Buttons ------------------------------------------------------------------------------------------ */
+/* Outlined by default; the primary action is filled phosphor green with dark ink (the mockup's CTA). */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
   min-height: 2.5rem;
-  padding: 0.4rem 0.9rem;
+  padding: 0.45rem 1rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  background: var(--surface-2);
+  background: transparent;
   color: var(--text);
   font: inherit;
   font-size: 0.95rem;
+  font-weight: 500;
   line-height: 1.2;
   text-decoration: none;
   cursor: pointer;
   transition:
     background var(--fast),
-    border-color var(--fast);
+    border-color var(--fast),
+    box-shadow var(--fast),
+    color var(--fast);
 }
-.btn:hover:not(:disabled) {
+.btn:hover:not(:disabled):not([aria-disabled="true"]) {
   border-color: var(--accent);
+  box-shadow: 0 0 10px var(--glow);
 }
 .btn:disabled,
 .btn[aria-disabled="true"] {
@@ -31,16 +36,30 @@
 }
 .btn-primary {
   border-color: var(--accent);
-  box-shadow: 0 0 12px var(--glow);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  box-shadow: 0 0 16px var(--glow);
+}
+.btn-primary:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--accent) 85%, #fff);
+}
+/* A disabled primary button isn't an invitation: outlined and dim, not filled. */
+.btn-primary:disabled {
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+  box-shadow: none;
 }
 .btn-stop {
   border-color: var(--danger);
+  color: var(--danger);
 }
 .btn-quiet {
   min-height: 2rem;
-  padding: 0.2rem 0.6rem;
-  background: transparent;
+  padding: 0.25rem 0.7rem;
   border-color: var(--border);
+  font-size: 0.88rem;
 }
 .btn-icon {
   min-width: 2.5rem;
@@ -83,25 +102,57 @@
 }
 .segmented button[aria-pressed="true"],
 .segmented button[aria-checked="true"] {
-  background: var(--surface-2);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
   color: var(--text);
   box-shadow: inset 0 -2px 0 var(--accent);
 }
 
 /* Panels and notices ------------------------------------------------------------------------------- */
+/* Panels: thin phosphor borders with a faint glow, like a terminal window. */
 .panel {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--glow) 25%, transparent);
 }
 .notice {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--surface);
+}
+/* A small uppercase heading, as in the mockup's panel titles. */
+.section-title {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+/* A prompt caret, not a dot: "●" is the Recorded label's glyph. Decoration, so its alternative text is
+ * empty (browsers without that syntax show no caret). */
+.section-title::before {
+  content: "";
+  content: "▸" / "";
+  margin-right: 0.5rem;
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--glow);
+}
+/* A boxed step number, as in the mockup's "01". */
+.step-number {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
 }
 .notice-error {
   border-color: var(--danger);
@@ -135,10 +186,10 @@
   font-variant-numeric: tabular-nums;
 }
 /* In running prose a value flows with the words, badge and all, instead of forming a box. */
-:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note) .datum {
+:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note, .faq-answer, .faq-short) .datum {
   display: inline;
 }
-:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note) .datum .prov-badge {
+:is(.caption, .deep-dive-text, .transcript, .notice, .live-strip, .stage-note, .faq-answer, .faq-short) .datum .prov-badge {
   margin-left: 0.3em;
   vertical-align: 0.1em;
 }
@@ -154,9 +205,9 @@
 .prov-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.2rem;
-  padding: 0 0.3rem;
-  border-radius: 0.25rem;
+  gap: 0.25rem;
+  padding: 0 0.35rem;
+  border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: 0.68rem;
   letter-spacing: 0.05em;
@@ -221,13 +272,14 @@
 }
 
 /* Tokens -------------------------------------------------------------------------------------------- */
+/* Token chips: separate boxes, as in the mockup's reply token view. */
 .token-tape {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px 0;
+  gap: 6px;
   font-family: var(--font-mono);
   font-size: 0.95rem;
-  line-height: 1.8;
+  line-height: 1.6;
 }
 .token-tape:focus-visible {
   outline-offset: 4px;
@@ -235,25 +287,19 @@
 .token-chip {
   display: inline-flex;
   align-items: center;
-  min-height: 1.7rem;
-  padding: 0 0.2rem;
-  border: 1px solid var(--border);
-  border-left-width: 0;
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
   background: var(--token-a);
   color: var(--text);
   white-space: pre;
   cursor: default;
 }
-.token-chip:nth-child(even) {
-  background: var(--token-b);
-}
-.token-chip:first-child {
-  border-left-width: 1px;
-}
 .token-chip[data-focus="true"],
 .token-chip:hover {
   outline: 2px solid var(--focus);
-  outline-offset: -2px;
+  outline-offset: 1px;
   text-decoration: underline;
   text-underline-offset: 3px;
 }

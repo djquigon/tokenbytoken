@@ -33,11 +33,23 @@ test('the privacy notice comes before the first message', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Before you send a message' })).toHaveCount(0);
 });
 
+test('before the first reply, the walkthrough panel lists its four steps with their labels', async ({ page }) => {
+  await page.goto('/chat');
+  const panel = page.getByRole('complementary', { name: 'How it works' });
+  await expect(panel.getByRole('heading', { level: 3 })).toHaveText(['Your message', 'Text becomes tokens', 'Next-token choices', 'The reply is built']);
+  await expect(panel.getByRole('listitem')).toHaveCount(4);
+  await expect(panel.locator('.prov-badge[data-kind="example"]')).toHaveCount(1);
+});
+
 test('send → stream → inspect → follow-up re-sends the signed reply', async ({ page }) => {
   await openChat(page);
   await send(page, 'Why is the sky blue?');
   await expect(chat(page).getByText(REPLY_START)).toBeVisible();
   await expect(page.getByRole('button', { name: 'Send' })).toBeVisible();
+  // Each message is headed by who wrote it; the reply's label is spelled out. (Chrome puts a space before
+  // the screen-reader-only part of each name.)
+  await expect(chat(page).getByRole('heading', { name: /^You\s*, message 1$/ })).toBeVisible();
+  await expect(chat(page).getByRole('heading', { name: /^Assistant\s*, reply 1, Recorded\s*, reported by OpenAI$/ })).toBeVisible();
 
   await page.getByRole('button', { name: 'Inspect data' }).click();
   const inspector = page.locator('.inspector');

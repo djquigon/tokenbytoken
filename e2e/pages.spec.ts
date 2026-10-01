@@ -29,6 +29,70 @@ test('the landing page offers both ways in, and has no serious accessibility vio
   expect(await axeSerious(page)).toEqual([]);
 });
 
+test('the landing page shows real sample data, with numbers only as labeled values', async ({ page }) => {
+  await page.goto('/');
+  const figure = page.getByRole('figure', { name: 'The options for the next token' });
+  await expect(figure.getByRole('list', { name: /top options OpenAI returned/ }).getByRole('listitem')).toHaveCount(4);
+  await expect(figure.getByText('picked')).toHaveCount(1);
+  await expect(figure.getByText(/From the sample conversation, recorded/)).toBeVisible();
+  // Three numbered feature cards, each with the sample's own data.
+  await expect(page.getByRole('heading', { level: 3 })).toHaveText(['Tokens', 'A weighted random pick', 'Context, not memory']);
+  await expect(page.getByRole('list', { name: "The sample's first question, as tokens" }).getByRole('listitem')).toHaveCount(6);
+  await expect(page.getByRole('list', { name: "Everything the sample's second request carried" }).getByRole('listitem')).toHaveCount(4);
+  const unlabeled = await page.locator('#main').evaluate((root) => {
+    const out: string[] = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const text = n.textContent ?? '';
+      if (/\d/.test(text) && !n.parentElement?.closest('[data-kind]')) out.push(text.trim());
+    }
+    return out;
+  });
+  expect(unlabeled).toEqual([]);
+});
+
+test('the FAQ links every question, cites its sources, and labels its numbers', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('contentinfo').getByRole('link', { name: 'FAQ' }).click();
+  await expect(page).toHaveURL(/\/faq$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Questions people ask about AI' })).toBeVisible();
+  // Every question in the list jumps to its answer, and every answer is listed.
+  const hrefs = await page
+    .getByRole('navigation', { name: 'On this page' })
+    .getByRole('link')
+    .evaluateAll((links) => links.map((a) => a.getAttribute('href') ?? ''));
+  expect(hrefs.length).toBeGreaterThanOrEqual(10);
+  for (const href of hrefs) await expect(page.locator(`article${href}`)).toHaveCount(1);
+  await expect(page.locator('article.faq-item')).toHaveCount(hrefs.length);
+  // The owner's questions.
+  for (const q of [/black box/, /going rogue/, /images, video, and voice/, /How impactful/]) {
+    await expect(page.getByRole('heading', { level: 3, name: q })).toBeVisible();
+  }
+  // Every answer lists sources, and numbers appear only as labeled values (citations aside).
+  await expect(page.locator('article.faq-item:not(:has(.faq-sources li))')).toHaveCount(0);
+  const unlabeled = await page.locator('#main').evaluate((root) => {
+    const out: string[] = [];
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const text = n.textContent ?? '';
+      if (/(?<![\p{L}\p{N}-])\p{N}/u.test(text) && !n.parentElement?.closest('[data-kind], .faq-sources, time')) out.push(text.trim());
+    }
+    return out;
+  });
+  expect(unlabeled).toEqual([]);
+  expect(await axeSerious(page)).toEqual([]);
+});
+
+test('every header links to the FAQ, and marks it on the FAQ itself', async ({ page }) => {
+  for (const path of ['/', '/chat', '/sample']) {
+    await page.goto(path);
+    await expect(page.getByRole('banner').getByRole('link', { name: 'FAQ' }), path).toHaveAttribute('href', '/faq');
+  }
+  await page.getByRole('banner').getByRole('link', { name: 'FAQ' }).click();
+  await expect(page).toHaveURL(/\/faq$/);
+  await expect(page.getByRole('banner').getByRole('link', { name: 'FAQ' })).toHaveAttribute('aria-current', 'page');
+});
+
 test('Settings stops the rain from the landing page (WCAG 2.2.2)', async ({ page }) => {
   await page.goto('/');
   expect(await rainMoves(page)).toBe(true);

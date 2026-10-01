@@ -5,6 +5,7 @@
 
 import { useId, useState, type FormEvent, type KeyboardEvent } from 'react';
 
+import { ArrowRightIcon } from '@/components/ui/icons';
 import { REQUEST_LIMITS } from '@/shared/limits';
 
 export function Composer({
@@ -63,7 +64,7 @@ export function Composer({
         onKeyDown={onKeyDown}
         maxLength={max}
         rows={3}
-        placeholder={disabled ? 'Read the note above to start' : 'Ask anything…'}
+        placeholder={disabled ? 'Read the note above to start' : 'Ask a question… (e.g. “Why is the sky blue?”)'}
         disabled={disabled}
         aria-describedby={`${id}-hint`}
         dir="auto"
@@ -79,7 +80,7 @@ export function Composer({
           </button>
         ) : (
           <button type="submit" className="btn btn-primary" disabled={disabled || locked !== null || draft.trim().length === 0}>
-            Send
+            Send <ArrowRightIcon />
           </button>
         )}
       </div>

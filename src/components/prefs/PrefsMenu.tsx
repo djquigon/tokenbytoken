@@ -7,7 +7,7 @@ import { useId, useRef, useState } from 'react';
 
 import { SettingsIcon } from '@/components/ui/icons';
 
-import { usePrefs } from './hooks';
+import { useHydratePrefs, usePrefs } from './hooks';
 import { ACTION_LABEL, DEFAULT_KEYS, SHORTCUT_ACTIONS, assignKey, keyLabel, keyName, type ShortcutAction } from './keys';
 import { prefsStore, type Preferences } from './store';
 
@@ -104,6 +104,8 @@ function Choice<K extends keyof Preferences>({
 }
 
 export function PrefsMenu() {
+  // Before saving a change, the store must hold this viewer's earlier choices (hydrate runs once).
+  useHydratePrefs();
   const details = useRef<HTMLDetailsElement>(null);
   const shortcutsOn = usePrefs((s) => s.shortcuts);
   return (

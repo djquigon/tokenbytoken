@@ -52,8 +52,11 @@ const BANNED: readonly { pattern: RegExp; why: string }[] = [
   { pattern: /\bhallucinat/i, why: 'say what happened: a likely wording that is false' },
 ];
 
-/** Exact phrases that use a banned word to correct the misconception. Keep this list short. */
-const ALLOWED = [/doesn['’]t remember/i, /never called “thinking”/i];
+/**
+ * Exact phrases that use a banned word to correct the misconception, or to cite a source by its title or
+ * address (the FAQ). Keep this list short.
+ */
+const ALLOWED = [/doesn['’]t remember/i, /never called “thinking”/i, /often called “hallucinations”/i, /Why language models hallucinate/i, /why-language-models-hallucinate/];
 
 describe('content lint', () => {
   const all = SOURCES.flatMap(files).flatMap((rel) => texts(rel).map((t) => ({ ...t, rel })));

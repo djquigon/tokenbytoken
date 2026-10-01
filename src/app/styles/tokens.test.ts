@@ -28,7 +28,8 @@ export function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-const TEXT = ['text', 'text-muted', 'recorded', 'calculated', 'reference', 'example', 'danger'];
+// The accent is also text: links, and the ink of outlined accent buttons.
+const TEXT = ['text', 'text-muted', 'accent', 'recorded', 'calculated', 'reference', 'example', 'danger'];
 const BACKGROUNDS = ['bg', 'bg-raised', 'surface', 'surface-2', 'token-a', 'token-b'];
 const UI = ['border-strong', 'focus'];
 
@@ -49,6 +50,10 @@ describe.each([
     for (const bg of ['bg', 'surface', 'surface-2']) {
       expect(contrast(t[ui] ?? '', t[bg] ?? ''), `${ui} on ${bg}`).toBeGreaterThanOrEqual(3);
     }
+  });
+
+  it('keeps text on filled accent buttons readable (≥ 4.5:1)', () => {
+    expect(contrast(t['accent-ink'] ?? '', t.accent ?? '')).toBeGreaterThanOrEqual(4.5);
   });
 
   it('keeps body text pale rather than neon in the dark theme', () => {
