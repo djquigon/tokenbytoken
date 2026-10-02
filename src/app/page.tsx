@@ -8,6 +8,7 @@ import { LabelChip } from '@/components/provenance/ProvBadge';
 import { SiteFooter } from '@/components/site/SiteFooter';
 import { SiteHeader } from '@/components/site/SiteHeader';
 import { ArrowRightIcon, PlayIcon } from '@/components/ui/icons';
+import { SITE } from '@/shared/site';
 
 import {
     contextRuns,
@@ -49,16 +50,17 @@ export default function Home() {
                                 Under the hood
                             </p>
                             <h1 id="hero-title" className="hero-title">
-                                <DecodeText text="Token by Token" />
+                                {/* A no-break space keeps "an AI" on one line. */}
+                                <DecodeText
+                                    text={SITE.name.replace(' AI', ' AI')}
+                                />
                             </h1>
-                            <p className="hero-subtitle">
-                                How a chatbot writes its reply
-                            </p>
+                            <p className="hero-subtitle">{SITE.answer}.</p>
                             <p className="lede">
-                                Ask a real AI model a question. Then step
-                                through how its reply was made, one token at a
-                                time, using the real data behind it, with every
-                                value labeled.
+                                Ask a real AI chatbot a question and watch it
+                                write its reply. Then step through how the reply
+                                was made, using the real data behind it, with
+                                every value labeled.
                             </p>
                             <div className="cta">
                                 <Link

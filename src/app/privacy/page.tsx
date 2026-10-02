@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { SITE } from '@/shared/site';
+
 export const metadata: Metadata = {
-  title: 'Privacy · Token by Token',
-  description: 'What happens to your messages on Token by Token.',
+  title: 'Privacy',
+  description: `What happens to your messages on ${SITE.domain}.`,
 };
 
 // Keep in line with OpenAI's data-controls page and the privacy notice in the chat (CLAUDE.md §10).
@@ -15,11 +17,11 @@ export default function PrivacyPage() {
   return (
     <main className="prose-page" id="main">
       <p>
-        <Link href="/">Token by Token</Link>
+        <Link href="/">{SITE.name}</Link>
       </p>
       <h1>Privacy</h1>
       <p className="muted">
-        Last reviewed <time dateTime={REVIEWED}>September 30, 2026</time>. Token by Token is a personal, non-commercial
+        Last reviewed <time dateTime={REVIEWED}>September 30, 2026</time>. {SITE.domain} is a personal, non-commercial
         project. It is not directed at children.
       </p>
 

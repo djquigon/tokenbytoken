@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('home page shows the project name and links to the chat', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Token by Token' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'How does an AI work?' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Ask your own question' })).toHaveAttribute('href', '/chat');
 });
 

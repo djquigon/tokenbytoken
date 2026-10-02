@@ -90,6 +90,8 @@
     flex-basis: 100%;
   }
 }
+/* The wordmark is the site's address (ADR 0012): lowercase and barely spaced, so it reads as one address,
+ * with the ".work" that finishes the question in the accent. */
 .brand {
   display: inline-flex;
   align-items: center;
@@ -97,22 +99,40 @@
   white-space: nowrap;
   font-family: var(--font-mono);
   font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--text);
   text-decoration: none;
   text-shadow: 0 0 10px var(--glow);
 }
-/* The mark: a token chip with its cursor lit. Decoration only. */
-.brand::before {
-  content: "";
+.brand-tld {
+  color: var(--accent);
+}
+/* The mark, the next-token fork (Brand.tsx): a token, its options, and the one picked, lit. Decoration
+ * only. */
+.brand-mark {
   flex: none;
-  width: 0.95rem;
-  height: 0.95rem;
-  border: 2px solid var(--accent);
-  border-radius: 1px;
-  background: linear-gradient(var(--accent), var(--accent)) center / 40% 40% no-repeat;
-  box-shadow: 0 0 8px var(--glow);
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  filter: drop-shadow(0 0 4px var(--glow));
+}
+.brand-mark .lit-line {
+  stroke: var(--accent);
+}
+.brand-mark .dim-line {
+  stroke: var(--border-strong);
+}
+.brand-mark .lit-fill {
+  fill: var(--accent);
+}
+/* High-contrast themes: one system color, so the mark stays visible on any background. */
+@media (forced-colors: active) {
+  .brand-mark :is(.lit-line, .dim-line) {
+    stroke: CanvasText;
+  }
+  .brand-mark .lit-fill {
+    fill: CanvasText;
+  }
 }
 
 /* Workspace: the chat beside the walkthrough (docs/PLAN.md §2, Layouts) ------------------------------------

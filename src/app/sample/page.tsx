@@ -5,7 +5,7 @@ import sample from '../../../fixtures/sample/conversation.json';
 import { ChatApp } from '@/components/chat/ChatApp';
 
 export const metadata: Metadata = {
-  title: 'Sample conversation · Token by Token',
+  title: 'Sample conversation',
   description: 'Replay a real recorded conversation with an AI model, token by token. Nothing is sent, and it costs nothing.',
 };
 

@@ -15,6 +15,7 @@ import { PrefsMenu } from '@/components/prefs/PrefsMenu';
 import { prefsStore } from '@/components/prefs/store';
 import { Datum } from '@/components/provenance/Datum';
 import { LabelChip } from '@/components/provenance/ProvBadge';
+import { Brand } from '@/components/site/Brand';
 import { Walkthrough } from '@/components/walkthrough/Walkthrough';
 import { sendTurn } from '@/generation/client';
 import { createConversationStore, traceOf, type Turn } from '@/generation/conversation-store';
@@ -119,9 +120,7 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
   return (
     <div className="app">
       <header className="app-header">
-        <Link href="/" className="brand">
-          Token by Token
-        </Link>
+        <Brand />
         <nav aria-label="Site">
           {sample ? (
             <Link href="/chat" className="nav-own-line">

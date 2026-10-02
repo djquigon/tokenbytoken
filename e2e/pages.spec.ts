@@ -91,6 +91,8 @@ test('every header links to the FAQ, and marks it on the FAQ itself', async ({ p
   await page.getByRole('banner').getByRole('link', { name: 'FAQ' }).click();
   await expect(page).toHaveURL(/\/faq$/);
   await expect(page.getByRole('banner').getByRole('link', { name: 'FAQ' })).toHaveAttribute('aria-current', 'page');
+  // The wordmark shows the address, but is named as the question it spells out.
+  await expect(page.getByRole('banner').getByRole('link', { name: 'How does an AI work?', exact: true })).toHaveAttribute('href', '/');
 });
 
 test('Settings stops the rain from the landing page (WCAG 2.2.2)', async ({ page }) => {

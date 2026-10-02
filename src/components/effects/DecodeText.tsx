@@ -27,7 +27,7 @@ export function DecodeText({ text }: { text: string }) {
     const tick = (t: number) => {
       const done = Math.min(1, (t - started) / DURATION_MS);
       const settled = Math.floor(done * text.length);
-      o.textContent = [...text].map((ch, i) => (i < settled || ch === ' ' ? ch : (pool[(i * 7 + Math.floor(t / 40)) % pool.length] ?? ch))).join('');
+      o.textContent = [...text].map((ch, i) => (i < settled || /\s/.test(ch) ? ch : (pool[(i * 7 + Math.floor(t / 40)) % pool.length] ?? ch))).join('');
       if (done < 1) frame = requestAnimationFrame(tick);
       else {
         o.textContent = '';

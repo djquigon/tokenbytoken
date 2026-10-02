@@ -9,7 +9,7 @@ import type { ClaimId } from './claims';
 import { FACTS } from './faq-facts';
 import { term } from './glossary';
 
-export { FAQ_CHECKED } from './faq-facts';
+export { FAQ_CHECKED, FAQ_LATEST_CHECK } from './faq-facts';
 
 export interface FaqSource {
   /** Who published it: an organization, or the authors. */

@@ -3,6 +3,8 @@
 
 import Link from 'next/link';
 
+import { SITE } from '@/shared/site';
+
 const PAGES = [
   { href: '/chat', label: 'Chat' },
   { href: '/sample', label: 'Sample' },
@@ -14,7 +16,7 @@ export function SiteFooter({ current }: { current?: (typeof PAGES)[number]['href
   return (
     <footer className="site-footer">
       <p className="footer-brand">
-        Token by Token <span aria-hidden="true">{'//'}</span> An educational LLM visualizer
+        {SITE.name} <span aria-hidden="true">{'//'}</span> An educational look inside AI chatbots
       </p>
       <nav aria-label="Footer">
         {PAGES.map((p) => (

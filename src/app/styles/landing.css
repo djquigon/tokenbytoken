@@ -85,14 +85,18 @@
   line-height: 1.05;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  text-wrap: balance;
   text-shadow: 0 0 18px var(--glow);
 }
+/* The answer to the title's question, in the accent. */
 .hero-subtitle {
-  color: var(--text);
+  color: var(--accent);
   font-family: var(--font-mono);
-  font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+  font-size: clamp(1rem, 1.9vw, 1.3rem);
+  font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  text-shadow: 0 0 10px var(--glow);
 }
 .lede {
   max-width: 36rem;

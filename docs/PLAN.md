@@ -1,4 +1,4 @@
-# Token by Token: product & technical plan
+# How does an AI work? (formerly "Token by Token"): product & technical plan
 
 > **Status:** Phase 1 planning output, approved 2026-09-30. No application code exists yet.
 > Project rules and conventions live in [`CLAUDE.md`](../CLAUDE.md); keep the two in sync.
@@ -193,7 +193,7 @@ Every view is anchored to the user's own conversation. Views of the model's insi
   - a self-review;
   - informal feedback from a few people.
 - **D8. Identity.**
-  - Name: **"Token by Token"**.
+  - Name: **"Token by Token"**. Renamed on 2026-10-01 to **"How does an AI work?"**, after the domain howdoesanai.work (ADR 0012).
   - Dark theme by default, plus a light theme.
   - English interface, with provider-neutral copy.
   - **Styling inspired by *The Matrix***: a "digital-rain terminal" look. It's inspired by the film, not copied from it (see §2, Visual direction).

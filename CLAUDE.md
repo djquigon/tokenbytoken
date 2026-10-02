@@ -2,7 +2,7 @@
 
 @AGENTS.md
 
-> **Project status: Phase 2 (the walkthrough) built (ADRs 0007, 0008), in the "operator terminal" look (ADR 0009), plus a FAQ (ADR 0010) and a plain-language pass with analogies and tooltips (ADR 0011).**
+> **Project status: Phase 2 (the walkthrough) built (ADRs 0007, 0008), in the "operator terminal" look (ADR 0009), plus a FAQ (ADR 0010) and a plain-language pass with analogies and tooltips (ADR 0011). Renamed "How does an AI work?", live at howdoesanai.work (ADR 0012).**
 >
 > **What exists:**
 > - The chat (`/chat`) with streaming, Stop, retry, and every error state, backed by `/api/chat` and its
@@ -18,7 +18,7 @@
 > - The Trace Inspector, the privacy notice, and `/privacy`.
 > - The claims register (generated `content/claims.md`) and the content lint.
 > - The FAQ (`/faq`): eighteen sourced answers in four sections, including neural networks and a dated history of how they led to LLMs, every number a labeled Reference value (ADR 0010).
-> - The Phase 0 probe, fixtures, and ADRs 0001–0011.
+> - The Phase 0 probe, fixtures, and ADRs 0001–0012.
 >
 > **Not built yet:** the few plan items ADR 0008 lists as still open (linked highlighting, the Hook's "pick
 > another close call", an "Instant" speed), and everything after Phase 2. Sections below that describe
@@ -28,8 +28,8 @@
 > `docs/decisions/` and update this file. Never describe planned files or commands as if they already exist.
 
 ## 1. Purpose & audience
-"Token by Token" is an interactive website that explains how large language
-models, such as OpenAI's GPT models and Anthropic's Claude models, generate responses. Users chat with a
+"How does an AI work?" (live at howdoesanai.work; formerly "Token by Token") is an interactive website that
+explains how large language models, such as OpenAI's GPT models and Anthropic's Claude models, generate responses. Users chat with a
 real OpenAI model. Each reply is paired with a replayable walkthrough of inference, anchored to their actual
 prompt and response.
 
@@ -200,7 +200,7 @@ Facts were verified on 2026-09-29. Re-verify before relying on details.
 | Budget | $20/month: an OpenAI hard cap at the organization level (split into production $17 and development $3 if project caps exist); an app ledger of about $0.55/day; fall back to the sample conversation when it runs out | Decided |
 | Limits | Per IP 30/min and 300/day; per tab session 30/day and one stream at a time; $0.55/day global and $0.15/day per IP, reserved worst-case and settled once; Upstash Redis (free tier) through two Lua scripts; BotID Basic on Vercel deployments; Hobby's WAF rule optional | Decided (ADR 0006) |
 | History | HMAC-signed replies (`v1.<kid>.<iat>.<mac>`); the previous secret is accepted during a rotation; signatures older than 24 h are dropped from the context | Decided (ADR 0006) |
-| Hosting | Vercel Hobby (personal, non-commercial project); a custom domain once purchased | Decided |
+| Hosting | Vercel Hobby (personal, non-commercial project), at howdoesanai.work (2026-10-01, ADR 0012) | Decided |
 | Tests | Vitest 5.0.2 (pinned; typecheck mode is experimental), Testing Library + jsdom, fast-check, wasmoon (runs the production Lua scripts), Playwright (Chromium) + @axe-core/playwright against a mock OpenAI | Decided |
 
 **Data flow. Don't break these boundaries.**
@@ -237,7 +237,8 @@ src/server/           config.ts · chat/ (handler, http, runtime) · openai/adap
                       limits/ (store contract, memory store, Redis Lua scripts) · signing/
 src/shared/           protocol/ (v1 schemas, SSE) · provenance/ (types, registry, combine, mint, read,
                       describe) · context-policy/ · sourced-text.ts · format.ts · close-call-rule.ts ·
-                      errors.ts · limits.ts · units.ts · utf8.ts · sha256.ts · token-display.ts
+                      errors.ts · limits.ts · units.ts · utf8.ts · sha256.ts · token-display.ts ·
+                      site.ts (the name and address)
 src/trace/            log · reducer · finalize · facts · live (the live strip's facts) · align/ ·
                       reconcile · close-calls · provs
 src/generation/       client (fetch + SSE + watchdog) · conversation-store · persist (sessionStorage)
@@ -251,7 +252,7 @@ src/components/       provenance/ (Datum, ProvBadge) · chat/ (ChatApp, TurnView
                       …) · walkthrough/ (Walkthrough, StageView, TokenCard, DeepDive, Exercises, WhereFrom,
                       Lanes, Transcript, OptionBars, …) · glossary/ (Term) · tokens/ (TokenTape) · prefs/
                       (store, keys, hooks, PrefsMenu) · effects/ (TokenRain, DecodeText) · inspector/
-                      (TraceInspector) · site/ (SiteHeader, SiteFooter) · ui/ (icons)
+                      (TraceInspector) · site/ (Brand, SiteHeader, SiteFooter) · ui/ (icons)
 src/test/             test harnesses: chat route, probe fixtures, fake Redis + Lua VM, sample fixtures
 content/claims.md     claims register, generated from src/content/claims.ts (npm run claims)
 scripts/              probe/ (live capability probe) · record-sample.mts · build-claims.mts ·
@@ -261,7 +262,7 @@ fixtures/sample/      the recorded sample conversation and wrong-answer case (wr
                       record-sample.mts)
 e2e/                  Playwright tests (chat, walkthrough, pages, smoke) · mock-openai.mts (replays the
                       probe fixtures)
-docs/                 PLAN.md · decisions/ (ADRs 0001–0011) · probe/
+docs/                 PLAN.md · decisions/ (ADRs 0001–0012) · probe/
 ```
 **Planned (later phases; nothing below exists yet):**
 ```
@@ -623,7 +624,7 @@ type-only imports, and include the `.mts` extension on relative imports.
 - An audience of adults and older teens, not directed at children.
 - The model rule: the cheapest model that passes every visualization check.
 - No external review and no formal user studies.
-- Identity: the name "Token by Token"; a Matrix-inspired "digital-rain terminal" style; a dark theme (default)
+- Identity: the name "Token by Token" (renamed on 2026-10-01 to "How does an AI work?", ADR 0012); a Matrix-inspired "digital-rain terminal" style; a dark theme (default)
   plus a light theme; an English interface; provider-neutral copy.
 
 **Phase 0 results (2026-09-30):** ADRs 0001–0005 and `docs/probe/2026-09-30-capability-report.md`.
@@ -691,7 +692,7 @@ type-only imports, and include the `.mts` extension on relative imports.
   still open to the owner's review of the look.
 - How deep the formulas go (default: at Technical depth, collapsed).
 - Whether real generation controls ship in MVP (default: no).
-- The domain (not yet bought).
+- The domain: howdoesanai.work, live since 2026-10-01 (ADR 0012).
 
 ## 16. Framework agent docs
 `create-next-app` and `next dev` (16.3+) generate a version-matched `AGENTS.md`, which is imported at the top of

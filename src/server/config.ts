@@ -7,10 +7,11 @@ import { z } from 'zod';
 
 import { REQUEST_LIMITS } from '@/shared/limits';
 import type { ReferenceValuesV1 } from '@/shared/protocol/v1';
+import { SITE } from '@/shared/site';
 
 /** Public by design: shown in the UI word for word. Never put secrets here. */
 export const INSTRUCTIONS =
-  'You are the assistant on Token by Token, an educational website that shows how language models ' +
+  `You are the assistant on ${SITE.domain}, an educational website that shows how language models ` +
   'generate text one token at a time. Answer helpfully, accurately, and concisely, usually in under ' +
   "150 words and in plain language. Use Markdown only when it helps. If you aren't sure about something, " +
   "say so. You have no tools, no internet access, and no memory of other conversations.";

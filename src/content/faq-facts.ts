@@ -6,14 +6,23 @@
 import type { Sourced } from '@/shared/provenance';
 import { reference } from '@/shared/provenance/mint';
 
+/** When this project checked the FAQ's sources: the first answers on FAQ_CHECKED, and the answers added since
+ * (the neural networks, the Hugging Face incident, ChatGPT and Claude) on FAQ_LATEST_CHECK. */
 export const FAQ_CHECKED = '2026-09-30';
+export const FAQ_LATEST_CHECK = '2026-10-01';
 
 interface Doc {
   readonly title: string;
   readonly url: string;
 }
 
-const documented = <T>(doc: Doc, value: T): Sourced<T, 'reference'> => reference({ doc: { ...doc, retrieved: FAQ_CHECKED } }, value);
+/** A documented value, labeled with the date this project checked its document. */
+const checkedOn =
+  (retrieved: string) =>
+  <T>(doc: Doc, value: T): Sourced<T, 'reference'> =>
+    reference({ doc: { ...doc, retrieved } }, value);
+const documented = checkedOn(FAQ_CHECKED);
+const documentedLater = checkedOn(FAQ_LATEST_CHECK);
 
 const LUNA_PAGE: Doc = { title: 'OpenAI, GPT-6 Luna model page', url: 'https://developers.openai.com/api/docs/models/gpt-6-luna' };
 const WHY_HALLUCINATE: Doc = { title: 'OpenAI, “Why language models hallucinate”', url: 'https://openai.com/index/why-language-models-hallucinate/' };
@@ -144,41 +153,41 @@ export const FACTS = {
   nobelYear: documented(NOBEL_CHEMISTRY, '2024'),
 
   /** Learned numbers (weights and biases) in the beginner course's tiny example network. */
-  toyNetworkParams: documented(MLCC_NODES, 21),
+  toyNetworkParams: documentedLater(MLCC_NODES, 21),
   /** Model sizes, in billions of parameters, and GPT-3's layers and training tokens (billions). */
-  gpt2ParamsBillion: documented(GPT_2, 1.5),
-  gpt3ParamsBillion: documented(GPT_3, 175),
-  gpt3Layers: documented(GPT_3, 96),
-  gpt3TrainingTokensBillion: documented(GPT_3, 300),
-  gptOssParamsBillion: documented(GPT_OSS, 117),
-  gptOssActiveBillion: documented(GPT_OSS, 5.1),
-  gptOssExperts: documented(GPT_OSS, 128),
-  gptOssExpertsPerToken: documented(GPT_OSS, 4),
+  gpt2ParamsBillion: documentedLater(GPT_2, 1.5),
+  gpt3ParamsBillion: documentedLater(GPT_3, 175),
+  gpt3Layers: documentedLater(GPT_3, 96),
+  gpt3TrainingTokensBillion: documentedLater(GPT_3, 300),
+  gptOssParamsBillion: documentedLater(GPT_OSS, 117),
+  gptOssActiveBillion: documentedLater(GPT_OSS, 5.1),
+  gptOssExperts: documentedLater(GPT_OSS, 128),
+  gptOssExpertsPerToken: documentedLater(GPT_OSS, 4),
   /** InstructGPT: the fine-tuned model people preferred, and the GPT-3 it was compared with (billions of parameters). */
-  instructSmallBillion: documented(INSTRUCT_GPT, 1.3),
-  instructGpt3Billion: documented(INSTRUCT_GPT, 175),
+  instructSmallBillion: documentedLater(INSTRUCT_GPT, 1.3),
+  instructGpt3Billion: documentedLater(INSTRUCT_GPT, 175),
   /** Fine-tuning's share of the computing used for pretraining (an upper bound). */
-  fineTuneComputePct: documented(INSTRUCT_GPT, 2),
+  fineTuneComputePct: documentedLater(INSTRUCT_GPT, 2),
   /** How deep an artificial network had to be to imitate a detailed model of one brain cell. */
-  corticalLayersFrom: documented(NEURON_AS_NETWORK, 5),
-  corticalLayersTo: documented(NEURON_AS_NETWORK, 8),
+  corticalLayersFrom: documentedLater(NEURON_AS_NETWORK, 5),
+  corticalLayersTo: documentedLater(NEURON_AS_NETWORK, 8),
   /** The Hugging Face incident: when it happened, and what the investigations counted. */
-  hfIncidentMonth: documented(HF_DISCLOSURE, 'July 2026'),
-  hfAttackAgents: documented(METR_INVESTIGATION, 700),
-  hfActions: documented(HF_TIMELINE, 17_600),
-  hfIntrusionDays: documented(HF_TIMELINE, 4.5),
-  hfCustomerDatasets: documented(HF_TIMELINE, 5),
+  hfIncidentMonth: documentedLater(HF_DISCLOSURE, 'July 2026'),
+  hfAttackAgents: documentedLater(METR_INVESTIGATION, 700),
+  hfActions: documentedLater(HF_TIMELINE, 17_600),
+  hfIntrusionDays: documentedLater(HF_TIMELINE, 4.5),
+  hfCustomerDatasets: documentedLater(HF_TIMELINE, 5),
   /** METR and Redwood's estimate of the agents' main motive: understanding how they were scored, or getting solutions. */
-  hfScorerMotivePct: documented(METR_INVESTIGATION, 60),
-  hfSolutionsMotivePct: documented(METR_INVESTIGATION, 30),
+  hfScorerMotivePct: documentedLater(METR_INVESTIGATION, 60),
+  hfSolutionsMotivePct: documentedLater(METR_INVESTIGATION, 30),
   /** Neurons in the adult human brain, in billions. */
-  brainNeuronsBillion: documented(NEURON_COUNT, 86),
+  brainNeuronsBillion: documentedLater(NEURON_COUNT, 86),
 
   /** AlexNet at the ImageNet challenge: its top-5 error, the runner-up's, and the graphics chips it trained on. */
-  alexnetErrorPct: documented(ALEXNET, 15.3),
-  runnerUpErrorPct: documented(ALEXNET, 26.2),
-  alexnetGpus: documented(ALEXNET, 2),
+  alexnetErrorPct: documentedLater(ALEXNET, 15.3),
+  runnerUpErrorPct: documentedLater(ALEXNET, 26.2),
+  alexnetGpus: documentedLater(ALEXNET, 2),
   /** The original transformer's base model: training time in hours, on one machine with this many graphics chips. */
-  transformerBaseHours: documented(TRANSFORMER, 12),
-  transformerGpus: documented(TRANSFORMER, 8),
+  transformerBaseHours: documentedLater(TRANSFORMER, 12),
+  transformerGpus: documentedLater(TRANSFORMER, 8),
 } as const;

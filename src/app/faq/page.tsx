@@ -6,10 +6,10 @@ import { SiteFooter } from '@/components/site/SiteFooter';
 import { SiteHeader } from '@/components/site/SiteHeader';
 import { ArrowRightIcon } from '@/components/ui/icons';
 import { RichText } from '@/components/walkthrough/RichText';
-import { FAQ, FAQ_CHECKED, type FaqEntry } from '@/content/faq';
+import { FAQ, FAQ_CHECKED, FAQ_LATEST_CHECK, type FaqEntry } from '@/content/faq';
 
 export const metadata: Metadata = {
-  title: 'Questions about AI · Token by Token',
+  title: 'Questions about AI',
   description:
     'Short, sourced answers to common questions about AI: the black box, “going rogue”, images and video, and how much it really matters.',
 };
@@ -100,7 +100,8 @@ export default function FaqPage() {
             and every number from them is labeled, like everything else on this site.
           </p>
           <p className="faq-checked">
-            <LabelChip kind="reference" /> Sources checked <time dateTime={FAQ_CHECKED}>{FAQ_CHECKED}</time>
+            <LabelChip kind="reference" /> Sources checked <time dateTime={FAQ_CHECKED}>{FAQ_CHECKED}</time> to{' '}
+            <time dateTime={FAQ_LATEST_CHECK}>{FAQ_LATEST_CHECK}</time>
           </p>
         </header>
         <div className="faq-layout">
