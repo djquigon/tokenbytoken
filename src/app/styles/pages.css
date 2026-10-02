@@ -122,6 +122,7 @@
     align-self: start;
     max-height: calc(100dvh - 3rem);
     overflow-y: auto;
+    scrollbar-width: thin;
   }
 }
 .faq-toc {

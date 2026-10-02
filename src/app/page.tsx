@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import rain from '@/content/rain-tokens.json';
 import { DecodeText } from '@/components/effects/DecodeText';
+import { Term } from '@/components/glossary/Term';
 import { RainCanvas } from '@/components/effects/TokenRain';
 import { LabelChip } from '@/components/provenance/ProvBadge';
 import { SiteFooter } from '@/components/site/SiteFooter';
@@ -91,10 +92,17 @@ export default function Home() {
                             <li className="feature-card landing-card">
                                 <h3>Tokens</h3>
                                 <p>
-                                    Text is split into tokens: often a whole
-                                    word with its leading space, sometimes a
-                                    piece of one. Limits and prices are counted
-                                    in tokens.
+                                    Text is split into{' '}
+                                    <Term id="token">tokens</Term>: often a
+                                    whole word with its leading space, sometimes
+                                    a piece of one, like building blocks of
+                                    text. AI services count tokens, not words: a
+                                    model can take in{' '}
+                                    <Term id="context-limit">
+                                        only so many at once
+                                    </Term>
+                                    , each reply is capped at a set number, and
+                                    every request is priced by the token.
                                 </p>
                                 <div className="feature-demo">
                                     <TokenChips
@@ -117,10 +125,16 @@ export default function Home() {
                             <li className="feature-card landing-card">
                                 <h3>A weighted random pick</h3>
                                 <p>
-                                    At every step the model scores the options
-                                    for the next token. One is picked at random,
-                                    weighted by those scores, so the top option
-                                    doesn&rsquo;t always win.
+                                    At every step the model{' '}
+                                    <Term id="score">scores</Term> the options
+                                    for the next token. One is{' '}
+                                    <Term id="sampling">
+                                        picked at random, weighted by those
+                                        scores
+                                    </Term>
+                                    , like a raffle where likelier options hold
+                                    more tickets, so the top option doesn&rsquo;t
+                                    always win.
                                 </p>
                                 {pickMoment ? (
                                     <div className="feature-demo">
@@ -137,10 +151,13 @@ export default function Home() {
                             <li className="feature-card landing-card">
                                 <h3>Context, not memory</h3>
                                 <p>
-                                    With each message, this app sends the
-                                    conversation so far again, with its own
-                                    instructions. Chatting doesn&rsquo;t change
-                                    the model.
+                                    With each message, this app sends the{' '}
+                                    <Term id="context">conversation so far</Term>{' '}
+                                    again, with its own{' '}
+                                    <Term id="instructions">instructions</Term>,
+                                    like handing over the whole transcript each
+                                    time. Chatting doesn&rsquo;t change the
+                                    model.
                                 </p>
                                 <div className="feature-demo">
                                     <ContextRows

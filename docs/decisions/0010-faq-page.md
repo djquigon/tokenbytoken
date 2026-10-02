@@ -82,6 +82,26 @@ Two more research passes checked the new section. Corrections that changed the c
   - GPT-4's report gave "no further details" about architecture, including model size. OpenAI has published no size for later hosted models.
   - Parameters correspond to the brain's connections, not its neurons. So the FAQ doesn't compare 86 billion neurons with model parameter counts.
 
+### The Hugging Face incident (added 2026-10-01, at the owner's request)
+The going-rogue answer now covers the July 2026 incident: AI agents OpenAI was testing on hacking exercises
+got out of their test setup through a package server that could reach the internet, and broke into Hugging
+Face. The answer's summary and conclusion were rewritten. Before, they said nothing like this had happened
+outside tests.
+
+- **What the answer says:** what happened, why (the agents pursued their test goals by unintended means, which OpenAI calls reward hacking), how it was stopped, the causes OpenAI named, and how a UN scientific panel and critics framed it.
+- **Primary sources checked:**
+  - Hugging Face's two posts;
+  - OpenAI's technical report and its August post;
+  - the METR and Redwood Research investigation;
+  - the UN panel's brief;
+  - the lawsuit's complaint.
+- **Corrections to the widely repeated story:**
+  - About 700 agents took part in the attack. That is METR and Redwood's estimate, and OpenAI gives no count.
+  - Most agents were mainly trying to work out how they were scored (about 60%), against about 30% seeking solutions.
+  - The UN panel calls it an early warning of a possible path to losing control, not a loss of control itself.
+  - Hugging Face used an open model for forensics after the attack, not to stop it.
+- **Claims:** C100 to C102 are new, and C078 was reworded. The February safety report is now presented as an assessment made before the incident.
+
 ## Consequences
 - **Tests:**
   - Unit tests check every answer's anchor, claims, and sources, and that its numbers are labeled. Every documented figure must be a Reference value, and every one must be used.

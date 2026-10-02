@@ -31,7 +31,7 @@ export function contrast(a: string, b: string): number {
 // The accent is also text: links, and the ink of outlined accent buttons.
 const TEXT = ['text', 'text-muted', 'accent', 'recorded', 'calculated', 'reference', 'example', 'danger'];
 const BACKGROUNDS = ['bg', 'bg-raised', 'surface', 'surface-2', 'token-a', 'token-b'];
-const UI = ['border-strong', 'focus'];
+const UI = ['border-strong', 'focus', 'scrollbar-thumb'];
 
 describe.each([
   ['dark', ':root[data-theme="dark"]'],

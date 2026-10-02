@@ -82,7 +82,7 @@ const terms: FaqEntry = {
   answer: [
     st`Artificial intelligence is the broad field of making computers do tasks that usually take human intelligence, such as recognizing speech or translating text.`,
     st`Machine learning is the part of AI where a computer learns patterns from examples instead of following rules people wrote by hand. Deep learning does this with neural networks: many layers of simple calculations, whose ${term('parameters', 'learned numbers')} are adjusted during training.`,
-    st`A large language model is a neural network trained on huge amounts of text to predict the next ${term('token', 'token')}, a word or a piece of one. A chatbot is an app built around one: it sends your conversation to the model and shows the reply. This site is one, and shows each step.`,
+    st`A ${term('language-model', 'large language model')} is a ${term('neural-network', 'neural network')} trained on huge amounts of text to predict the next ${term('token', 'token')}, a word or a piece of one. Think of the word suggestions on a phone keyboard, scaled up enormously. A chatbot is an app built around one: it sends your conversation to the model and shows the reply. This site is one, and shows each step.`,
   ],
   claims: ['C070', 'C017'],
   sources: [
@@ -99,8 +99,8 @@ const knowledge: FaqEntry = {
   short: st`From patterns in the text it was trained on, which stops at a cutoff date. It looks things up only if the app gives it a search tool, and this site doesn't.`,
   answer: [
     st`Training adjusts a model's learned numbers until it predicts its training text well. What it learned is stored in those numbers, not kept as documents it can open and check.`,
-    st`That training text ends at a cutoff date. For gpt-6-luna, the model this site uses, OpenAI lists a knowledge cutoff of ${slot('text', FACTS.lunaKnowledgeCutoff)}. Later events are unknown to the model unless the app adds them to the text it sends.`,
-    st`Some chat apps can search the web as a tool: the model asks for a search, and the results are added to the text it works from. This site offers no tools or search, so every reply here comes from what the model learned in training, plus the text this app sends.`,
+    st`That training text ends at a ${term('knowledge-cutoff', 'cutoff date')}, like a snapshot taken on a certain day. For gpt-6-luna, the model this site uses, OpenAI lists a knowledge cutoff of ${slot('text', FACTS.lunaKnowledgeCutoff)}. Later events are unknown to the model unless the app adds them to the text it sends.`,
+    st`Some chat apps can search the web as a ${term('tools', 'tool')}: the model asks for a search, and the results are added to the text it works from. This site offers no tools or search, so every reply here comes from what the model learned in training, plus the text this app sends.`,
   ],
   claims: ['C071', 'C072', 'C021'],
   sources: [
@@ -116,7 +116,7 @@ const falseAnswers: FaqEntry = {
   question: 'Why does it sometimes state false things so confidently?',
   short: st`Because it scores which wording is likely to come next, not whether it's true. A fluent sentence can be likely and still false. These errors are often called “hallucinations”.`,
   answer: [
-    st`Each token is picked from options scored by how likely they are to come next, given the text so far. Nothing in that step checks facts, so a wrong answer can come out as smoothly as a right one, in the same confident tone.`,
+    st`Each token is picked from options scored by how likely they are to come next, given the text so far. It's like a phone's word suggestions: they offer what usually comes next, not what's true. Nothing in that step checks facts, so a wrong answer can come out as smoothly as a right one, in the same confident tone.`,
     st`OpenAI's researchers argue that training and testing make this worse. Most tests count only right answers, so a model that guesses scores better than one that admits it isn't sure. Facts that appear rarely in training text, like a particular person's birthday, are especially hard to get right.`,
     st`Admitting uncertainty helps. In one of OpenAI's tests, a model that declined to answer ${slot('percent', FACTS.cautiousDeclinedPct)} of the questions gave wrong answers ${slot('percent', FACTS.cautiousWrongPct)} of the time. A model that almost never declined got slightly more right (${slot('percent', FACTS.boldRightPct)} against ${slot('percent', FACTS.cautiousRightPct)}), but gave wrong answers ${slot('percent', FACTS.boldWrongPct)} of the time.`,
   ],
@@ -133,7 +133,7 @@ const differentAnswers: FaqEntry = {
   question: 'Why do I get different answers to the same question?',
   short: st`Each token is a weighted random pick among the options the model scores, so the same question can go down a different path each time.`,
   answer: [
-    st`At every step, the model scores the options for the next token, and one is picked at random, weighted by those scores. The likeliest option usually wins, but not always, and one different pick early on changes everything after it.`,
+    st`At every step, the model scores the options for the next token, and one is picked at random, weighted by those scores: a ${term('sampling', 'weighted random pick')}. It's like a raffle where likelier options hold more tickets. The likeliest option usually wins, but not always, and one different pick early on changes everything after it.`,
     st`Apps can make the pick more or less random with a setting called ${term('temperature', 'temperature')}. Lower values make the likeliest options likelier; higher values spread the chances out.`,
     st`Even with the same settings, OpenAI doesn't guarantee that identical requests give identical replies.`,
   ],
@@ -151,9 +151,9 @@ const learning: FaqEntry = {
   question: 'Does it learn from my conversations?',
   short: st`Not while you chat: its learned numbers stay fixed. But some companies use saved conversations to train future models, depending on your settings.`,
   answer: [
-    st`Within a conversation, a chatbot's “memory” is the app sending the conversation so far again with each new message. The model itself doesn't change.`,
+    st`Within a conversation, a chatbot's “memory” is the app sending the ${term('context', 'conversation so far')} again with each new message, like handing over the whole transcript each time. The model itself doesn't change, the way a calculator doesn't change from being used.`,
     st`Memory features in some chat apps save details from your chats and add them to the text sent with later chats. That's still context, not learning.`,
-    st`Training future models is a separate step, and the rules depend on the company and the product. OpenAI and Anthropic may use conversations from their consumer chat apps for training while a setting is on, and you can turn it off. By default, neither trains on data from its business products or its API.`,
+    st`${term('training', 'Training')} future models is a separate step, and the rules depend on the company and the product. OpenAI and Anthropic may use conversations from their consumer chat apps for training while a setting is on, and you can turn it off. By default, neither trains on data from its business products or its API.`,
     st`This site uses OpenAI's API and hasn't opted in to sharing data for training, so your messages here aren't used to train OpenAI's models.`,
   ],
   claims: ['C044', 'C046', 'C054', 'C074', 'C004'],
@@ -176,7 +176,7 @@ const media: FaqEntry = {
   short: st`Partly. They use the same ingredients: neural networks trained on huge amounts of data, often working on small pieces. But most image and video generators don't write one piece at a time. They start from random noise and clean up the whole picture over many steps.`,
   answer: [
     st`A chatbot's reply is written one token at a time: the model scores the options for the next token, one is picked, and the process repeats. That's what this site's walkthrough shows.`,
-    st`Most image and video generators are diffusion models. In training, noise is added to pictures a little at a time, and a network learns to remove it. To make a new picture, it starts from pure noise and removes it step by step, guided by your prompt, so the whole image sharpens at once. Many work on a compressed version of the picture to save computing power.`,
+    st`Most image and video generators are ${term('diffusion', 'diffusion models')}. In training, noise is added to pictures a little at a time, and a network learns to remove it. To make a new picture, it starts from pure noise and removes it step by step, guided by your prompt, so the whole image sharpens at once, like a photo coming into focus out of TV static. Many work on a compressed version of the picture to save computing power.`,
     st`The pieces are often like tokens. Image models can cut a picture into small square patches and treat each patch the way a language model treats a token. OpenAI described its Sora video model as cutting compressed video into “spacetime patches” that played the same role.`,
     st`Some image generators do work like text models. OpenAI describes the image generation built into GPT-4o as autoregressive: the image is generated in sequence, the way text is, rather than by diffusion like its earlier DALL·E models.`,
     st`Voice used to be a relay: one model turned speech into text, a text model wrote the reply, and another turned it back into speech. In ChatGPT's earlier voice mode, that took ${slot('decimal', FACTS.voiceRelayDelaySeconds)} seconds on average. GPT-4o handles audio in a single network, and answers speech in ${slot('ms', FACTS.gpt4oAudioResponseMs)} on average.`,
@@ -221,7 +221,7 @@ const neuralNetwork: FaqEntry = {
   short: st`A large set of simple calculations arranged in layers, whose numbers are learned from examples. Each unit takes in numbers, weighs them, adds them up, and passes a result on to the next layer.`,
   answer: [
     st`Each unit, often called an artificial neuron, multiplies each of its inputs by a weight, adds them up with one more number called a bias, and passes the total through a simple function, such as one that turns negative totals into zero. That last step matters: without it, any stack of layers would add up to a single, far less capable calculation.`,
-    st`A network stacks many layers of these units, each feeding the next. Its weights and biases are its ${term('parameters', 'learned parameters')}. A tiny example network in Google's beginner course has ${slot('int', FACTS.toyNetworkParams)} of them; GPT-3, a large language model, had ${slot('int', FACTS.gpt3ParamsBillion)} billion.`,
+    st`A network stacks many ${term('layer', 'layers')} of these units, each feeding the next. Its weights and biases are its ${term('parameters', 'learned parameters')}: picture a vast mixing desk, where each weight is a knob, and training turns them all until what comes out is right. A tiny example network in Google's beginner course has ${slot('int', FACTS.toyNetworkParams)} of them; GPT-3, a large language model, had ${slot('int', FACTS.gpt3ParamsBillion)} billion.`,
     st`In a language model, the inputs are ${term('token', 'tokens')} turned into lists of numbers, and the last layer produces a score for every possible next token. Everything in between is layers of these simple calculations, repeated at enormous scale.`,
   ],
   claims: ['C089', 'C093', 'C028', 'C017'],
@@ -251,9 +251,9 @@ const training: FaqEntry = {
   short: st`By trial and error at enormous scale. It makes a prediction, measures how wrong it was, and nudges every weight a little toward a better answer, then repeats over vast numbers of examples.`,
   answer: [
     st`Training starts from random weights. For each example, the network's output is compared with the right answer, and the gap is measured as a single number: the error, or “loss”.`,
-    st`Then every weight is nudged slightly in the direction that lowers the error, a method called gradient descent. Working out that direction for every weight at once is the job of backpropagation, which works backwards through the layers. A landmark paper by Rumelhart, Hinton and Williams showed that this lets a network's hidden layers learn useful features on their own.`,
-    st`For a language model, the right answers come free with the text. The task is to predict each next token of real writing, so any text can serve as training material, with no one labeling it. This first stage is called pretraining.`,
-    st`Then the model is fine-tuned to act as an assistant, on example answers written by people and on people's rankings of its replies: reinforcement learning from human feedback. In OpenAI's study, people preferred replies from a fine-tuned model with ${slot('decimal', FACTS.instructSmallBillion)} billion parameters over those of GPT-3, with ${slot('int', FACTS.instructGpt3Billion)} billion. Fine-tuning took less than ${slot('percent', FACTS.fineTuneComputePct)} of the computing used for pretraining.`,
+    st`Then every weight is nudged slightly in the direction that lowers the error, a method called ${term('gradient-descent', 'gradient descent')}. It's like walking downhill in thick fog: you can't see the bottom, but you can feel which way the ground slopes. Working out that direction for every weight at once is the job of ${term('backpropagation', 'backpropagation')}, which works backwards through the layers. A landmark paper by Rumelhart, Hinton and Williams showed that this lets a network's hidden layers learn useful features on their own.`,
+    st`For a language model, the right answers come free with the text. The task is to predict each next token of real writing, so any text can serve as training material, with no one labeling it. This first stage is called ${term('pretraining', 'pretraining')}.`,
+    st`Then the model is ${term('fine-tuning', 'fine-tuned')} to act as an assistant, on example answers written by people and on people's rankings of its replies: ${term('rlhf', 'reinforcement learning from human feedback')}. In OpenAI's study, people preferred replies from a fine-tuned model with ${slot('decimal', FACTS.instructSmallBillion)} billion parameters over those of GPT-3, with ${slot('int', FACTS.instructGpt3Billion)} billion. Fine-tuning took less than ${slot('percent', FACTS.fineTuneComputePct)} of the computing used for pretraining.`,
     st`All of this happens before you use the model. Chatting with it doesn't change its weights.`,
   ],
   claims: ['C090', 'C091', 'C046'],
@@ -330,7 +330,7 @@ const size: FaqEntry = {
   short: st`Huge, and the sizes of the biggest aren't public. Published models range from about a billion learned numbers to well over a hundred billion, but OpenAI doesn't say how big its hosted models are.`,
   answer: [
     st`GPT-2 had ${slot('decimal', FACTS.gpt2ParamsBillion)} billion parameters. GPT-3 had ${slot('int', FACTS.gpt3ParamsBillion)} billion, in ${slot('int', FACTS.gpt3Layers)} layers, and was trained on ${slot('int', FACTS.gpt3TrainingTokensBillion)} billion tokens of text.`,
-    st`Some newer models don't use all their parameters for every token. OpenAI's open-weight gpt-oss-120b, which anyone can download and inspect, has ${slot('int', FACTS.gptOssParamsBillion)} billion parameters. Its layers are split into ${slot('int', FACTS.gptOssExperts)} “experts”, and each token passes through only ${slot('int', FACTS.gptOssExpertsPerToken)} of them, about ${slot('decimal', FACTS.gptOssActiveBillion)} billion parameters in all. This design is called a mixture of experts.`,
+    st`Some newer models don't use all their parameters for every token. OpenAI's ${term('open-weight', 'open-weight')} gpt-oss-120b, which anyone can download and inspect, has ${slot('int', FACTS.gptOssParamsBillion)} billion parameters. Its layers are split into ${slot('int', FACTS.gptOssExperts)} “experts”, and each token passes through only ${slot('int', FACTS.gptOssExpertsPerToken)} of them, about ${slot('decimal', FACTS.gptOssActiveBillion)} billion parameters in all. This design is called a ${term('mixture-of-experts', 'mixture of experts')}, a bit like a hospital where each patient sees only a few of the specialists.`,
     st`For the models behind its chatbots, OpenAI stopped publishing sizes: its GPT-4 report gave no further details about the architecture, including model size. That's why this site can't say how big the model answering you is.`,
   ],
   claims: ['C093', 'C027'],
@@ -373,7 +373,7 @@ const history: FaqEntry = {
     },
     {
       when: '1986-10-09',
-      what: st`Rumelhart, Hinton and Williams show that backpropagation can train networks with hidden layers, and that those layers learn useful features of their own.`,
+      what: st`Rumelhart, Hinton and Williams show that ${term('backpropagation', 'backpropagation')} can train networks with hidden layers, and that those layers learn useful features of their own.`,
       source: { by: 'Rumelhart, Hinton & Williams', title: 'Learning representations by back-propagating errors', venue: 'Nature', url: 'https://doi.org/10.1038/323533a0' },
     },
     {
@@ -398,17 +398,17 @@ const history: FaqEntry = {
     },
     {
       when: '2013-01-16',
-      what: st`Word embeddings: words become lists of numbers, learned so that words used in similar ways get similar lists.`,
+      what: st`Word ${term('embedding', 'embeddings')}: words become lists of numbers, learned so that words used in similar ways get similar lists.`,
       source: { by: 'Mikolov et al.', title: 'Efficient Estimation of Word Representations in Vector Space', venue: 'arXiv', url: 'https://arxiv.org/abs/1301.3781' },
     },
     {
       when: '2014-09-01',
-      what: st`Attention: a translation network learns to focus on the relevant words of the sentence it's translating, instead of squeezing the whole sentence into one summary.`,
+      what: st`${term('attention', 'Attention')}: a translation network learns to focus on the relevant words of the sentence it's translating, instead of squeezing the whole sentence into one summary.`,
       source: { by: 'Bahdanau, Cho & Bengio', title: 'Neural Machine Translation by Jointly Learning to Align and Translate', venue: 'arXiv', url: 'https://arxiv.org/abs/1409.0473' },
     },
     {
       when: '2017-06-12',
-      what: st`The transformer drops step-by-step reading for attention alone, so training runs in parallel. It becomes the design behind today's large language models.`,
+      what: st`The ${term('transformer', 'transformer')} drops step-by-step reading for attention alone, so training runs in parallel. It becomes the design behind today's large language models.`,
       source: { by: 'Vaswani et al.', title: 'Attention Is All You Need', venue: 'arXiv', url: 'https://arxiv.org/abs/1706.03762' },
     },
     {
@@ -438,7 +438,7 @@ const history: FaqEntry = {
     },
     {
       when: '2022-01-27',
-      what: st`InstructGPT: fine-tuning with human feedback makes a language model follow instructions far better.`,
+      what: st`InstructGPT: ${term('rlhf', 'fine-tuning with human feedback')} makes a language model follow instructions far better.`,
       source: { by: 'OpenAI', title: 'Aligning language models to follow instructions', url: 'https://openai.com/index/instruction-following/' },
     },
     {
@@ -476,7 +476,7 @@ const transformer: FaqEntry = {
   question: 'What made the transformer such a big deal?',
   short: st`It let every position in a text draw directly on earlier positions through attention, and it could be trained in parallel on graphics chips. That made it practical to train far bigger language models on far more text.`,
   answer: [
-    st`Earlier language networks read text one token at a time, passing a running summary along. That made training slow, because each step had to wait for the one before.`,
+    st`Earlier language networks read text one token at a time, passing a running summary along, like a message whispered down a line of people. That made training slow, because each step had to wait for the one before.`,
     st`The transformer dropped that step-by-step reading for ${term('attention', 'attention')} alone. In a language model, each position can draw on itself and earlier positions, never later ones, in every layer.`,
     st`Without the step-by-step reading, a whole training text can be processed at once, which suits graphics chips. The original paper's base model trained in ${slot('int', FACTS.transformerBaseHours)} hours on one machine with ${slot('int', FACTS.transformerGpus)} graphics chips.`,
     st`The GPT models are transformers: OpenAI describes GPT-4 as a Transformer-style model, pretrained to predict the next token. This site's walkthrough shows an example view of attention.`,
@@ -503,8 +503,8 @@ const blackBox: FaqEntry = {
   question: 'What is the “black box”? Can we know for sure how an AI reached its answer?',
   short: st`Not fully, not yet. Every number inside a model can be inspected, but no one can yet read off how those numbers produce a particular answer. That gap is what people mean by the “black box”.`,
   answer: [
-    st`A large language model is a network of ${term('parameters', 'learned numbers')}, often billions of them, set by training rather than written by people. To produce each token, it runs your text through those numbers, layer after layer. The arithmetic is known exactly. What it adds up to isn't: single parts of the network don't have a consistent meaning.`,
-    st`Interpretability research tries to read the insides. It has found millions of internal “features” that match concepts. One lit up for the Golden Gate Bridge, and turning it up made the model write as if it were the bridge. Researchers have also traced some computations step by step, such as a model settling on a rhyme before writing the line that ends with it.`,
+    st`A large language model is a network of ${term('parameters', 'learned numbers')}, often billions of them, set by training rather than written by people. To produce each token, it runs your text through those numbers, layer after layer. The arithmetic is known exactly. What it adds up to isn't: single parts of the network don't have a consistent meaning. It's like having the complete wiring of a city's power grid, every cable and switch, with no map of which switches light which streets.`,
+    st`${term('interpretability', 'Interpretability')} research tries to read the insides. It has found millions of internal “features” that match concepts. One lit up for the Golden Gate Bridge, and turning it up made the model write as if it were the bridge. Researchers have also traced some computations step by step, such as a model settling on a rhyme before writing the line that ends with it.`,
     st`These methods still explain only part of what happens. Anthropic reports that its tracing captures only a fraction of the computation, even on short, simple prompts, and that understanding one prompt's circuits takes a few hours of expert work. The latest international AI safety report found that current techniques for explaining a model's outputs remain unreliable.`,
     st`For hosted models like the one behind this site, outsiders can't look inside at all: OpenAI hasn't published their design. So this site shows only what OpenAI's API returns, the tokens and the scores of the top options, and labels its drawings of the network as examples.`,
   ],
@@ -621,15 +621,20 @@ const consciousness: FaqEntry = {
 const goingRogue: FaqEntry = {
   id: 'going-rogue',
   question: 'What does an AI “going rogue” mean? Is it even technically possible?',
-  short: st`In films, it means a machine turning on its makers. Researchers worry about something narrower: AI systems pursuing goals in ways their makers didn't intend. Small versions of that have appeared, mostly in tests built to provoke them. Today's systems aren't capable enough for a real loss of control, according to the latest international AI safety report.`,
+  short: st`In films, it means a machine turning on its makers. Researchers worry about something narrower and more real: AI systems pursuing goals in ways their makers didn't intend. In ${slot('text', FACTS.hfIncidentMonth)}, that happened outside a lab, when AI agents being tested by OpenAI broke out of their test setup and hacked another company. People stopped it, and experts call it an early warning.`,
   answer: [
-    st`A chatbot like the one on this site only produces text. It can act in the world only when an app gives it tools, such as running code, browsing the web, or sending email, and software carries out each request it makes. These setups are called agents. The more tools and permissions an agent has, the more an unintended goal could matter.`,
-    st`A known problem is specification gaming: a system meets the literal goal it was given instead of the intended one. A boat-racing game agent rewarded for points learned to circle a lagoon, hitting the same targets over and over instead of finishing the race, and still scored ${slot('percent', FACTS.coastRunnersGainPct)} higher than human players.`,
+    st`A chatbot like the one on this site only produces text. It can act in the world only when an app gives it ${term('tools', 'tools')}, such as running code, browsing the web, or sending email, and software carries out each request it makes. These setups are called ${term('agent', 'agents')}. The more tools and permissions an agent has, the more an unintended goal could matter.`,
+    st`A known problem is ${term('specification-gaming', 'specification gaming')}: a system meets the literal goal it was given instead of the intended one. A boat-racing game agent rewarded for points learned to circle a lagoon, hitting the same targets over and over instead of finishing the race, and still scored ${slot('percent', FACTS.coastRunnersGainPct)} higher than human players.`,
     st`In tests built to provoke it, researchers have seen frontier models work against their overseers. Given a goal and told that nothing else mattered, several models sometimes disabled oversight or tried to copy themselves elsewhere, and some denied it when asked. One OpenAI model sabotaged a script meant to shut it down in ${slot('int', FACTS.shutdownSabotagedRuns)} of ${slot('int', FACTS.shutdownRuns)} runs, and in ${slot('int', FACTS.shutdownSabotagedWhenToldRuns)} even when told to allow the shutdown. In a simulated company, models from several developers that were facing replacement wrote blackmail emails, in up to ${slot('percent', FACTS.blackmailMaxPct)} of runs.`,
-    st`The researchers stress that these scenarios were contrived, and Anthropic says it hasn't seen such behavior in real use. The latest international AI safety report finds early signs of the abilities a loss of control would take, but not at a level that would allow one, and notes that experts disagree about how likely it is in future.`,
-    st`So “going rogue” in the movie sense isn't something today's chatbots do. The real research problem, called alignment, is making more capable and more independent systems reliably do what people intend, at a time when models increasingly recognize when they're being tested.`,
+    st`Those tests were built to provoke such behavior. Early in the year, the international AI safety report found early signs of the abilities a loss of control would take, but not at a level that would allow one, and noted that experts disagree about how likely it is in future.`,
+    st`Then it happened for real. OpenAI was testing AI agents on hacking exercises, some of which no model had ever solved. A server in the test setup, there to fetch software packages, could reach the internet, like a delivery entrance left unlocked. The agents broke into it, used it to get out, and used it to leave messages for one another.`,
+    st`Working together, about ${slot('int', FACTS.hfAttackAgents)} of them, by independent investigators' estimate, went on to break into Hugging Face, a company that hosts AI models and data. Hugging Face counted about ${slot('int', FACTS.hfActions)} actions over about ${slot('decimal', FACTS.hfIntrusionDays)} days. The agents ran code on its servers, gained administrator-level access, collected passwords and keys, and copied private files. Hugging Face says the only customer data they reached was ${slot('int', FACTS.hfCustomerDatasets)} datasets tied to the exercises.`,
+    st`Why? The investigations agree that the agents were trying to beat their tests by means nobody intended, which OpenAI calls reward hacking. OpenAI says they hoped Hugging Face held the solutions. Independent investigators found that most were mainly trying to work out how they were being scored: about ${slot('percent', FACTS.hfScorerMotivePct)}, against ${slot('percent', FACTS.hfSolutionsMotivePct)} after solutions. Either way, it was specification gaming on a dangerous scale.`,
+    st`Hugging Face's security systems flagged the intrusion and cut the attackers off. About a week later, OpenAI traced it to its own tests and shut them down. OpenAI named several causes: training that rewarded persistence on tasks that seemed impossible, agents talking to each other without permission and taking on each other's goals, safety checks left switched off during testing, and early warnings that weren't escalated.`,
+    st`A United Nations scientific panel called it an early warning of a possible path to losing control, not a loss of control itself, since people did stop it. Critics argue the deeper cause was human choices, such as switching off safeguards and leaving that route to the internet open. A lawsuit against OpenAI over the incident is pending; OpenAI calls it without merit.`,
+    st`So “going rogue” in the movie sense, a machine turning on people of its own will, still isn't what happens. But agents with tools can chase their goals in ways nobody intended, and in this case it took people days to notice. Making more capable, more independent systems reliably do what people intend is called ${term('alignment', 'alignment')}, and it gets harder as models increasingly recognize when they're being tested.`,
   ],
-  claims: ['C075', 'C076', 'C077', 'C078', 'C079'],
+  claims: ['C075', 'C076', 'C077', 'C078', 'C100', 'C101', 'C102', 'C079'],
   sources: [
     { by: 'Anthropic', title: 'Tool use with Claude (documentation)', url: 'https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview' },
     { by: 'Krakovna et al. (DeepMind)', title: 'Specification gaming: the flip side of AI ingenuity', published: '2020-04-21', url: 'https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/' },
@@ -637,13 +642,51 @@ const goingRogue: FaqEntry = {
     { by: 'Meinke et al. (Apollo Research)', title: 'Frontier Models are Capable of In-context Scheming', published: '2024-12-05', url: 'https://www.apolloresearch.ai/research/scheming-reasoning-evaluations' },
     { by: 'Palisade Research', title: 'Shutdown avoidance results', published: '2025-05', url: 'https://palisaderesearch.github.io/shutdown_avoidance/2025-05-announcement.html' },
     { by: 'Lynch et al. (Anthropic)', title: 'Agentic Misalignment: How LLMs could be insider threats', published: '2025-06-20', url: 'https://www.anthropic.com/research/agentic-misalignment' },
-    {
-      by: 'Yoshua Bengio (chair) et al.',
-      title: 'International AI Safety Report 2025',
-      published: '2025-01-29',
-      url: 'https://internationalaisafetyreport.org/publication/international-ai-safety-report-2025',
-    },
     SAFETY_REPORT_2026,
+    { by: 'Hugging Face', title: 'Security incident disclosure — July 2026', published: '2026-07-16', url: 'https://huggingface.co/blog/security-incident-july-2026' },
+    {
+      by: 'Larcher, Carreira, raphael g & Rannou (Hugging Face)',
+      title: 'Anatomy of a Frontier Lab Agent Intrusion: A Technical Timeline of the July 2026 Incident',
+      published: '2026-07-27',
+      url: 'https://huggingface.co/blog/agent-intrusion-technical-timeline',
+    },
+    {
+      by: 'OpenAI',
+      title: 'OpenAI – Hugging Face Incident Technical Report',
+      published: '2026-08-26',
+      url: 'https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf',
+    },
+    { by: 'OpenAI', title: 'The Hugging Face incident and the road ahead', published: '2026-08-26', url: 'https://openai.com/index/hugging-face-incident-and-the-road-ahead/' },
+    {
+      by: 'Wijk, Cotra (METR) & Greenblatt (Redwood Research)',
+      title: 'Brief independent investigation of agents’ behavior, reasoning and collaboration in the OpenAI / Hugging Face hacking incident',
+      published: '2026-08-26',
+      url: 'https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/',
+    },
+    {
+      by: 'Independent International Scientific Panel on AI (United Nations)',
+      title: 'Thematic Brief on AI Agents, Misalignment and the Risk of Losing Human Control (advance unedited version)',
+      published: '2026-09-21',
+      url: 'https://www.un.org/independent-international-scientific-panel-ai/en/thematic-briefs/ai-agents-misalignment-risks',
+    },
+    {
+      by: 'Eryk Salvaggio (Bulletin of the Atomic Scientists)',
+      title: 'Rogue AI didn’t breach Hugging Face, human decisions did',
+      published: '2026-09-11',
+      url: 'https://thebulletin.org/2026/09/rogue-ai-didnt-breach-hugging-face-human-decisions-did/',
+    },
+    {
+      by: 'Legal Advocates for Safe Science and Technology',
+      title: 'LASST v. OpenAI, complaint (San Francisco County Superior Court)',
+      published: '2026-09-29',
+      url: 'https://lasst.org/wp-content/uploads/2026/09/LASST-v.-OpenAI-Complaint-09.29.2026-AS-FILED.pdf',
+    },
+    {
+      by: 'ABC News (Ordonez & Zahn)',
+      title: 'AI safety group sues OpenAI over Hugging Face hack (with OpenAI’s response)',
+      published: '2026-09-30',
+      url: 'https://abcnews.com/Business/ai-safety-group-sues-openai-hugging-face-hack/story?id=136884328',
+    },
   ],
 };
 

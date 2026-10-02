@@ -196,6 +196,7 @@
 .datum-block {
   white-space: pre-wrap;
   overflow-x: auto;
+  scrollbar-width: thin;
   max-height: 24rem;
   padding: var(--space-2);
   border-radius: var(--radius-sm);
@@ -358,4 +359,13 @@ button.token-chip {
 }
 .term-tip[hidden] {
   display: none;
+}
+/* The analogy: its own line under the definition, set apart by a rule. The leading space keeps the two
+ * sentences apart for screen readers, which read the tip as one description. */
+.term-analogy {
+  display: block;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
 }

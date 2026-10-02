@@ -80,6 +80,7 @@ export function Term({ id, children }: { id: string; children: ReactNode }) {
       </button>
       <span id={tipId} role="tooltip" className="term-tip" hidden={!open}>
         <strong>{entry.term}:</strong> {entry.definition}
+        {'analogy' in entry ? <span className="term-analogy"> {entry.analogy}</span> : null}
       </span>
     </span>
   );

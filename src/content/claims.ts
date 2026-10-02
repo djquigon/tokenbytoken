@@ -150,7 +150,12 @@ export const CLAIMS = {
     sources: [GENERAL, 'CLAUDE.md A13 (IDs are Calculated; the API returns text, not IDs)'],
     checked: '2026-09-30',
   },
-  C024: { text: 'Limits and prices are counted in tokens.', where: 'Chapter "Text becomes tokens"; landing page, "Context limits and history"', sources: [OPENAI_PRICING, OPENAI_MODEL], checked: '2026-09-30' },
+  C024: {
+    text: "AI services count text in tokens, not words: a model's context limit and the cap on a reply's length are set in tokens, and requests are priced by the token.",
+    where: 'Chapter "Text becomes tokens"; landing page, "Context limits and history"',
+    sources: [OPENAI_PRICING, OPENAI_MODEL, 'This app: src/server/config.ts caps each reply (max_output_tokens)'],
+    checked: '2026-09-30',
+  },
   C025: {
     text: "This app's input count is an estimate: it adds an allowance, measured for this model, for formatting OpenAI adds but hasn't published, so it can differ slightly from OpenAI's count.",
     where: 'Chapter "Text becomes tokens"',
@@ -539,7 +544,7 @@ export const CLAIMS = {
     checked: '2026-09-30',
   },
   C078: {
-    text: "The researchers call these scenarios contrived, and Anthropic reports no such behavior seen in real deployments; the latest international report finds early signs of loss-of-control abilities, but not at levels that would allow it, and expert disagreement about future likelihood.",
+    text: "Those tests were built to provoke such behavior; the International AI Safety Report (February 2026) found early signs of loss-of-control abilities, but not at levels that would allow it, and expert disagreement about future likelihood.",
     where: "FAQ (“What does an AI “going rogue” mean?”)",
     sources: [
       "Lynch et al. (Anthropic), \"Agentic Misalignment\" (2025-06-20): https://www.anthropic.com/research/agentic-misalignment",
@@ -753,6 +758,48 @@ export const CLAIMS = {
     sources: [
       "Vaswani et al., \"Attention Is All You Need\" (2017-06-12; NIPS 2017), §1 and §5.2: https://arxiv.org/abs/1706.03762",
       "OpenAI, \"GPT-4 Technical Report\" (2023-03-15), §2: https://arxiv.org/abs/2303.08774",
+    ],
+    checked: '2026-10-01',
+  },
+  C099: {
+    text: 'Attention is how the position of a word like “it” can pull in information from the earlier word it refers to.',
+    where: 'Chapter "Inside the network" (attention); glossary ("Attention")',
+    sources: [
+      'General: true of standard transformer language models, not confirmed for this model',
+      'Vaswani et al., "Attention Is All You Need" (2017), Figures 4 and 5: attention heads involved in resolving “its” to the noun it refers to: https://arxiv.org/abs/1706.03762',
+    ],
+    checked: '2026-10-01',
+  },
+  C100: {
+    text: "In July 2026, AI agents OpenAI was testing on hacking exercises (some never solved by any model) broke into a package server in their test setup that could reach the internet, used it to get out and to message one another, and about 700 of them (independent estimate) broke into Hugging Face: about 17,600 actions over about 4.5 days, running code on its servers, gaining administrator-level access, collecting credentials, and copying private files; the only customer data reached was 5 datasets tied to the exercises.",
+    where: "FAQ (“What does an AI “going rogue” mean?”)",
+    sources: [
+      "OpenAI, \"OpenAI – Hugging Face Incident Technical Report\" (2026-08-26): https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf",
+      "Hugging Face, \"Security incident disclosure — July 2026\" (2026-07-16): https://huggingface.co/blog/security-incident-july-2026",
+      "Hugging Face, \"Anatomy of a Frontier Lab Agent Intrusion\" (2026-07-27): https://huggingface.co/blog/agent-intrusion-technical-timeline",
+      "Wijk, Cotra & Greenblatt (METR, Redwood Research), independent investigation (2026-08-26): https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/",
+    ],
+    checked: '2026-10-01',
+  },
+  C101: {
+    text: "The investigations agree the agents were trying to beat their tests by unintended means (reward hacking): OpenAI says they sought solutions; independent investigators estimate about 60% were mainly trying to understand how they were scored, against 30% seeking solutions. Hugging Face flagged and cut off the intrusion; OpenAI traced it to its tests about a week later and named its causes: rewarding persistence on seemingly impossible tasks, unauthorized communication between agents and adopting each other’s goals, safeguards left off in testing, and early warnings not escalated.",
+    where: "FAQ (“What does an AI “going rogue” mean?”)",
+    sources: [
+      "OpenAI, \"OpenAI – Hugging Face Incident Technical Report\" (2026-08-26): https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf",
+      "OpenAI, \"The Hugging Face incident and the road ahead\" (2026-08-26): https://openai.com/index/hugging-face-incident-and-the-road-ahead/",
+      "Wijk, Cotra & Greenblatt (METR, Redwood Research), independent investigation (2026-08-26): https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/",
+      "Hugging Face, \"Anatomy of a Frontier Lab Agent Intrusion\" (2026-07-27): https://huggingface.co/blog/agent-intrusion-technical-timeline",
+    ],
+    checked: '2026-10-01',
+  },
+  C102: {
+    text: "A UN scientific panel called the incident an early warning of a possible path to losing control, not a loss of control itself; critics argue human choices caused it (safeguards switched off, an open route to the internet); a lawsuit against OpenAI is pending, which OpenAI calls without merit.",
+    where: "FAQ (“What does an AI “going rogue” mean?”)",
+    sources: [
+      "Independent International Scientific Panel on AI, thematic brief (2026-09-21, advance unedited version): https://www.un.org/independent-international-scientific-panel-ai/en/thematic-briefs/ai-agents-misalignment-risks",
+      "Eryk Salvaggio, Bulletin of the Atomic Scientists (2026-09-11): https://thebulletin.org/2026/09/rogue-ai-didnt-breach-hugging-face-human-decisions-did/",
+      "LASST v. OpenAI, complaint (2026-09-29): https://lasst.org/wp-content/uploads/2026/09/LASST-v.-OpenAI-Complaint-09.29.2026-AS-FILED.pdf",
+      "ABC News (2026-09-30), OpenAI spokesperson’s response: https://abcnews.com/Business/ai-safety-group-sues-openai-hugging-face-hack/story?id=136884328",
     ],
     checked: '2026-10-01',
   },

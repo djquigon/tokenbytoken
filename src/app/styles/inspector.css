@@ -44,6 +44,7 @@
 }
 .table-scroll {
   overflow-x: auto;
+  scrollbar-width: thin;
   max-height: 32rem;
 }
 .tokens td {

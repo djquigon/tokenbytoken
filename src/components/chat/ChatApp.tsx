@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from 'zustand';
 
+import { Term } from '@/components/glossary/Term';
 import { useHydratePrefs, usePrefs } from '@/components/prefs/hooks';
 import { PrefsMenu } from '@/components/prefs/PrefsMenu';
 import { prefsStore } from '@/components/prefs/store';
@@ -225,21 +226,28 @@ function WalkthroughIntro() {
       <ol className="intro-steps">
         <li className="intro-step">
           <h3>Your message</h3>
-          <p>What this app sends: its instructions, the chat so far, and your message.</p>
+          <p>
+            What this app sends: its <Term id="instructions">instructions</Term>, the chat so far, and your message.
+          </p>
           <p className="intro-labels">
             <LabelChip kind="recorded" />
           </p>
         </li>
         <li className="intro-step">
           <h3>Text becomes tokens</h3>
-          <p>Your message is split into tokens, the small pieces of text a model works with.</p>
+          <p>
+            Your message is split into <Term id="token">tokens</Term>, the small pieces of text a model works with.
+          </p>
           <p className="intro-labels">
             <LabelChip kind="calculated" />
           </p>
         </li>
         <li className="intro-step">
           <h3>Next-token choices</h3>
-          <p>At every step, the real options for the next token, as percentages. Drawings of the network in between are examples.</p>
+          <p>
+            At every step, the real options for the next token, as percentages. Drawings of the{' '}
+            <Term id="neural-network">network</Term> in between are examples.
+          </p>
           <p className="intro-labels">
             <LabelChip kind="calculated" />
             <LabelChip kind="example" />
@@ -247,7 +255,9 @@ function WalkthroughIntro() {
         </li>
         <li className="intro-step">
           <h3>The reply is built</h3>
-          <p>A weighted random pick adds one token at a time, until the reply ends.</p>
+          <p>
+            A <Term id="sampling">weighted random pick</Term> adds one token at a time, until the reply ends.
+          </p>
           <p className="intro-labels">
             <LabelChip kind="recorded" />
           </p>

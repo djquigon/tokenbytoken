@@ -597,6 +597,7 @@
 .prefs-panel {
   max-height: calc(100dvh - 5rem);
   overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 /* The step (stage + caption), and the row of tools under it. */

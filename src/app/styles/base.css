@@ -82,6 +82,21 @@ kbd {
   color: var(--text-muted);
 }
 
+/* Scrollbars in the theme's colors. The thumb keeps 3:1 against the page and panels (tokens.test.ts); the
+ * track is transparent, so it shows whatever it sits on. scrollbar-color is inherited, so this one rule
+ * covers every scrolling box. Small boxes ask for the thin size in their own files; the page and the chat
+ * panes keep the full size, which is easier to grab. Browsers without scrollbar-color keep their own
+ * scrollbars, which still follow color-scheme. */
+:root {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+/* High-contrast themes (Windows) get the system's own scrollbars. */
+@media (forced-colors: active) {
+  :root {
+    scrollbar-color: auto;
+  }
+}
+
 /* Short uppercase, letter-spaced monospace headings only (never long passages). */
 .eyebrow {
   font-family: var(--font-mono);
@@ -108,9 +123,11 @@ kbd {
   --glow: transparent;
 }
 @media (prefers-contrast: more) {
-  :root {
+  /* [data-theme] matches the theme blocks' specificity, so these win: tokens.css comes first. */
+  :root[data-theme] {
     --glow: transparent;
     --border: var(--border-strong);
+    --scrollbar-thumb: var(--accent);
   }
 }
 

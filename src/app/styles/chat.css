@@ -419,6 +419,7 @@
 }
 .markdown pre {
   overflow-x: auto;
+  scrollbar-width: thin;
   padding: var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--bg);

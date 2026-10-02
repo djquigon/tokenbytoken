@@ -19,7 +19,7 @@ async function goToChapter(page: Page, name: RegExp) {
 
 test('shortcut keys can be remapped in Settings', async ({ page }) => {
   await page.goto('/sample');
-  await page.getByText('Settings').click();
+  await page.getByText('Settings', { exact: true }).click();
   const key = page.getByRole('button', { name: /^Next step/ });
   await key.click();
   await key.press('n');
@@ -163,7 +163,7 @@ test('the first visit shows a tour; skipping hides it for good, and Settings bri
   await expect(page.locator('.tour')).toHaveCount(0);
   await page.reload();
   await expect(page.locator('.tour')).toBeHidden();
-  await page.getByText('Settings').click();
+  await page.getByText('Settings', { exact: true }).click();
   await page.getByRole('button', { name: 'Show the chat page tour again' }).click();
   await expect(page.getByRole('region', { name: 'Ask a real AI model' })).toBeVisible();
 });
@@ -184,7 +184,7 @@ test('the new panels have no serious accessibility violations', async ({ page })
   await walkthrough(page).getByRole('button', { name: 'What if the temperature were different?' }).click();
   await page.getByRole('button', { name: /Simulate 20 picks/ }).click();
   expect(await serious()).toEqual([]);
-  await page.getByText('Settings').click();
+  await page.getByText('Settings', { exact: true }).click();
   expect(await serious()).toEqual([]);
   await page.goto('/chat');
   await expect(page.getByRole('region', { name: 'Ask a real AI model' })).toBeVisible();

@@ -26,6 +26,7 @@
   --example: #ffa562;
   --danger: #ff9a9a;
   --focus: #9dffc0;
+  --scrollbar-thumb: #2f8a52;
   --token-a: #0a1c11;
   --token-b: #0d2215;
   --hatch: rgb(255 165 98 / 0.12);
@@ -51,6 +52,7 @@
   --example: #9a4400;
   --danger: #a31919;
   --focus: #07692c;
+  --scrollbar-thumb: #4f8a61;
   --token-a: #e3efe0;
   --token-b: #d7e8d3;
   --hatch: rgb(154 68 0 / 0.1);

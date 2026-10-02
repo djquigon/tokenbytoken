@@ -2,7 +2,7 @@
 
 @AGENTS.md
 
-> **Project status: Phase 2 (the walkthrough) built (ADRs 0007, 0008), in the "operator terminal" look (ADR 0009), plus a FAQ (ADR 0010).**
+> **Project status: Phase 2 (the walkthrough) built (ADRs 0007, 0008), in the "operator terminal" look (ADR 0009), plus a FAQ (ADR 0010) and a plain-language pass with analogies and tooltips (ADR 0011).**
 >
 > **What exists:**
 > - The chat (`/chat`) with streaming, Stop, retry, and every error state, backed by `/api/chat` and its
@@ -18,7 +18,7 @@
 > - The Trace Inspector, the privacy notice, and `/privacy`.
 > - The claims register (generated `content/claims.md`) and the content lint.
 > - The FAQ (`/faq`): eighteen sourced answers in four sections, including neural networks and a dated history of how they led to LLMs, every number a labeled Reference value (ADR 0010).
-> - The Phase 0 probe, fixtures, and ADRs 0001–0010.
+> - The Phase 0 probe, fixtures, and ADRs 0001–0011.
 >
 > **Not built yet:** the few plan items ADR 0008 lists as still open (linked highlighting, the Hook's "pick
 > another close call", an "Instant" speed), and everything after Phase 2. Sections below that describe
@@ -163,6 +163,11 @@ Unlabeled data must not render.
   "as the model sees it".
 - Distinguish "this app", "the model", and "OpenAI" precisely.
 - Use "≈" only for estimates. Give units. Date every price and documented fact.
+- **Plain first (ADR 0011).** Give a familiar picture where it helps: a raffle for the weighted pick, a
+  script handed over for context, a dial for temperature. An analogy must match the mechanism, and none may
+  suggest that the model thinks, remembers, looks things up, or re-reads. Mark a technical term with
+  `term(id, text)` the first time a step uses it, and add its glossary entry (with a claim) before using a
+  new one. Simple captions stay within 48 words; longer explanations go in the tooltip or at Detailed depth.
 
 **Process**
 - **Claims register.** Every explanatory claim has an ID in `src/content/claims.ts`, the source of truth.
@@ -256,7 +261,7 @@ fixtures/sample/      the recorded sample conversation and wrong-answer case (wr
                       record-sample.mts)
 e2e/                  Playwright tests (chat, walkthrough, pages, smoke) · mock-openai.mts (replays the
                       probe fixtures)
-docs/                 PLAN.md · decisions/ (ADRs 0001–0010) · probe/
+docs/                 PLAN.md · decisions/ (ADRs 0001–0011) · probe/
 ```
 **Planned (later phases; nothing below exists yet):**
 ```

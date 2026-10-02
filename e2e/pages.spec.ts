@@ -96,7 +96,7 @@ test('every header links to the FAQ, and marks it on the FAQ itself', async ({ p
 test('Settings stops the rain from the landing page (WCAG 2.2.2)', async ({ page }) => {
   await page.goto('/');
   expect(await rainMoves(page)).toBe(true);
-  await page.getByText('Settings').click();
+  await page.getByText('Settings', { exact: true }).click();
   await page.getByRole('group', { name: /Visual effects/ }).getByRole('button', { name: 'Off' }).click();
   await page.keyboard.press('Escape');
   expect(await rainMoves(page)).toBe(false);
@@ -110,6 +110,23 @@ test('under reduced motion the rain holds still', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.rain-canvas')).toBeVisible();
   expect(await rainMoves(page)).toBe(false);
+});
+
+test('scrollbars use the theme, and more contrast drops the glow and strengthens borders and scrollbars', async ({ page }) => {
+  const look = () =>
+    page.evaluate(() => {
+      const s = getComputedStyle(document.documentElement);
+      const v = (name: string) => s.getPropertyValue(name).trim();
+      return { glow: v('--glow'), border: v('--border'), thumb: v('--scrollbar-thumb'), scrollbar: v('scrollbar-color'), strong: v('--border-strong'), accent: v('--accent') };
+    });
+  await page.goto('/');
+  const normal = await look();
+  expect(normal.scrollbar).not.toBe('auto');
+  expect(normal.glow).not.toBe('transparent');
+  await page.emulateMedia({ contrast: 'more' });
+  const more = await look();
+  expect(more).toMatchObject({ glow: 'transparent', border: normal.strong, thumb: normal.accent });
+  expect(more.scrollbar).not.toBe(normal.scrollbar);
 });
 
 test('the sample conversation replays both turns without calling the API', async ({ page }) => {

@@ -88,6 +88,22 @@ changes when asked:
   3. Next-token choices (Calculated, and Example for the network drawings)
   4. The reply is built (Recorded)
 
+### Scrollbars (added 2026-10-01, at the owner's request)
+- **Themed with the standard properties.** A green thumb on a transparent track, set once on the page with
+  `scrollbar-color` and inherited by every scrolling box. The thumb (`--scrollbar-thumb`) is checked for
+  3:1 against the page and panels.
+  - Small boxes use the thin size: code blocks, data blocks, the reply preview, the FAQ's list of questions,
+    and Settings.
+  - The page and the chat panes keep the full size, which is easier to grab.
+- **Browser support:** Chrome and Edge 121+, Firefox 64+, and Safari 26.2+ (MDN browser-compat-data). There
+  are no `::-webkit-scrollbar` rules: in older Safari they would make macOS's overlay scrollbars permanent.
+  Older browsers keep their own scrollbars, which still follow the theme's `color-scheme`.
+- **Accessibility:** "more contrast" switches the thumb to the accent green. Windows high-contrast themes get
+  the system scrollbars.
+- **Fix found along the way:** the "more contrast" overrides in `base.css` (no glow, strong borders) never
+  applied. They were set on `:root`, which loses to the more specific theme selectors in `tokens.css`. They
+  now use `:root[data-theme]`, and an end-to-end test checks them.
+
 ### Decorative marks
 Step numbers, arrows, the "▸" caret, and the "//" before the eyebrow are CSS generated content with empty
 alternative text (`content: "…" / ""`). Lists and headings already give screen readers the structure.

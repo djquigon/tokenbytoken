@@ -6,6 +6,8 @@ import type { Sourced } from '@/shared/provenance';
 import { read } from '@/shared/provenance/read';
 import { slot, st, type SourcedText } from '@/shared/sourced-text';
 
+import { term } from './glossary';
+
 import type { ClaimId } from './claims';
 
 export type DeepDiveId = 'fluent' | 'temperature' | 'context' | 'learning' | 'timing' | 'guess' | 'check';
@@ -46,7 +48,7 @@ export const fluentDive = (v: {
   recorded: RecordedWrongCase | null;
 }): DeepDiveCopy => ({
   paragraphs: [
-    st`The percentages score which wording is likely to come next, based on patterns in the model's training text. A likely wording isn't checked against facts, and a model can give a wrong token a high score.`,
+    st`The percentages score which wording is likely to come next, based on patterns in the model's ${term('training', 'training')} text. Like a phone's word suggestions, it offers what usually follows: a likely wording isn't checked against facts, and a model can give a wrong token a high score.`,
     st`In your reply, ${slot('token', v.token)} had ${slot('pct', v.pct)}: the chance it would come next, not the chance it's true.`,
     ...(v.recorded
       ? [
@@ -62,7 +64,7 @@ export const fluentDive = (v: {
 
 export const temperatureDive = (v: { sent: Sourced<number> }): DeepDiveCopy => ({
   paragraphs: [
-    st`This app sent temperature ${slot('decimal', v.sent)}. Try others: the chances below are computed on this page from the same scores. The model wasn't asked again.`,
+    st`This app sent ${term('temperature', 'temperature')} ${slot('decimal', v.sent)}. Think of it as a dial between predictable and adventurous. Try other settings: the chances below are computed on this page from the same scores. The model wasn't asked again.`,
     st`Lower temperatures make the likeliest token likelier; higher ones spread the chances out. At temperature zero the top option is always picked. These chances are among the listed options only: how every other token would share out isn't known.`,
   ],
   claims: ['C038', 'C048', 'C037'],
@@ -76,8 +78,8 @@ export const contextDive = (v: {
 }): DeepDiveCopy => ({
   paragraphs: [
     v.used
-      ? st`Every request carries the conversation so far. This one used ${slot('int', v.used)} input tokens. This app's budget is ${slot('int', v.budget)}; the model's documented limit is ${slot('int', v.limit)}.`
-      : st`Every request carries the conversation so far. This app's budget is ${slot('int', v.budget)} input tokens; the model's documented limit is ${slot('int', v.limit)}.`,
+      ? st`Every request carries the ${term('context', 'conversation so far')}. This one used ${slot('int', v.used)} input tokens. This app's budget is ${slot('int', v.budget)}; the model's documented ${term('context-limit', 'limit')} is ${slot('int', v.limit)}.`
+      : st`Every request carries the ${term('context', 'conversation so far')}. This app's budget is ${slot('int', v.budget)} input tokens; the model's documented ${term('context-limit', 'limit')} is ${slot('int', v.limit)}.`,
     read(v.dropped) > 0
       ? st`When a chat outgrows the budget, this app leaves out the oldest turns; this time it left out ${slot('int', v.dropped)}. Longer chats cost more, and fitting within a limit doesn't guarantee a model makes good use of everything in it.`
       : st`When a chat outgrows the budget, this app leaves out the oldest turns; nothing was left out this time. Longer chats cost more, and fitting within a limit doesn't guarantee a model makes good use of everything in it.`,
@@ -87,7 +89,7 @@ export const contextDive = (v: {
 
 export const learningDive = (v: { trainingUse: Sourced<boolean> | null }): DeepDiveCopy => ({
   paragraphs: [
-    st`No. The model's learned parameters were set in training, before this chat, and chatting doesn't change them.`,
+    st`No. The model's ${term('parameters', 'learned parameters')} were set in ${term('training', 'training')}, before this chat, and chatting doesn't change them. It's like a calculator: using it doesn't change how it works.`,
     st`What looks like memory is this app sending the conversation again with each message. Start a new chat and the model has nothing from this one.`,
     v.trainingUse
       ? st`OpenAI says data sent to its API isn't used to train its models unless the account owner opts in (used for training by default: ${slot('bool', v.trainingUse)}).`
@@ -102,7 +104,7 @@ export const timingDive = (v: { firstText: Sourced<number> | null; total: Source
       ? st`Measured in this browser: the first text arrived ${slot('ms', v.firstText)} after sending, and the whole reply after ${slot('ms', v.total)}.`
       : st`This reply's timing wasn't fully recorded.`,
     v.rate ? st`Tokens arrived at ${slot('rate', v.rate)}, as this app received them (measured, including the network).` : [],
-    st`These times include the network and OpenAI's queue. How the time split inside OpenAI's service can't be seen, and the time each token took to compute can't be observed.`,
+    st`These times include the trip across the internet and OpenAI's queue, where requests wait their turn. How the time split inside OpenAI's service can't be seen, and the time each token took to compute can't be observed.`,
   ].filter((p) => p.length > 0),
   claims: ['C013'],
 });

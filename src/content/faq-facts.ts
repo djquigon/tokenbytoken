@@ -66,6 +66,15 @@ const ALEXNET: Doc = {
   url: 'https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html',
 };
 const TRANSFORMER: Doc = { title: 'Vaswani et al., “Attention Is All You Need”', url: 'https://arxiv.org/abs/1706.03762' };
+const HF_DISCLOSURE: Doc = { title: 'Hugging Face, “Security incident disclosure — July 2026”', url: 'https://huggingface.co/blog/security-incident-july-2026' };
+const HF_TIMELINE: Doc = {
+  title: 'Hugging Face, “Anatomy of a Frontier Lab Agent Intrusion: A Technical Timeline of the July 2026 Incident”',
+  url: 'https://huggingface.co/blog/agent-intrusion-technical-timeline',
+};
+const METR_INVESTIGATION: Doc = {
+  title: 'METR and Redwood Research, investigation of the OpenAI / Hugging Face hacking incident',
+  url: 'https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/',
+};
 const NOBEL_CHEMISTRY: Doc = { title: 'NobelPrize.org, “The Nobel Prize in Chemistry 2024” (press release)', url: 'https://www.nobelprize.org/prizes/chemistry/2024/press-release/' };
 const GPT_4O_CARD: Doc = { title: 'OpenAI, “GPT-4o System Card”', url: 'https://openai.com/index/gpt-4o-system-card/' };
 
@@ -153,6 +162,15 @@ export const FACTS = {
   /** How deep an artificial network had to be to imitate a detailed model of one brain cell. */
   corticalLayersFrom: documented(NEURON_AS_NETWORK, 5),
   corticalLayersTo: documented(NEURON_AS_NETWORK, 8),
+  /** The Hugging Face incident: when it happened, and what the investigations counted. */
+  hfIncidentMonth: documented(HF_DISCLOSURE, 'July 2026'),
+  hfAttackAgents: documented(METR_INVESTIGATION, 700),
+  hfActions: documented(HF_TIMELINE, 17_600),
+  hfIntrusionDays: documented(HF_TIMELINE, 4.5),
+  hfCustomerDatasets: documented(HF_TIMELINE, 5),
+  /** METR and Redwood's estimate of the agents' main motive: understanding how they were scored, or getting solutions. */
+  hfScorerMotivePct: documented(METR_INVESTIGATION, 60),
+  hfSolutionsMotivePct: documented(METR_INVESTIGATION, 30),
   /** Neurons in the adult human brain, in billions. */
   brainNeuronsBillion: documented(NEURON_COUNT, 86),
 
