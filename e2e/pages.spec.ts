@@ -65,7 +65,7 @@ test('the FAQ links every question, cites its sources, and labels its numbers', 
   for (const href of hrefs) await expect(page.locator(`article${href}`)).toHaveCount(1);
   await expect(page.locator('article.faq-item')).toHaveCount(hrefs.length);
   // The owner's questions.
-  for (const q of [/black box/, /going rogue/, /images, video, and voice/, /How impactful/]) {
+  for (const q of [/ChatGPT and Claude/, /black box/, /going rogue/, /images, video, and voice/, /How impactful/]) {
     await expect(page.getByRole('heading', { level: 3, name: q })).toBeVisible();
   }
   // Every answer lists sources, and numbers appear only as labeled values (citations aside).

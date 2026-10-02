@@ -13,9 +13,10 @@ for a page answering them simply. This site's accuracy rules (CLAUDE.md §3) app
 ## Decisions
 
 ### The page (`/faq`, static)
-- **Eighteen questions in four sections:**
+- **Nineteen questions in four sections:**
   - **How it works:**
     - AI vs. machine learning vs. LLMs
+    - ChatGPT vs. Claude (added 2026-10-01, at the owner's request)
     - where knowledge comes from, and whether it looks things up
     - confident false statements
     - different answers to the same question
@@ -101,6 +102,36 @@ outside tests.
   - The UN panel calls it an early warning of a possible path to losing control, not a loss of control itself.
   - Hugging Face used an open model for forensics after the attack, not to stop it.
 - **Claims:** C100 to C102 are new, and C078 was reworded. The February safety report is now presented as an assessment made before the incident.
+
+### ChatGPT and Claude (added 2026-10-01, at the owner's request)
+A basic question: what's the difference between ChatGPT and Claude? The answer covers:
+- who makes each, and that "Claude" names both Anthropic's app and its models;
+- the same basic machine, with a car-maker analogy;
+- each company's written rules (OpenAI's Model Spec, Anthropic's constitution);
+- where the apps overlap and differ, and why neither is simply better;
+- the limits they share, and why this site can show token scores only for OpenAI's models.
+
+The answer is written to be fair to both companies. It makes no ranking claim beyond what a cited source shows, and it notes that rankings change.
+
+- **Checked against primary sources on 2026-10-01**, by two research passes plus spot checks:
+  - the companies' launch posts, documentation, help centers, and policy pages;
+  - the GPT-4 technical report;
+  - the Model Spec and the constitution;
+  - the AI Index 2026 and the Foundation Model Transparency Index;
+  - the Arena leaderboard;
+  - both companies' API references.
+- **Corrections to the first draft:**
+  - Claude was first offered to businesses (March 2023). The public chatbot app opened in July 2023, in the US and UK.
+  - Anthropic doesn't describe Claude as a transformer and calls its architecture proprietary. So the answer says only that both are large language models predicting the next token.
+  - Anthropic replaced its 2023 constitution in January 2026.
+  - OpenAI returns token scores only for some of its models. Anthropic's API returns none.
+  - Claude can't create pictures, but it can build charts and diagrams.
+- **Updated elsewhere:** the impact answer's ChatGPT figure is now OpenAI's newest (1.2 billion weekly users, DevDay, 2026-09-29), in its own claim (C103).
+- **Each number now carries its own check date.**
+  - Before, every FAQ number was labeled with one date, 2026-09-30, including numbers from answers checked on 2026-10-01 (the neural networks and the Hugging Face incident).
+  - `faq-facts.ts` now labels those, and this answer's, with 2026-10-01.
+  - The page header shows both dates.
+- **Claims:** C103 to C110 are new. C074 (training on consumer chats) now also appears here.
 
 ## Consequences
 - **Tests:**

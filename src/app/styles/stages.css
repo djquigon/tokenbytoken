@@ -553,19 +553,23 @@
 .sampler .example-caption {
   padding-inline: var(--space-3);
 }
+/* The pointer moves by a share of the track's width (cqw), so its own box stays the size of its glyph.
+ * (A full-width box moved by its own width once hung past the panel and made it scroll sideways.) It
+ * stops half a glyph short of the right edge, so a landing at the very end can't do the same. */
 .pointer-track {
   position: relative;
   height: 1.6rem;
+  container-type: inline-size;
 }
 .pointer {
   display: block;
-  width: 100%;
+  width: max-content;
   color: var(--example);
   font-size: 1.2rem;
   line-height: 1;
   /* --landing is a fraction of the strip's width; the glyph's tip sits on it. */
   margin-left: -0.5em;
-  transform: translateX(calc(var(--landing, 0) * 100% * clamp(0, calc(var(--p, 1) * 1.6), 1)));
+  transform: translateX(min(calc(var(--landing, 0) * 100cqw * clamp(0, calc(var(--p, 1) * 1.6), 1)), calc(100cqw - 0.5em)));
 }
 
 /* Add it, repeat ------------------------------------------------------------------------------------ */

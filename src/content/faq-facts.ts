@@ -36,7 +36,7 @@ const AGENTIC_MISALIGNMENT: Doc = { title: 'Anthropic, “Agentic Misalignment: 
 const HINTS: Doc = { title: 'Anthropic, “Reasoning models don’t always say what they think”', url: 'https://www.anthropic.com/research/reasoning-models-dont-say-think' };
 const CONSCIOUSNESS_REVIEW: Doc = { title: 'Butlin, Long et al., “Consciousness in Artificial Intelligence”', url: 'https://arxiv.org/abs/2308.08708' };
 const HELLO_GPT_4O: Doc = { title: 'OpenAI, “Hello GPT-4o”', url: 'https://openai.com/index/hello-gpt-4o/' };
-const CHATGPT_WEEKLY: Doc = { title: 'OpenAI, “Improving GPT-5.6 Sol in ChatGPT”', url: 'https://openai.com/index/improving-gpt-5-6-sol-in-chatgpt/' };
+const DEVDAY_2026: Doc = { title: 'OpenAI, “DevDay 2026 Recap”', url: 'https://openai.com/index/devday-2026-recap/' };
 const AI_INDEX_2026: Doc = { title: 'Stanford HAI, AI Index Report 2026 (citing McKinsey)', url: 'https://hai.stanford.edu/ai-index/2026-ai-index-report' };
 const CENSUS_AI_USE: Doc = {
   title: 'U.S. Census Bureau, “Large Firms With at Least 20 Employees Biggest AI Users”',
@@ -87,6 +87,13 @@ const METR_INVESTIGATION: Doc = {
 const NOBEL_CHEMISTRY: Doc = { title: 'NobelPrize.org, “The Nobel Prize in Chemistry 2024” (press release)', url: 'https://www.nobelprize.org/prizes/chemistry/2024/press-release/' };
 const GPT_4O_CARD: Doc = { title: 'OpenAI, “GPT-4o System Card”', url: 'https://openai.com/index/gpt-4o-system-card/' };
 
+const INTRODUCING_CHATGPT: Doc = { title: 'OpenAI, “Introducing ChatGPT”', url: 'https://openai.com/index/chatgpt/' };
+const CLAUDE_2: Doc = { title: 'Anthropic, “Claude 2”', url: 'https://www.anthropic.com/news/claude-2' };
+const AI_INDEX_2026_ARENA: Doc = {
+  title: 'Stanford HAI, AI Index Report 2026 (technical performance: the Arena leaderboard)',
+  url: 'https://hai.stanford.edu/ai-index/2026-ai-index-report',
+};
+
 export const FACTS = {
   /** The knowledge cutoff OpenAI lists for the model this site uses. */
   lunaKnowledgeCutoff: documented(LUNA_PAGE, 'May 18, 2026'),
@@ -124,7 +131,7 @@ export const FACTS = {
   gpt4oAudioResponseMs: documented(GPT_4O_CARD, 320),
 
   /** People using ChatGPT every week, in billions (company-reported). */
-  chatgptWeeklyUsersBillion: documented(CHATGPT_WEEKLY, 1),
+  chatgptWeeklyUsersBillion: documentedLater(DEVDAY_2026, 1.2),
   /** McKinsey respondents whose organization uses AI in at least one business function (self-reported). */
   orgsUsingAiPct: documented(AI_INDEX_2026, 88),
   /** US businesses using AI, in the Census Bureau's representative survey: the range over half a year. */
@@ -190,4 +197,10 @@ export const FACTS = {
   /** The original transformer's base model: training time in hours, on one machine with this many graphics chips. */
   transformerBaseHours: documentedLater(TRANSFORMER, 12),
   transformerGpus: documentedLater(TRANSFORMER, 8),
+
+  /** ChatGPT's release, and when Claude's own app opened to the public (in the US and UK first). */
+  chatgptLaunched: documentedLater(INTRODUCING_CHATGPT, 'November 2022'),
+  claudeAppOpened: documentedLater(CLAUDE_2, 'July 2023'),
+  /** When the AI Index found the top models of several companies close together on the Arena leaderboard. */
+  arenaCloseMonth: documentedLater(AI_INDEX_2026_ARENA, 'March 2026'),
 } as const;

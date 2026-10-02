@@ -131,7 +131,7 @@ test('narrow screens show one pane at a time', async ({ page }) => {
   await expect(chat(page)).toBeVisible();
 });
 
-test('the walkthrough shows numbers only as labeled values', async ({ page }) => {
+test('the walkthrough shows numbers only as labeled values, and no step scrolls sideways', async ({ page }) => {
   await askAndWait(page);
   await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
   await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
@@ -139,6 +139,7 @@ test('the walkthrough shows numbers only as labeled values', async ({ page }) =>
   await page.keyboard.press('Home');
   const total = Number((await stepCount(page).innerText()).match(/of (\d+)/)?.[1]);
   const unlabeled: string[] = [];
+  const sideways: number[] = [];
   for (let i = 1; i <= total; i += 1) {
     const found = await walkthrough(page).evaluate((root) => {
       // UI chrome that may hold digits: the player (step count, speeds), and the live-region text, which
@@ -150,12 +151,16 @@ test('the walkthrough shows numbers only as labeled values', async ({ page }) =>
         const text = n.textContent ?? '';
         if (/\d/.test(text) && !n.parentElement?.closest(allowed)) out.push(text.trim());
       }
-      return out;
+      // Nothing may push the panel wider than itself (a pick pointer once did).
+      const pane = root.closest('.walkthrough-pane') ?? root;
+      return { out, sideways: pane.scrollWidth > pane.clientWidth + 1 };
     });
-    unlabeled.push(...found.map((t) => `step ${i}: ${t}`));
+    unlabeled.push(...found.out.map((t) => `step ${i}: ${t}`));
+    if (found.sideways) sideways.push(i);
     if (i < total) await walkthrough(page).getByRole('button', { name: 'Next step' }).click();
   }
   expect(unlabeled).toEqual([]);
+  expect(sideways, 'steps where the walkthrough panel scrolls sideways').toEqual([]);
 });
 
 test('the walkthrough has no serious accessibility violations', async ({ page }) => {
