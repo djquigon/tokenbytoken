@@ -55,7 +55,6 @@ export default function Home() {
                                     text={SITE.name.replace(' AI', ' AI')}
                                 />
                             </h1>
-                            <p className="hero-subtitle">{SITE.answer}.</p>
                             <p className="lede">
                                 Ask a real AI chatbot a question and watch it
                                 write its reply. Then step through how the reply
@@ -135,8 +134,8 @@ export default function Home() {
                                         scores
                                     </Term>
                                     , like a raffle where likelier options hold
-                                    more tickets, so the top option doesn&rsquo;t
-                                    always win.
+                                    more tickets, so the top option
+                                    doesn&rsquo;t always win.
                                 </p>
                                 {pickMoment ? (
                                     <div className="feature-demo">
@@ -154,7 +153,9 @@ export default function Home() {
                                 <h3>Context, not memory</h3>
                                 <p>
                                     With each message, this app sends the{' '}
-                                    <Term id="context">conversation so far</Term>{' '}
+                                    <Term id="context">
+                                        conversation so far
+                                    </Term>{' '}
                                     again, with its own{' '}
                                     <Term id="instructions">instructions</Term>,
                                     like handing over the whole transcript each
