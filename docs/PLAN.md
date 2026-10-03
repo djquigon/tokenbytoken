@@ -20,11 +20,13 @@ cheapest one that gives the best visualization outcomes. There is no formal expe
 
 ## Decisions at a glance
 
+**Manual navigation update (2026-10-02):** [ADR 0014](decisions/0014-manual-walkthrough.md) supersedes playback pacing and shortcut requirements below. Readers navigate with Next/Previous icon buttons and the original section timeline, with Skip walkthrough retained. The original control layout and styling remain. Each step animates automatically and then waits for the reader; reduced motion reveals it immediately. No play/pause, speed controls, autoplay preference, or duration estimates remain.
+
 **Audit update (2026-10-02):** [ADR 0013](decisions/0013-audit-remediation.md) records the owner-authorized accuracy, accessibility, and layout fixes. A nonzero or unknown hidden-reasoning count now yields an opaque fallback instead of the per-token walkthrough. Captions precede graphics, and the text alternative includes the actual options and controls.
 
 - **Hybrid timing.**
   - The real reply streams normally, alongside a thin live strip that shows only observed events.
-  - When the reply finishes, a guided walkthrough is *offered*, paced by reading time: about 2.5 minutes at 1×, and about 5 at the default half speed (ADR 0007; first planned at about 90 seconds). It replays the recorded trace at a pace people can follow.
+  - When the reply finishes, a manual walkthrough shows the recorded trace. The reader chooses every step and section with Next/Previous, or skips it (ADR 0014).
 - **Real data wherever it exists.**
   - Real messages, real token strings, and the real top‑20 next-token options (logprobs) for every token in the reply.
   - The network's internals appear only as labeled examples.

@@ -3,6 +3,7 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { finishAnimations, lastStep } from './navigation';
 
 const REPLY_START = 'Sunlight contains all colors';
 
@@ -17,12 +18,12 @@ async function askAndWait(page: Page) {
   await box.fill('Why is the sky blue?');
   await box.press('Enter');
   await expect(chat(page).getByText(REPLY_START)).toBeVisible();
-  await expect(page.getByRole('button', { name: /Play the walkthrough|Start the walkthrough/ })).toBeVisible();
+  await expect(walkthrough(page).getByRole('button', { name: 'Next step' })).toBeVisible();
 }
 
 async function axeSerious(page: Page) {
   // Colors are measured as rendered, so let the step's entrance fade finish first.
-  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
+  await finishAnimations(page);
   const results = await new AxeBuilder({ page }).analyze();
   return results.violations
     .filter((v) => v.impact === 'serious' || v.impact === 'critical')
@@ -35,43 +36,39 @@ test('the walkthrough is offered after a reply, and skipping it unlocks the comp
   await page.getByRole('textbox', { name: 'Your message' }).fill('A follow-up');
   await expect(page.getByRole('button', { name: 'Send' })).toBeDisabled();
 
-  await walkthrough(page).getByRole('button', { name: 'Skip', exact: true }).click();
+  await walkthrough(page).getByRole('button', { name: 'Skip walkthrough', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Send' })).toBeEnabled();
   // The draft typed while locked is kept.
   await expect(page.getByRole('textbox', { name: 'Your message' })).toHaveValue('A follow-up');
-  // Focus lands on the player, not on the page.
-  await expect(walkthrough(page).getByRole('button', { name: 'Replay' })).toBeFocused();
+  // The skip control remains mounted, preserving focus.
+  await expect(walkthrough(page).getByRole('button', { name: 'Skip walkthrough' })).toBeFocused();
 });
 
-test('works from the keyboard alone: play, pause, steps, chapters, and the shortcut list', async ({ page }) => {
+test('navigation buttons work from the keyboard without playback shortcuts', async ({ page }) => {
   await askAndWait(page);
-  await page.getByRole('button', { name: /Play the walkthrough/ }).focus();
+  const next = walkthrough(page).getByRole('button', { name: 'Next step' });
+  await next.focus();
   await page.keyboard.press('Enter');
-  const pause = walkthrough(page).getByRole('button', { name: 'Pause' });
-  await expect(pause).toBeFocused();
-  await page.keyboard.press('k');
-  await expect(walkthrough(page).getByRole('button', { name: 'Play', exact: true })).toBeVisible();
-
-  await page.keyboard.press('ArrowRight');
   await expect(stepCount(page)).toHaveText(/^Step 2 of \d+$/);
-  await page.keyboard.press('Shift+ArrowRight');
+  await expect(next).toBeFocused();
+  await walkthrough(page).getByRole('button', { name: 'Next section' }).focus();
+  await page.keyboard.press('Space');
   await expect(walkthrough(page).getByRole('heading', { level: 2 })).toHaveText('Text becomes tokens');
-  await page.keyboard.press('End');
-  await expect(walkthrough(page).locator('.caption-title')).toHaveText('How the reply ended');
-  await page.keyboard.press('Home');
+  await walkthrough(page).getByRole('button', { name: 'Previous section' }).focus();
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Enter');
   await expect(stepCount(page)).toHaveText(/^Step 1 of \d+$/);
-
+  await next.focus();
+  await page.keyboard.press('k');
+  await page.keyboard.press('ArrowRight');
   await page.keyboard.press('?');
-  await expect(page.getByRole('region', { name: 'Keyboard shortcuts' })).toBeVisible();
-  await page.keyboard.press('Escape');
+  await expect(stepCount(page)).toHaveText(/^Step 1 of \d+$/);
   await expect(page.getByRole('region', { name: 'Keyboard shortcuts' })).toHaveCount(0);
 });
 
 test('a token card opens from the reply, closes with Escape, and returns focus', async ({ page }) => {
   await askAndWait(page);
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
-  await page.keyboard.press('End');
+  await lastStep(page);
   const tape = walkthrough(page).getByRole('list', { name: /The whole reply as tokens/ });
   const first = tape.getByRole('button').first();
   await first.click();
@@ -86,12 +83,12 @@ test('a token card opens from the reply, closes with Escape, and returns focus',
 test('reduced motion turns playback into steps the viewer moves through', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await askAndWait(page);
-  await page.getByRole('button', { name: 'Start the walkthrough' }).click();
+  await walkthrough(page).getByRole('button', { name: 'Next step' }).click();
   await expect(stepCount(page)).toHaveText(/^Step 2 of \d+$/);
   // The clock never runs: nothing advances on its own.
   await page.waitForTimeout(1_500);
   await expect(stepCount(page)).toHaveText(/^Step 2 of \d+$/);
-  await walkthrough(page).getByRole('button', { name: 'Next', exact: true }).click();
+  await walkthrough(page).getByRole('button', { name: 'Next step', exact: true }).click();
   await expect(stepCount(page)).toHaveText(/^Step 3 of \d+$/);
   await expect(walkthrough(page).getByRole('group', { name: 'Speed' })).toHaveCount(0);
 });
@@ -103,8 +100,6 @@ test('replays offline, without calling the API', async ({ page, context }) => {
     if (r.url().includes('/api/')) calls.push(r.url());
   });
   await context.setOffline(true);
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
   const total = Number((await stepCount(page).innerText()).match(/of (\d+)/)?.[1]);
   for (let i = 1; i < total; i += 1) await walkthrough(page).getByRole('button', { name: 'Next step' }).click();
   await expect(stepCount(page)).toHaveText(`Step ${total} of ${total}`);
@@ -133,10 +128,7 @@ test('narrow screens show one pane at a time', async ({ page }) => {
 
 test('the walkthrough shows numbers only as labeled values, and no step scrolls sideways', async ({ page }) => {
   await askAndWait(page);
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
   await walkthrough(page).getByRole('button', { name: 'Detailed' }).click();
-  await page.keyboard.press('Home');
   const total = Number((await stepCount(page).innerText()).match(/of (\d+)/)?.[1]);
   const unlabeled: string[] = [];
   const sideways: number[] = [];
@@ -166,11 +158,9 @@ test('the walkthrough shows numbers only as labeled values, and no step scrolls 
 test('the walkthrough has no serious accessibility violations', async ({ page }) => {
   await askAndWait(page);
   expect(await axeSerious(page)).toEqual([]);
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
-  await page.keyboard.press('Shift+ArrowRight');
-  await page.keyboard.press('Shift+ArrowRight');
-  await page.keyboard.press('Shift+ArrowRight');
+  await walkthrough(page).getByRole('button', { name: 'Next section' }).click();
+  await walkthrough(page).getByRole('button', { name: 'Next section' }).click();
+  await walkthrough(page).getByRole('button', { name: 'Next section' }).click();
   expect(await axeSerious(page)).toEqual([]);
   await walkthrough(page).getByRole('button', { name: 'Read as text' }).click();
   await expect(walkthrough(page).getByRole('heading', { name: 'What gets sent', level: 3 })).toBeVisible();

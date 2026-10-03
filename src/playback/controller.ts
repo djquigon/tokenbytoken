@@ -2,17 +2,13 @@
 // - Snapshots change only when the step or status changes, so React renders once per step.
 // - Progress is published every frame to listeners that write a CSS variable (`--p`), never to React.
 
-import type { Speed } from '@/components/prefs/store';
-
 import { createClock, type ClockDeps } from './clock';
-import { initialState, reduce, type PauseReason, type PlaybackEvent, type PlaybackState } from './machine';
+import { initialState, reduce, type PlaybackEvent, type PlaybackState } from './machine';
 import type { PlaybackScript } from './types';
 
 export interface PlaybackSnapshot {
   readonly status: PlaybackState['status'];
-  readonly pauseReason: PauseReason | null;
   readonly step: number;
-  readonly speed: Speed;
   readonly stepMode: boolean;
   readonly script: PlaybackScript;
 }
@@ -30,7 +26,6 @@ export interface PlaybackController {
 
 export interface ControllerOptions {
   readonly script: PlaybackScript;
-  readonly speed: Speed;
   readonly stepMode: boolean;
   readonly clock: ClockDeps;
   readonly onEnded?: () => void;
@@ -39,7 +34,7 @@ export interface ControllerOptions {
 
 export function createPlaybackController(options: ControllerOptions): PlaybackController {
   let script = options.script;
-  let state = initialState(options.speed, options.stepMode);
+  let state = initialState(options.stepMode);
   let snapshot = toSnapshot(state, script);
   const listeners = new Set<() => void>();
   const progressListeners = new Set<(p: number) => void>();
@@ -47,15 +42,13 @@ export function createPlaybackController(options: ControllerOptions): PlaybackCo
   const clock = createClock(options.clock, (dtMs) => dispatch({ type: 'tick', dtMs }));
 
   function toSnapshot(s: PlaybackState, sc: PlaybackScript): PlaybackSnapshot {
-    return { status: s.status, pauseReason: s.pauseReason, step: s.step, speed: s.speed, stepMode: s.stepMode, script: sc };
+    return { status: s.status, step: s.step, stepMode: s.stepMode, script: sc };
   }
 
   function publish(prev: PlaybackState) {
     if (
       prev.status !== state.status ||
       prev.step !== state.step ||
-      prev.pauseReason !== state.pauseReason ||
-      prev.speed !== state.speed ||
       prev.stepMode !== state.stepMode ||
       snapshot.script !== script
     ) {
@@ -102,6 +95,7 @@ export function createPlaybackController(options: ControllerOptions): PlaybackCo
       const step = same >= 0 ? same : fallback;
       script = next;
       state = { ...state, step, progress: same >= 0 ? state.progress : state.stepMode ? 1 : 0 };
+      if (same < 0 && !state.stepMode) clock.start();
       publish(prev);
     },
     destroy() {

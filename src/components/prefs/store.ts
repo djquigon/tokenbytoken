@@ -1,4 +1,4 @@
-// Viewer preferences: theme, effects, motion, walkthrough depth and speed, shortcuts. Stored in this
+// Viewer preferences: theme, effects, motion, walkthrough depth, live view, and tour. Stored in this
 // browser only (localStorage), validated on load, and mirrored onto <html> as data attributes so CSS can
 // react before React hydrates (see THEME_INIT_SCRIPT).
 //
@@ -8,12 +8,10 @@
 import { z } from 'zod';
 import { createStore } from 'zustand/vanilla';
 
-import { DEFAULT_KEYS, SHORTCUT_ACTIONS, type Keymap } from './keys';
 
 export const PREFS_KEY = 'tbt:prefs:v1';
 
 export const DEPTHS = ['simple', 'detailed', 'technical'] as const;
-export const SPEEDS = [0.5, 1, 2, 4] as const;
 
 const prefsSchema = z.object({
   theme: z.enum(['dark', 'light']).catch('dark'),
@@ -21,16 +19,6 @@ const prefsSchema = z.object({
   /** "system" follows prefers-reduced-motion; the others override it. */
   motion: z.enum(['system', 'reduce', 'full']).catch('system'),
   depth: z.enum(DEPTHS).catch('simple'),
-  /** Half speed by default (owner, 2026-09-30): full speed felt too fast to follow. */
-  speed: z.union([z.literal(0.5), z.literal(1), z.literal(2), z.literal(4)]).catch(0.5),
-  /** The walkthrough is offered, never started automatically, unless the viewer opts in. */
-  autoplay: z.boolean().catch(false),
-  shortcuts: z.boolean().catch(true),
-  /** Remapped shortcut keys (WCAG 2.1.4); any malformed map falls back to the defaults. */
-  keys: z
-    .record(z.enum(SHORTCUT_ACTIONS), z.array(z.string().min(1).max(24)).max(3))
-    .catch(DEFAULT_KEYS as Record<(typeof SHORTCUT_ACTIONS)[number], string[]>)
-    .transform((k) => k as Keymap),
   liveStrip: z.boolean().catch(true),
   /** The first-visit tour of the chat page, once seen or skipped. */
   tourSeen: z.boolean().catch(false),
@@ -38,7 +26,6 @@ const prefsSchema = z.object({
 
 export type Preferences = z.infer<typeof prefsSchema>;
 export type Depth = Preferences['depth'];
-export type Speed = Preferences['speed'];
 
 export const DEFAULT_PREFS: Preferences = prefsSchema.parse({});
 
@@ -56,8 +43,6 @@ export function readChosen(storage: Pick<Storage, 'getItem'>): Partial<Preferenc
       const parsed = prefsSchema.shape[key].safeParse(raw[key]);
       if (parsed.success) chosen[key] = parsed.data;
     }
-    // Format 1 stored every setting, so a speed of 1 there was the old default, not a choice.
-    if (raw.v !== FORMAT && chosen.speed === 1) delete chosen.speed;
     return chosen as Partial<Preferences>;
   } catch {
     return {};

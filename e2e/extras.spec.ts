@@ -1,39 +1,33 @@
-// End-to-end tests for the Phase 2 extras: remappable shortcuts, glossary terms, "Is this real?", the
+// End-to-end tests for the Phase 2 extras: settings, glossary terms, "Is this real?", the
 // lanes, the Detailed network steps and example patterns, simulated picks, the exercises, the reply text
 // toggle, the real-speed replay, and the first-visit tour. Most run on /sample, which never calls the API.
 
 import { expect, test, type Page } from '@playwright/test';
+import { finishAnimations, goToChapter, lastStep } from './navigation';
 
 const walkthrough = (page: Page) => page.locator('.walkthrough');
 const stepCount = (page: Page) => page.locator('.step-count');
 
 async function openSample(page: Page) {
   await page.goto('/sample');
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
+  await expect(walkthrough(page).getByRole('button', { name: 'Next step' })).toBeVisible();
 }
 
-async function goToChapter(page: Page, name: RegExp) {
-  await walkthrough(page).getByRole('navigation', { name: 'Chapters' }).getByRole('button', { name }).click();
-}
-
-test('shortcut keys can be remapped in Settings', async ({ page }) => {
+test('legacy playback settings cannot restore autoplay or navigation shortcuts', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('tbt:prefs:v1', JSON.stringify({
+    v: 2, autoplay: true, speed: 2, shortcuts: true, keys: { next: 'n' },
+  })));
   await page.goto('/sample');
   await page.getByText('Settings', { exact: true }).click();
-  const key = page.getByRole('button', { name: /^Next step/ });
-  await key.click();
-  await key.press('n');
-  await expect(page.getByRole('status').filter({ hasText: 'now does “Next step”' })).toBeVisible();
+  await expect(page.getByRole('group', { name: /autoplay|shortcuts|speed/i })).toHaveCount(0);
   await page.keyboard.press('Escape');
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
+  await walkthrough(page).getByRole('button', { name: 'Next step' }).focus();
   await page.keyboard.press('n');
-  await expect(stepCount(page)).toHaveText(/^Step 2 of \d+$/);
-  // The old key no longer does it.
   await page.keyboard.press('ArrowRight');
-  await expect(stepCount(page)).toHaveText(/^Step 2 of \d+$/);
+  await expect(stepCount(page)).toHaveText(/^Step 1 of \d+$/);
   await page.keyboard.press('?');
-  await expect(page.getByRole('region', { name: 'Keyboard shortcuts' })).toContainText('N: Next step');
+  await expect(page.getByRole('region', { name: 'Keyboard shortcuts' })).toHaveCount(0);
+  await expect(walkthrough(page).getByRole('button', { name: /^(Play|Pause|Replay)$/ })).toHaveCount(0);
 });
 
 test('glossary terms show their definition on hover and focus, and Escape dismisses it', async ({ page }) => {
@@ -123,7 +117,7 @@ test('guess the likely option, then see the real options', async ({ page }) => {
 
 test('the real-or-example check scores all seven items', async ({ page }) => {
   await openSample(page);
-  await page.keyboard.press('End');
+  await lastStep(page);
   await walkthrough(page).getByRole('button', { name: 'Real or example? A quick check' }).click();
   const dive = walkthrough(page).getByRole('region', { name: 'Real or example? A quick check' });
   for (let i = 0; i < 7; i += 1) await dive.getByRole('button', { name: 'Real data' }).first().click();
@@ -134,8 +128,8 @@ test('the real-or-example check scores all seven items', async ({ page }) => {
 test('the end step shows the reply formatted or as written', async ({ page }) => {
   await openSample(page);
   // In the two-turn sample, the reply's end step comes just before the follow-up chapter.
-  await goToChapter(page, /Next message/);
-  await page.keyboard.press('ArrowLeft');
+  await goToChapter(page, /next message/);
+  await walkthrough(page).getByRole('button', { name: 'Previous step' }).click();
   await expect(walkthrough(page).locator('.caption-title')).toHaveText('How the reply ended');
   await expect(walkthrough(page).getByRole('region', { name: 'The reply, formatted' })).toBeVisible();
   await walkthrough(page).getByRole('button', { name: 'As written' }).click();
@@ -144,7 +138,7 @@ test('the end step shows the reply formatted or as written', async ({ page }) =>
 
 test('the real-speed replay shows the reply as it arrived', async ({ page }) => {
   await openSample(page);
-  await page.keyboard.press('End');
+  await lastStep(page);
   await walkthrough(page).getByRole('button', { name: 'How long did it take?' }).click();
   const dive = walkthrough(page).getByRole('region', { name: 'How long did it take?' });
   await dive.getByRole('button', { name: 'Replay at the speed it arrived' }).click();
@@ -171,7 +165,7 @@ test('the first visit shows a tour; skipping hides it for good, and Settings bri
 test('the new panels have no serious accessibility violations', async ({ page }) => {
   const { default: AxeBuilder } = await import('@axe-core/playwright');
   const serious = async () => {
-    await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
+    await finishAnimations(page);
     const results = await new AxeBuilder({ page }).analyze();
     return results.violations
       .filter((v) => v.impact === 'serious' || v.impact === 'critical')

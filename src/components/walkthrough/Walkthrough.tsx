@@ -1,22 +1,18 @@
 'use client';
 
-// The walkthrough panel (docs/PLAN.md §2): the Hook offer, then the guided chapters with a player the
-// viewer controls. React renders once per step; within-step motion is the --p custom property, written by
+// The manual walkthrough (ADR 0014): the viewer chooses every step and section.
+// React renders once per step; within-step motion is the --p custom property, written by
 // the controller's progress stream straight to the stage element.
 
-import { Fragment, memo, useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 
 import { DecodeText } from '@/components/effects/DecodeText';
 import { Datum } from '@/components/provenance/Datum';
 import { usePrefs, useReducedMotion } from '@/components/prefs/hooks';
-import { ACTION_LABEL, SHORTCUT_ACTIONS, actionFor, keyLabel, keyName } from '@/components/prefs/keys';
-import { DEPTHS, SPEEDS, prefsStore, type Depth } from '@/components/prefs/store';
+import { DEPTHS, prefsStore, type Depth } from '@/components/prefs/store';
 import {
   ChapterNextIcon,
   ChapterPrevIcon,
-  PauseIcon,
-  PlayIcon,
-  ReplayIcon,
   StepBackIcon,
   StepForwardIcon,
 } from '@/components/ui/icons';
@@ -50,7 +46,6 @@ const DIVES_BY_CHAPTER: Partial<Record<ChapterId, readonly DeepDiveId[]>> = {
   followup: ['context', 'learning'],
 };
 const ALL_DIVES: readonly DeepDiveId[] = ['fluent', 'temperature', 'context', 'learning', 'timing', 'guess', 'check'];
-const ANNOUNCE_EVERY_MS = 2_000;
 
 const browserClock = {
   requestFrame: (cb: (t: number) => void) => requestAnimationFrame(cb),
@@ -58,26 +53,16 @@ const browserClock = {
   now: () => performance.now(),
 };
 
-const minutes = (ms: number) => {
-  const m = Math.max(1, Math.round((ms / 60_000) * 2) / 2);
-  return `≈ ${m} min`;
-};
-
 /** Memoized: the chat page re-renders on pane switches and selection changes, which shouldn't redo this. */
 export const Walkthrough = memo(function Walkthrough({
   trace,
   onFinished,
-  autoplay = false,
 }: {
   trace: FinalizedTrace;
   /** Called once when the walkthrough ends or is skipped (unlocks the composer). */
   onFinished: (how: 'ended' | 'skipped') => void;
-  autoplay?: boolean;
 }) {
   const depth = usePrefs((s) => s.depth);
-  const speed = usePrefs((s) => s.speed);
-  const shortcuts = usePrefs((s) => s.shortcuts);
-  const keys = usePrefs((s) => s.keys);
   const reduced = useReducedMotion();
   const compiled = useMemo(() => compileScript(trace, { depth }), [trace, depth]);
   const script = compiled.ok ? compiled.script : null;
@@ -88,13 +73,12 @@ export const Walkthrough = memo(function Walkthrough({
   });
 
   const [controller] = useState<PlaybackController | null>(() =>
-    script ? createPlaybackController({ script, speed, stepMode: reduced, clock: browserClock }) : null,
+    script ? createPlaybackController({ script, stepMode: reduced, clock: browserClock }) : null,
   );
   useEffect(() => () => controller?.destroy(), [controller]);
   useEffect(() => {
     if (controller && script && controller.getSnapshot().script !== script) controller.replaceScript(script);
   }, [controller, script]);
-  useEffect(() => controller?.dispatch({ type: 'speed', speed }), [controller, speed]);
   useEffect(() => controller?.dispatch({ type: 'stepMode', on: reduced }), [controller, reduced]);
   useEffect(() => {
     if (!controller) return;
@@ -102,15 +86,13 @@ export const Walkthrough = memo(function Walkthrough({
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, [controller]);
-  useEffect(() => {
-    if (autoplay && controller && !reduced) controller.dispatch({ type: 'play' });
-  }, [autoplay, controller, reduced]);
+
 
   const empty = useMemo(() => ({ subscribe: () => () => undefined, get: () => null }), []);
   const snapshot = useSyncExternalStore(controller?.subscribe ?? empty.subscribe, controller?.getSnapshot ?? empty.get, controller?.getSnapshot ?? empty.get);
 
   // Within-step progress goes straight to the panel element, never through React. The panel isn't
-  // re-created per step (the stage is), so a step change made while paused still reaches the new stage.
+  // re-created per step (the stage is), so each navigation resets progress for the new stage.
   const panel = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!controller) return;
@@ -118,12 +100,15 @@ export const Walkthrough = memo(function Walkthrough({
     set(controller.getProgress());
     return controller.subscribeProgress(set);
   }, [controller]);
+  useEffect(() => { controller?.dispatch({ type: 'animate' }); }, [controller]);
 
-  // Reaching the end, by watching or by skipping, unlocks the composer.
+  // Reaching the last step or skipping unlocks the composer once.
   const skipping = useRef(false);
+  const completed = useRef(false);
   const status = snapshot?.status;
   useEffect(() => {
-    if (status !== 'ended') return;
+    if (status !== 'ended' || completed.current) return;
+    completed.current = true;
     finished.current(skipping.current ? 'skipped' : 'ended');
     skipping.current = false;
   }, [status]);
@@ -133,9 +118,6 @@ export const Walkthrough = memo(function Walkthrough({
   const [deepDive, setDeepDive] = useState<DeepDiveId | null>(null);
   const [whereFrom, setWhereFrom] = useState(false);
   const stepView = useRef<HTMLDivElement>(null);
-  const [showKeys, setShowKeys] = useState(false);
-  // The offer's buttons disappear once used, so focus moves to the player's main button instead of the page.
-  const [focusPlayer, setFocusPlayer] = useState(false);
 
   const current = snapshot ? snapshot.script.steps[snapshot.step] : undefined;
 
@@ -159,41 +141,15 @@ export const Walkthrough = memo(function Walkthrough({
   const dispatch = controller.dispatch;
   const scene = current.scene;
   const chapter = CHAPTERS[current.chapter];
-  const offer = snapshot.status === 'ready' && snapshot.step === 0;
-  const dives = offer ? [] : current.index === script.steps.length - 1 ? ALL_DIVES : (DIVES_BY_CHAPTER[current.chapter] ?? []);
-  const playing = snapshot.status === 'playing';
-
-  // Shortcuts come from the viewer's keymap (remappable in Settings, WCAG 2.1.4).
-  const onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && showKeys) {
-      e.preventDefault();
-      setShowKeys(false);
-      return;
-    }
-    if (!shortcuts) return;
-    const target = e.target as HTMLElement;
-    if (target.closest('input, textarea, select, [contenteditable="true"]')) return;
-    const name = keyName(e);
-    const action = actionFor(keys, name);
-    if (!action) return;
-    // Space keeps its usual job on controls: it activates them.
-    if (name === 'Space' && target.closest('button, a, summary')) return;
-    e.preventDefault();
-    if (action === 'toggle') dispatch({ type: 'toggle' });
-    else if (action === 'next' || action === 'prev' || action === 'nextChapter' || action === 'prevChapter') dispatch({ type: action });
-    else if (action === 'first') dispatch({ type: 'seek', step: 0 });
-    else if (action === 'last') dispatch({ type: 'seek', step: script.steps.length - 1 });
-    else setShowKeys((v) => !v);
-  };
+  const dives = current.index === script.steps.length - 1 ? ALL_DIVES : (DIVES_BY_CHAPTER[current.chapter] ?? []);
 
   const skip = () => {
     skipping.current = true;
-    if (offer) setFocusPlayer(true);
     dispatch({ type: 'skip' });
   };
 
   return (
-    <section ref={panel} className="walkthrough" aria-labelledby="walkthrough-title" onKeyDown={onKeyDown} data-status={snapshot.status}>
+    <section ref={panel} className="walkthrough" aria-labelledby="walkthrough-title" data-status={snapshot.status}>
       <header className="walkthrough-head">
         <div>
           <p className="eyebrow">How this reply was made</p>
@@ -261,7 +217,6 @@ export const Walkthrough = memo(function Walkthrough({
                 scene={scene}
                 trace={trace}
                 onToken={(i) => {
-                  dispatch({ type: 'pause' });
                   setDeepDive(null);
                   setFocusToken(i);
                 }}
@@ -275,7 +230,6 @@ export const Walkthrough = memo(function Walkthrough({
               aria-expanded={whereFrom}
               aria-controls="where-from"
               onClick={() => {
-                dispatch({ type: 'pause' });
                 setWhereFrom((v) => !v);
               }}
             >
@@ -291,7 +245,6 @@ export const Walkthrough = memo(function Walkthrough({
                     className="btn btn-quiet"
                     aria-expanded={deepDive === id}
                     onClick={() => {
-                      dispatch({ type: 'pause' });
                       setFocusToken(null);
                       setDeepDive(deepDive === id ? null : id);
                     }}
@@ -312,115 +265,40 @@ export const Walkthrough = memo(function Walkthrough({
         </>
       )}
 
-      {offer ? (
-        <div className="offer">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              setFocusPlayer(true);
-              dispatch({ type: 'play' });
-            }}
-          >
-            <PlayIcon /> {snapshot.stepMode ? 'Start the walkthrough' : `Play the walkthrough (${minutes(script.totalMs / speed)})`}
-          </button>
-          <button type="button" className="btn" onClick={skip}>
-            Skip
-          </button>
-        </div>
-      ) : (
-        <PlayerBar script={script} controller={controller} onSkip={skip} focusOnMount={focusPlayer} />
-      )}
-
-      {showKeys ? (
-        <section className="shortcut-help panel" aria-label="Keyboard shortcuts">
-          <ul>
-            {SHORTCUT_ACTIONS.map((a) => (
-              <li key={a}>
-                {keys[a].length > 0 ? (
-                  keys[a].map((k, i) => (
-                    <Fragment key={k}>
-                      {i > 0 ? ' or ' : ''}
-                      <kbd>{keyLabel(k)}</kbd>
-                    </Fragment>
-                  ))
-                ) : (
-                  <span className="muted">no key</span>
-                )}
-                : {ACTION_LABEL[a]}
-              </li>
-            ))}
-          </ul>
-          <p className="muted">Shortcuts work only while the walkthrough has focus. Change them or turn them off in Settings. Esc closes this list.</p>
-        </section>
-      ) : null}
-      <Announcer step={current} total={script.steps.length} playing={playing} />
-      {playing ? null : <span className="sr-only">Paused.</span>}
+      <PlayerBar script={script} controller={controller} onSkip={skip} />
+      <Announcer step={current} total={script.steps.length} />
     </section>
   );
 });
 
-/**
- * One polite description per step, at most every 2 s while playing, and a full one when paused (CLAUDE.md
- * §8). Its own component, so an announcement re-renders only this, not the whole walkthrough.
- */
-function Announcer({ step, total, playing }: { step: Step; total: number; playing: boolean }) {
-  const [text, setText] = useState('');
-  const last = useRef(0);
-  useEffect(() => {
-    const now = performance.now();
-    if (playing && now - last.current < ANNOUNCE_EVERY_MS) return;
-    last.current = now;
-    setText(`Step ${step.index + 1} of ${total}. ${plainText(step.describe, read as never)}`);
-  }, [step, total, playing]);
-  return (
-    <div className="sr-only" aria-live="polite" aria-atomic="true">
-      {text}
-    </div>
-  );
+/** Navigation is deliberate, so announce each new step without a timer. */
+function Announcer({ step, total }: { step: Step; total: number }) {
+  return <div className="sr-only" aria-live="polite" aria-atomic="true">
+    Step {step.index + 1} of {total}. {plainText(step.describe, read as never)}
+  </div>;
 }
 
 function PlayerBar({
   script,
   controller,
   onSkip,
-  focusOnMount,
 }: {
   script: PlaybackScript;
   controller: PlaybackController;
   onSkip: () => void;
-  focusOnMount: boolean;
 }) {
   const snapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot);
-  const primary = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (focusOnMount) primary.current?.focus();
-    // Only when the bar first appears.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const speed = usePrefs((s) => s.speed);
   const dispatch = controller.dispatch;
-  const playing = snapshot.status === 'playing';
-  const ended = snapshot.status === 'ended';
+  const ended = snapshot.step === script.steps.length - 1;
   const total = Math.max(1, script.totalMs);
   return (
     <div className="player" role="group" aria-label="Walkthrough controls">
       {/* The main row stays in reach while scrolling (pinned to the bottom on narrow screens). */}
       <div className="player-main">
-        {snapshot.stepMode ? (
-          <button ref={primary} type="button" className="btn btn-primary" onClick={() => dispatch({ type: ended ? 'replay' : 'next' })}>
-            {ended ? <ReplayIcon /> : <StepForwardIcon />} {ended ? 'Start over' : 'Next'}
-          </button>
-        ) : (
-          <button ref={primary} type="button" className="btn btn-primary" onClick={() => dispatch({ type: ended ? 'replay' : 'toggle' })}>
-            {playing ? <PauseIcon /> : ended ? <ReplayIcon /> : <PlayIcon />}
-            {playing ? 'Pause' : ended ? 'Replay' : 'Play'}
-          </button>
-        )}
-        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'prev' })} aria-label="Previous step">
+        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'prev' })} disabled={snapshot.step === 0} aria-label="Previous step">
           <StepBackIcon />
         </button>
-        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'next' })} aria-label="Next step">
+        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'next' })} disabled={ended} aria-label="Next step">
           <StepForwardIcon />
         </button>
         <span className="step-count">
@@ -428,27 +306,16 @@ function PlayerBar({
         </span>
       </div>
       <div className="player-more">
-        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'prevChapter' })} aria-label="Previous chapter">
+        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'prevChapter' })} disabled={snapshot.step === 0} aria-label="Previous section">
           <ChapterPrevIcon />
         </button>
-        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'nextChapter' })} aria-label="Next chapter">
+        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'nextChapter' })} disabled={ended} aria-label="Next section">
           <ChapterNextIcon />
         </button>
         <span className="player-spacer" />
-        {snapshot.stepMode ? null : (
-          <div className="segmented" role="group" aria-label="Speed">
-            {SPEEDS.map((s) => (
-              <button key={s} type="button" aria-pressed={s === speed} onClick={() => prefsStore.getState().set({ speed: s })}>
-                {s}×
-              </button>
-            ))}
-          </div>
-        )}
-        {ended ? null : (
-          <button type="button" className="btn btn-quiet" onClick={onSkip}>
-            Skip walkthrough
-          </button>
-        )}
+        <button type="button" className="btn btn-quiet" onClick={onSkip}>
+          Skip walkthrough
+        </button>
       </div>
       <nav className="chapters" aria-label="Chapters">
         {script.chapters.map((c) => {

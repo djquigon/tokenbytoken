@@ -1,7 +1,7 @@
 /*
  * Stage views (src/stages/<stage>/View.tsx). Every view is a pure function of its step: motion comes only
- * from --p, the step's progress from 0 to 1, written by the player (CLAUDE.md §7). --p is 1 when paused,
- * in step mode, and before the player starts, so every view's resting state is its complete state.
+ * from --p, the step's progress from 0 to 1, written by the controller (CLAUDE.md §7). --p stays at 1
+ * after the animation and in reduced motion, so every view's resting state is its complete state.
  *
  * Items carrying --i (their index) of --n appear in order over the first ~70% of the step. Only opacity
  * and transform move (CLAUDE.md §9).
