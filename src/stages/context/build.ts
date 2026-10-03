@@ -41,7 +41,7 @@ export function buildContext(ctx: BuildContext): ContextScene[] {
       timing: timing(5_000),
       copy: contextCards({ earlier: earlierCount }),
       examples: false,
-      instructions,
+      instructions: ctx.depth === 'simple' ? null : instructions,
       earlier,
       message,
     },
