@@ -226,13 +226,14 @@
   padding: var(--space-3) 0;
 }
 
-/* Manual navigation stays in reach; section controls scroll with the page on phones. */
+/* Player: sticky at the bottom of the pane so the controls stay in reach. On narrow screens only the main
+ * row (play, step, step count) is pinned, to the bottom of the screen; the rest scrolls with the page. */
 .player {
   position: sticky;
   bottom: 0;
   z-index: 2;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: var(--space-2) var(--space-3);
   padding: var(--space-3) 0;
@@ -257,8 +258,6 @@
     border-top: 0;
   }
   .player-main {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     position: fixed;
     left: 0;
     right: 0;
@@ -269,13 +268,8 @@
     border-top: 1px solid var(--border-strong);
     background: var(--bg);
   }
-  .player-main .step-count {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    text-align: center;
-  }
   .walkthrough {
-    padding-bottom: 7rem;
+    padding-bottom: 4.5rem;
   }
 }
 .player-spacer {

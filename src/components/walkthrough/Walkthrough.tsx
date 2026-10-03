@@ -278,37 +278,72 @@ function Announcer({ step, total }: { step: Step; total: number }) {
   </div>;
 }
 
-function PlayerBar({ script, controller, onSkip }: {
+function PlayerBar({
+  script,
+  controller,
+  onSkip,
+}: {
   script: PlaybackScript;
   controller: PlaybackController;
   onSkip: () => void;
 }) {
   const snapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot);
   const dispatch = controller.dispatch;
-  const last = snapshot.step === script.steps.length - 1;
-  const currentChapter = script.chapters.findIndex((c) => snapshot.step >= c.first && snapshot.step <= c.last);
+  const ended = snapshot.step === script.steps.length - 1;
+  const total = Math.max(1, script.totalMs);
   return (
     <div className="player" role="group" aria-label="Walkthrough controls">
+      {/* The main row stays in reach while scrolling (pinned to the bottom on narrow screens). */}
       <div className="player-main">
-        <button type="button" className="btn" onClick={() => dispatch({ type: 'prev' })} disabled={snapshot.step === 0} aria-label="Previous step">
-          <StepBackIcon /> Previous
+        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'prev' })} disabled={snapshot.step === 0} aria-label="Previous step">
+          <StepBackIcon />
         </button>
-        <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'next' })} disabled={last} aria-label="Next step">
-          <StepForwardIcon /> Next
+        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'next' })} disabled={ended} aria-label="Next step">
+          <StepForwardIcon />
         </button>
-        <span className="step-count">Step {snapshot.step + 1} of {script.steps.length}</span>
+        <span className="step-count">
+          Step {snapshot.step + 1} of {script.steps.length}
+        </span>
       </div>
       <div className="player-more">
-        <button type="button" className="btn" onClick={() => dispatch({ type: 'prevChapter' })} disabled={snapshot.step === 0} aria-label="Previous section">
-          <ChapterPrevIcon /> Previous section
+        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'prevChapter' })} disabled={snapshot.step === 0} aria-label="Previous section">
+          <ChapterPrevIcon />
         </button>
-        <button type="button" className="btn" onClick={() => dispatch({ type: 'nextChapter' })} disabled={last} aria-label="Next section">
-          <ChapterNextIcon /> Next section
+        <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'nextChapter' })} disabled={ended} aria-label="Next section">
+          <ChapterNextIcon />
         </button>
         <span className="player-spacer" />
-        <button type="button" className="btn btn-quiet" onClick={onSkip}>Skip walkthrough</button>
+        <button type="button" className="btn btn-quiet" onClick={onSkip}>
+          Skip walkthrough
+        </button>
       </div>
-      <p className="stage-note">Section {currentChapter + 1} of {script.chapters.length} · {CHAPTERS[script.chapters[currentChapter]?.id ?? 'hook'].short}. Take as long as you like; steps never advance automatically.</p>
+      <nav className="chapters" aria-label="Chapters">
+        {script.chapters.map((c) => {
+          const first = script.steps[c.first];
+          const last = script.steps[c.last];
+          const span = first && last ? last.startMs + last.durationMs - first.startMs : 0;
+          const active = snapshot.step >= c.first && snapshot.step <= c.last;
+          // The fill: whole for finished chapters; for the current one, finished steps plus this step's --p.
+          const fill: Record<string, number> = active
+            ? { '--done': snapshot.step - c.first, '--steps': c.last - c.first + 1 }
+            : { '--done': snapshot.step > c.last ? 1 : 0, '--steps': 1, '--p': 0 };
+          return (
+            <button
+              key={c.id}
+              type="button"
+              className="chapter-seg"
+              style={{ '--w': span / total, ...fill } as React.CSSProperties}
+              aria-current={active ? 'step' : undefined}
+              data-done={snapshot.step > c.last ? 'true' : undefined}
+              onClick={() => dispatch({ type: 'seekChapter', chapter: c.id })}
+            >
+              <span className="chapter-fill" aria-hidden="true" />
+              <span className="chapter-name">{CHAPTERS[c.id].short}</span>
+              <span className="sr-only">: {CHAPTERS[c.id].title}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }

@@ -5,11 +5,13 @@
 
 ## Decision
 
-Readers advance with Next and Previous buttons for steps and sections. Skip walkthrough remains available and unlocks the composer. Reaching the last step also unlocks it. Native keyboard activation of these buttons remains available; custom playback shortcuts and direct chapter seeking are removed from the interface.
+Readers advance with Next and Previous buttons for steps and sections, or select a section on the original timeline. Skip walkthrough remains available and unlocks the composer. Reaching the last step also unlocks it. Native keyboard activation remains available; custom playback shortcuts are removed.
 
 Each newly selected step animates automatically, then stays visible indefinitely. The animation clock cannot advance the step. Its short teaching animation is independent of reading time and recorded model timing. Reduced motion reveals the complete step immediately. Hiding the tab completes the current animation without changing steps. Changing depth preserves the current step by key, or animates the fallback step when that key is unavailable.
 
-Playback settings are removed from the preference schema, so old saved autoplay, speed, and shortcut settings cannot restore automatic navigation. Duration estimates and the timed chapter progress bar are removed from the interface. Existing compiler timing metadata is retained for compatibility with compiled scripts; it no longer controls navigation. The separate timing deep dive still demonstrates how the recorded reply arrived.
+Playback settings are removed from the preference schema, so old saved autoplay, speed, and shortcut settings cannot restore automatic navigation. The original icon buttons, control-row layout, and section timeline retain their appearance and responsive styles. Only the play/pause and speed control groups are removed. The timeline uses the original segment widths and progress fill; animation progress cannot advance the selected step. Compiler timing metadata determines segment proportions, not reading pace. The separate timing deep dive still demonstrates how the recorded reply arrived.
+
+The owner's screenshot clarification supersedes the initial implementation's expanded text buttons, stacked controls, and removed timeline. Those layout changes were unnecessary and are reverted.
 
 This supersedes the autoplay, playback speed, and custom navigation shortcut decisions in ADRs 0007 and 0008 and the original plan. An Instant playback speed is no longer planned.
 

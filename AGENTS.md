@@ -59,7 +59,7 @@ prompt and response.
    wherever possible. Views of model internals are labeled examples.
 3. **Honesty over spectacle.** Every animation must teach something. Remove motion that doesn't.
 4. **One focal movement per step.** Motion shows cause and effect.
-5. **The user controls pace (ADR 0014):** Next/Previous buttons for steps and sections, plus Skip walkthrough.
+5. **The user controls pace (ADR 0014):** original Next/Previous icon buttons, section timeline, and Skip walkthrough. Preserve their original layout and styling; remove only play/pause and speed controls.
    Each step animates on arrival, then waits indefinitely. No autoplay, play/pause, speed, or duration estimates.
    The composer unlocks at the last step or when skipped, and skipping is one action.
 6. **Familiar chat first.** The real reply streams normally, and the walkthrough never blocks reading it.

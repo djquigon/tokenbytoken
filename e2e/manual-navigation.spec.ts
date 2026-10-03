@@ -21,6 +21,22 @@ test('steps animate on arrival and wait indefinitely for navigation', async ({ p
   await expect(count).toHaveText(/^Step 1 of /);
   await expect(view.getByRole('button', { name: /^(Play|Pause|Replay)$/ })).toHaveCount(0);
   await expect(view.getByRole('group', { name: 'Speed' })).toHaveCount(0);
+  const timeline = view.getByRole('navigation', { name: 'Chapters' });
+  await expect(timeline).toBeVisible();
+  await timeline.getByRole('button', { name: /Text becomes tokens/ }).click();
+  await expect(view.getByRole('heading', { level: 2 })).toHaveText('Text becomes tokens');
+  await expect(timeline.getByRole('button', { name: /Text becomes tokens/ })).toHaveAttribute('aria-current', 'step');
+  await expect.poll(progress).toBe(1);
+  const position = await count.innerText();
+  await page.waitForTimeout(2_000);
+  await expect(count).toHaveText(position);
+  for (const name of ['Previous step', 'Next step', 'Previous section', 'Next section']) {
+    const button = view.getByRole('button', { name, exact: true });
+    await expect(button).toHaveClass('btn btn-icon');
+    await expect(button).toHaveText('');
+  }
+  const controls = view.getByRole('group', { name: 'Walkthrough controls' });
+  await controls.screenshot({ path: 'test-results/restored-controls-desktop.png' });
   await page.screenshot({ path: 'test-results/manual-navigation-desktop.png' });
 });
 
