@@ -39,7 +39,7 @@ export function buildContext(ctx: BuildContext): ContextScene[] {
       key: 'context:cards',
       chapter: 'context',
       timing: timing(5_000),
-      copy: contextCards({ earlier: earlierCount }),
+      copy: contextCards({ earlier: earlierCount, detailed: ctx.depth !== 'simple' }),
       examples: false,
       instructions: ctx.depth === 'simple' ? null : instructions,
       earlier,

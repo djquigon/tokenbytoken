@@ -2,7 +2,7 @@
 
 exports[`compileScript > is deterministic (snapshot of steps and timings) 1`] = `
 [
-  "context context:cards 10109",
+  "context context:cards 8543",
   "context context:layout 8543",
   "context context:extras 9065",
   "input tokenize:chips 10891",
@@ -14,7 +14,7 @@ exports[`compileScript > is deterministic (snapshot of steps and timings) 1`] = 
   "input network:attention-sample 11674",
   "input network:attention-yours 6717",
   "generation options:strip 9326",
-  "generation options:bars 5990",
+  "generation options:bars 5989",
   "generation options:meaning 9326",
   "generation pick:draw 8283",
   "generation pick:settings 8543",
