@@ -6,10 +6,9 @@
 import type { Sourced } from '@/shared/provenance';
 import { reference } from '@/shared/provenance/mint';
 
-/** When this project checked the FAQ's sources: the first answers on FAQ_CHECKED, and the answers added since
- * (the neural networks, the Hugging Face incident, ChatGPT and Claude) on FAQ_LATEST_CHECK. */
+/** Date range for source checks; each documented value retains its own actual retrieval date. */
 export const FAQ_CHECKED = '2026-09-30';
-export const FAQ_LATEST_CHECK = '2026-10-01';
+export const FAQ_LATEST_CHECK = '2026-10-02';
 
 interface Doc {
   readonly title: string;
@@ -22,7 +21,8 @@ const checkedOn =
   <T>(doc: Doc, value: T): Sourced<T, 'reference'> =>
     reference({ doc: { ...doc, retrieved } }, value);
 const documented = checkedOn(FAQ_CHECKED);
-const documentedLater = checkedOn(FAQ_LATEST_CHECK);
+const documentedLater = checkedOn('2026-10-01');
+const documentedAudit = checkedOn('2026-10-02');
 
 const LUNA_PAGE: Doc = { title: 'OpenAI, GPT-6 Luna model page', url: 'https://developers.openai.com/api/docs/models/gpt-6-luna' };
 const WHY_HALLUCINATE: Doc = { title: 'OpenAI, “Why language models hallucinate”', url: 'https://openai.com/index/why-language-models-hallucinate/' };
@@ -106,7 +106,7 @@ export const FACTS = {
   boldWrongPct: documented(WHY_HALLUCINATE, 75),
 
   /** A survey of language-technology (NLP) researchers: could a model trained only on text understand language? */
-  surveyRespondents: documented(UNDERSTANDING_DEBATE, 480),
+  surveyRespondents: documentedAudit({ title: 'Michael et al., NLP Community Metasurvey, section 3 (eligible respondents)', url: 'https://arxiv.org/abs/2208.12852' }, 327),
   surveyAgreedPct: documented(UNDERSTANDING_DEBATE, 51),
   surveyDisagreedPct: documented(UNDERSTANDING_DEBATE, 49),
 

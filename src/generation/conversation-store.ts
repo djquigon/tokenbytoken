@@ -25,7 +25,7 @@ import {
 } from './persist';
 
 /** Bump when the privacy notice changes, so visitors see the new version. */
-export const PRIVACY_VERSION = '2026-09-30';
+export const PRIVACY_VERSION = '2026-10-02';
 
 /**
  * Runs before first paint (in the root layout). The chat page's privacy notice and empty-chat text are
@@ -189,16 +189,6 @@ export function createConversationStore(deps: StoreDeps): ConversationStore {
       }
     };
 
-    // The turn being streamed, updated in place between flushes.
-    let working: Turn | null = null;
-    let flushScheduled = false;
-    const flush = () => {
-      flushScheduled = false;
-      const current = working;
-      if (!current) return;
-      set((s) => ({ turns: s.turns.map((t) => (t.id === current.id ? current : t)) }));
-    };
-
     const run = async (text: string) => {
       const state = get();
       if (state.streaming || text.trim().length === 0) return;
@@ -212,7 +202,7 @@ export function createConversationStore(deps: StoreDeps): ConversationStore {
         messages: [...historyFor(state.turns), { role: 'user', id: userId, content: text }],
         options: { logprobs: true },
       };
-      working = {
+      let working: Turn = {
         id: turnId,
         user: { id: userId, content: text },
         log: createLog(turnId, state.conversationId, userId),
@@ -221,10 +211,19 @@ export function createConversationStore(deps: StoreDeps): ConversationStore {
         done: false,
       };
       set({ turns: [...state.turns, working], streaming: true });
-      controller = new AbortController();
+      const runController = new AbortController();
+      controller = runController;
+      const isCurrent = () => controller === runController;
+      let flushScheduled = false;
+      const flush = () => {
+        flushScheduled = false;
+        if (!isCurrent()) return;
+        const current = working;
+        set((s) => ({ turns: s.turns.map((t) => (t.id === current.id ? current : t)) }));
+      };
 
       const onEntry = (entry: TraceLogEntry) => {
-        if (!working?.log || isTerminated(working.log)) return;
+        if (!isCurrent() || !working.log || isTerminated(working.log)) return;
         working = { ...working, log: appendEntry(working.log, entry), live: reduceLive(working.live, entry) };
         if (TERMINAL_KINDS.has(entry.k)) {
           working = finishTurn(working);
@@ -239,14 +238,15 @@ export function createConversationStore(deps: StoreDeps): ConversationStore {
       };
 
       try {
-        await deps.sendTurn({ request, signal: controller.signal, idleTimeoutMs: deps.idleTimeoutMs, now: deps.now, onEntry });
+        await deps.sendTurn({ request, signal: runController.signal, idleTimeoutMs: deps.idleTimeoutMs, now: deps.now, onEntry });
       } finally {
         // sendTurn always ends with a terminal entry; this guards against a thrown bug.
-        if (working && !working.done) onEntry({ k: 'network_error', tc: deps.now() });
-        working = null;
-        controller = null;
-        set({ streaming: false });
-        persist();
+        if (isCurrent()) {
+          if (!working.done) onEntry({ k: 'network_error', tc: deps.now() });
+          controller = null;
+          set({ streaming: false });
+          persist();
+        }
       }
     };
 
@@ -290,7 +290,9 @@ export function createConversationStore(deps: StoreDeps): ConversationStore {
       },
 
       clear() {
-        controller?.abort();
+        const previous = controller;
+        controller = null;
+        previous?.abort();
         clearConversation(deps.storage);
         set({ turns: [], conversationId: newId(deps, 'cnv'), storageNote: null, streaming: false, announcement: 'Conversation cleared.' });
       },

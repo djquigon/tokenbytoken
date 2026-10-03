@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { Datum } from '@/components/provenance/Datum';
+import { Term } from '@/components/glossary/Term';
 import { CloseIcon } from '@/components/ui/icons';
 import { DEEP_DIVE_TITLES, type DeepDiveId } from '@/content/deep-dives';
 import { read } from '@/shared/provenance/read';
@@ -18,6 +19,7 @@ import type { FinalizedTrace } from '@/trace/facts';
 import { CheckExercise, GuessExercise } from './Exercises';
 import { fluentCaseTrace } from './fluent-case';
 import { OptionBars } from './OptionBars';
+import { OptionTable } from './OptionTable';
 import { RichText } from './RichText';
 
 const WHAT_IF_ROWS = 8;
@@ -92,42 +94,44 @@ function TemperatureWhatIf({ trace }: { trace: FinalizedTrace }) {
           {label}
         </output>
       </div>
-      <table className="what-if-table">
-        <caption>Chances among the listed options for this position</caption>
-        <thead>
-          <tr>
-            <th scope="col">Option</th>
-            <th scope="col">
-              Temperature sent: <Datum of={sent} as="decimal" compact />
-            </th>
-            <th scope="col">What-if: {t === 0 ? 'zero' : t.toFixed(1)}</th>
-            {picks ? <th scope="col">Simulated picks</th> : null}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i} data-chosen={row.isChosen ? 'true' : undefined}>
-              <th scope="row" className="mono">
-                <Datum of={row.text} as="token" badge={false} />
-                {row.isChosen ? <span className="option-picked">picked</span> : null}
+      <div className="table-scroll" role="region" aria-label="Temperature comparison table" tabIndex={0}>
+        <table className="what-if-table">
+          <caption>Chances among the listed options for this position</caption>
+          <thead>
+            <tr>
+              <th scope="col">Option</th>
+              <th scope="col">
+                Temperature sent: <Datum of={sent} as="decimal" compact />
               </th>
-              <td style={{ '--w': read(row.sent) / 100 } as React.CSSProperties}>
-                <span className="what-if-bar" aria-hidden="true" />
-                <Datum of={row.sent} as="pct" badge={false} />
-              </td>
-              <td style={{ '--w': row.whatIf ? read(row.whatIf) / 100 : i === 0 ? 1 : 0 } as React.CSSProperties} data-whatif="true">
-                <span className="what-if-bar" aria-hidden="true" />
-                {row.whatIf ? <Datum of={row.whatIf} as="pct" badge={false} /> : i === 0 ? 'every time' : 'never'}
-              </td>
-              {picks ? (
-                <td data-whatif="true">
-                  <Datum of={count(i, row)} as="int" badge={false} />
-                </td>
-              ) : null}
+              <th scope="col">What-if: {t === 0 ? 'zero' : t.toFixed(1)}</th>
+              {picks ? <th scope="col">Simulated picks</th> : null}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i} data-chosen={row.isChosen ? 'true' : undefined}>
+                <th scope="row" className="mono">
+                  <Datum of={row.text} as="token" badge={false} />
+                  {row.isChosen ? <span className="option-picked">picked</span> : null}
+                </th>
+                <td style={{ '--w': read(row.sent) / 100 } as React.CSSProperties}>
+                  <span className="what-if-bar" aria-hidden="true" />
+                  <Datum of={row.sent} as="pct" badge={false} />
+                </td>
+                <td style={{ '--w': row.whatIf ? read(row.whatIf) / 100 : i === 0 ? 1 : 0 } as React.CSSProperties} data-whatif="true">
+                  <span className="what-if-bar" aria-hidden="true" />
+                  {row.whatIf ? <Datum of={row.whatIf} as="pct" badge={false} /> : i === 0 ? 'every time' : 'never'}
+                </td>
+                {picks ? (
+                  <td data-whatif="true">
+                    <Datum of={count(i, row)} as="int" badge={false} />
+                  </td>
+                ) : null}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <p className="what-if-simulate" data-control>
         <button type="button" className="btn" onClick={simulate}>
           {picks ? 'Simulate again' : `Simulate ${SIMULATED_PICKS} picks at this temperature`}
@@ -140,7 +144,7 @@ function TemperatureWhatIf({ trace }: { trace: FinalizedTrace }) {
         ) : null}
       </p>
       <p className="stage-note">
-        Options: <span className="legend-word">Recorded</span>. Chances: <span className="legend-word">Calculated</span> from the logprobs; the
+        Chance of coming next, not of being true. Options: <span className="legend-word">Recorded</span>. Chances: <span className="legend-word">Calculated</span> from the <Term id="logprob">logprobs</Term>; the
         What-if column is <span className="legend-word">simulated on this page</span>.
         {t === 0 && top ? (
           <>
@@ -215,9 +219,6 @@ export function DeepDive({ id, trace, onClose }: { id: DeepDiveId; trace: Finali
     };
   }, [id]);
 
-  const caseTrace = id === 'fluent' ? fluentCaseTrace() : null;
-  const copy = deepDiveCopy(id, trace, recordedWrongCase(caseTrace));
-  const caseToken = caseTrace?.output.tokens[0];
   return (
     <section
       className="deep-dive panel"
@@ -237,6 +238,18 @@ export function DeepDive({ id, trace, onClose }: { id: DeepDiveId; trace: Finali
           <CloseIcon />
         </button>
       </header>
+      <DeepDiveBody id={id} trace={trace} />
+    </section>
+  );
+}
+
+/** Shared by the panel and the complete text alternative. */
+export function DeepDiveBody({ id, trace, textOnly = false }: { id: DeepDiveId; trace: FinalizedTrace; textOnly?: boolean }) {
+  const caseTrace = id === 'fluent' ? fluentCaseTrace() : null;
+  const copy = deepDiveCopy(id, trace, recordedWrongCase(caseTrace));
+  const caseToken = caseTrace?.output.tokens[0];
+  return (
+    <>
       {copy ? (
         copy.paragraphs.map((p, i) => (
           <p key={i} className="deep-dive-text">
@@ -253,9 +266,9 @@ export function DeepDive({ id, trace, onClose }: { id: DeepDiveId; trace: Finali
       {id === 'fluent' && caseToken ? (
         <figure className="recorded-case">
           <figcaption className="stage-note">The recorded example&rsquo;s first token: the options OpenAI returned.</figcaption>
-          <OptionBars token={caseToken} shown={5} animate={false} />
+          {textOnly ? <OptionTable token={caseToken} /> : <OptionBars token={caseToken} shown={5} animate={false} />}
         </figure>
       ) : null}
-    </section>
+    </>
   );
 }

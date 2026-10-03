@@ -455,6 +455,26 @@
   border-collapse: collapse;
   font-size: 0.9rem;
 }
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: var(--space-3);
+}
+.transcript section,
+.transcript li,
+.transcript .what-if {
+  min-width: 0;
+}
+.transcript details {
+  margin-block: var(--space-2);
+}
+.transcript summary,
+.banner-examples summary {
+  cursor: pointer;
+}
+.banner-examples p {
+  margin-top: var(--space-2);
+}
 .what-if-table caption {
   margin-bottom: var(--space-2);
   color: var(--text-muted);

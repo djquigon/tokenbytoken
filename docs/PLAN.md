@@ -19,6 +19,9 @@ cheapest one that gives the best visualization outcomes. There is no formal expe
 > tab-scoped `sessionId`. `end` carries the ledger basis, and text without tokens carries `gapTokens`.
 
 ## Decisions at a glance
+
+**Audit update (2026-10-02):** [ADR 0013](decisions/0013-audit-remediation.md) records the owner-authorized accuracy, accessibility, and layout fixes. A nonzero or unknown hidden-reasoning count now yields an opaque fallback instead of the per-token walkthrough. Captions precede graphics, and the text alternative includes the actual options and controls.
+
 - **Hybrid timing.**
   - The real reply streams normally, alongside a thin live strip that shows only observed events.
   - When the reply finishes, a guided walkthrough is *offered*, paced by reading time: about 2.5 minutes at 1×, and about 5 at the default half speed (ADR 0007; first planned at about 90 seconds). It replays the recorded trace at a pace people can follow.

@@ -3,7 +3,7 @@
 // teaching time, labeled "sped up, not real timing" (CLAUDE.md A6).
 
 import { loopAppend, loopMoment, loopMontage, stopCopy } from '@/content/walkthrough';
-import { deriveAll, illustrate, type Sourced } from '@/shared/provenance';
+import { illustrate, type Sourced } from '@/shared/provenance';
 import { read } from '@/shared/provenance/read';
 import type { OutputToken, StopReason } from '@/trace/facts';
 
@@ -30,7 +30,8 @@ export function buildLoop(ctx: BuildContext): LoopScene[] {
   const { trace } = ctx;
   const segments = trace.output.segments;
   const scenes: LoopScene[] = [];
-  const total = deriveAll('count', segments.map((s) => (s.kind === 'token' ? s.token.text : s.gap.text)), (xs) => xs.length);
+  const total = trace.output.providerTokenCount;
+  const gaps = segments.some((s) => s.kind === 'gap');
 
   if (trace.output.tokens.length > 0) {
     scenes.push({
@@ -65,7 +66,7 @@ export function buildLoop(ctx: BuildContext): LoopScene[] {
         chapter: 'loop',
         // The montage is never compressed by pacing: its speed is fixed by the per-token rule.
         timing: timing(Math.max(400, Math.round((to - from) * perToken)), 300, false),
-        copy: loopMontage({ tokens: total, first: i === 0 }),
+        copy: loopMontage({ tokens: total, first: i === 0, gaps }),
         examples: false,
         from,
         to,

@@ -12,7 +12,7 @@ export function PrivacyNotice({ onAccept, ready = true }: { onAccept: () => void
       <ul>
         <li>Your messages are sent to OpenAI to generate replies.</li>
         <li>This site doesn&apos;t store your conversation on its servers. It stays in this browser tab.</li>
-        <li>OpenAI keeps records of API traffic for up to 30 days to check for abuse, and by default doesn&apos;t use it to train models.</li>
+        <li>OpenAI can retain messages in abuse-monitoring logs, including beyond its default retention period for legal or harm-prevention reasons. By default, API messages aren&apos;t used to train models.</li>
         <li>Please don&apos;t share personal or sensitive information.</li>
       </ul>
       <div className="notice-actions">

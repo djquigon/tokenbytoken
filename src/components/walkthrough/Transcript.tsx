@@ -5,12 +5,14 @@ import { read } from '@/shared/provenance/read';
 import { plainText } from '@/shared/sourced-text';
 import { CHAPTERS, type PlaybackScript } from '@/playback/types';
 
-import { DEEP_DIVE_TITLES, EXERCISES } from '@/content/deep-dives';
+import { DEEP_DIVE_TITLES } from '@/content/deep-dives';
 import { EXAMPLE_BANNER } from '@/content/walkthrough';
-import { DEEP_DIVE_IDS, deepDiveCopy, recordedWrongCase } from '@/stages/deep-dives';
+import { DEEP_DIVE_IDS } from '@/stages/deep-dives';
 import type { FinalizedTrace } from '@/trace/facts';
 
-import { fluentCaseTrace } from './fluent-case';
+import { Datum } from '@/components/provenance/Datum';
+import { DeepDiveBody } from './DeepDive';
+import { OptionTable } from './OptionTable';
 import { RichText } from './RichText';
 
 export function Transcript({ script, trace }: { script: PlaybackScript; trace: FinalizedTrace }) {
@@ -29,6 +31,9 @@ export function Transcript({ script, trace }: { script: PlaybackScript; trace: F
               <li key={step.key}>
                 {step.scene.examples ? <strong>Example. </strong> : null}
                 <RichText text={step.describe} />
+                {step.scene.view === 'hook' ? <OptionTable token={step.scene.moment.token} /> : null}
+                {step.scene.view === 'bars' || step.scene.view === 'meaning' ? <details><summary>Options for this step</summary><OptionTable token={step.scene.options.token} /></details> : null}
+                {step.scene.view === 'moment' || step.scene.view === 'draw' ? <details><summary>Options for this step</summary><OptionTable token={step.scene.token} /></details> : null}
               </li>
             ))}
           </ol>
@@ -36,19 +41,27 @@ export function Transcript({ script, trace }: { script: PlaybackScript; trace: F
       ))}
       <section aria-labelledby="transcript-deeper">
         <h3 id="transcript-deeper">Go deeper</h3>
-        {DEEP_DIVE_IDS.filter((id) => !EXERCISES.has(id)).map((id) => {
-          const copy = deepDiveCopy(id, trace, id === 'fluent' ? recordedWrongCase(fluentCaseTrace()) : null);
-          return copy ? (
+        {DEEP_DIVE_IDS.map((id) => (
             <section key={id} aria-labelledby={`transcript-dive-${id}`} className="transcript-dive">
               <h4 id={`transcript-dive-${id}`}>{DEEP_DIVE_TITLES[id]}</h4>
-              {copy.paragraphs.map((p, i) => (
-                <p key={i}>
-                  <RichText text={p} />
-                </p>
-              ))}
+              <DeepDiveBody id={id} trace={trace} textOnly />
             </section>
-          ) : null;
-        })}
+        ))}
+      </section>
+      <section aria-labelledby="transcript-data">
+        <h3 id="transcript-data">The input and reply</h3>
+        {trace.request?.inputRuns.map((run) => <details key={run.key}>
+          <summary>{run.role}: <Datum of={run.count} as="int" /> tokens (local estimate)</summary>
+          <p><Datum of={run.text} as="text" /></p>
+          <p>Calculated IDs, using the assumed tokenizer: <Datum of={run.ids} as="json" /></p>
+        </details>)}
+        <p><Datum of={trace.output.text} as="text" /></p>
+        {trace.output.segments.map((segment, i) => segment.kind === 'gap' ? <p key={i}>
+          <Datum of={segment.gap.text} as="text" /> — OpenAI returned no alternatives for these characters.
+        </p> : <details key={i}>
+          <summary><Datum of={segment.token.text} as="token" />: all returned options</summary>
+          <OptionTable token={segment.token} />
+        </details>)}
       </section>
     </div>
   );

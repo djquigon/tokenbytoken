@@ -45,13 +45,15 @@ function pickSentence(p: PickCopy, lead: 'Here' | 'Later,'): SourcedText {
 
 // Chapter 0 · Hook ------------------------------------------------------------------------------------
 
-export const hook = (v: { tokens: Sourced<number>; pick: PickCopy; closeCall: boolean }): SceneCopy => ({
-  title: v.closeCall ? st`A close call in your reply` : st`Your reply's first token`,
-  body: v.closeCall
+export const hook = (v: { tokens: Sourced<number>; pick: PickCopy; closeCall: boolean; gaps: boolean }): SceneCopy => ({
+  title: v.closeCall ? st`A close call in your reply` : st`A token in your reply`,
+  body: v.gaps
+    ? [...st`OpenAI returned alternatives for ${slot('int', v.tokens)} ${term('token', 'tokens')}, but not for all the text. `, ...pickSentence(v.pick, 'Here')]
+    : v.closeCall
     ? [...st`Your reply came back as ${slot('int', v.tokens)} ${term('token', 'tokens')}, written one at a time, with ${term('score', 'scored options')} at every step. `, ...pickSentence(v.pick, 'Here')]
     : st`Your reply came back as ${slot('int', v.tokens)} ${term('token', 'tokens')}, written one at a time, with ${term('score', 'scored options')} at every step. Its first step: ${slot('token', v.pick.chosen)} was picked at ${slot('pct', v.pick.pct)}.`,
   detail: st`At every step ${term('language-model', 'the model')} scored many possible next tokens. A ${term('close-call', 'close call')} means several wordings were likely, or a less likely one was picked. It doesn't mean the answer is uncertain or wrong.`,
-  claims: ['C017', 'C012', 'C011'],
+  claims: ['C017', 'C012', 'C011', 'C016'],
 });
 
 // Chapter 1 · What gets sent -------------------------------------------------------------------------
@@ -142,16 +144,16 @@ export const EXAMPLE_BANNER_CLAIMS = ['C027'] as const;
 
 export const networkLookup = (): SceneCopy => ({
   title: st`Each token becomes a list of numbers`,
-  body: st`Each token picks out a list of ${term('parameters', 'numbers the model learned in training')}: its ${term('embedding', 'embedding')}. Tokens used in similar ways get similar lists, like nearby places on a map. What's computed from them is ${term('working-notes', 'working notes')}, discarded afterwards.`,
+  body: st`Each ${term('token', 'token')} selects an ${term('embedding', 'embedding')}: a list of ${term('parameters', 'numbers learned during training')}. Tokens used in similar ways have similar lists, like nearby places on a map. The learned numbers stay fixed while you chat.`,
   detail: st`The learned numbers stay fixed while in use: chatting doesn't change them.`,
   claims: ['C028', 'C046', 'C096'],
 });
 
 export const networkLayers = (): SceneCopy => ({
   title: st`Up through many layers`,
-  body: st`The notes pass up through many ${term('layer', 'layers')}, like stations on an assembly line, each refining them a little. All the ${term('position', 'positions')} of your input are processed together, layer by layer.`,
+  body: st`The model uses those lists to compute temporary ${term('working-notes', 'working notes')}, which it discards afterwards. The notes pass through ${term('layer', 'layers')}, like stations on an assembly line. All ${term('position', 'positions')} in your message are processed together, layer by layer.`,
   detail: st`OpenAI hasn't published how many layers this model has. Between attention steps, ${term('feed-forward', 'feed-forward steps')} transform each position on its own.`,
-  claims: ['C029', 'C027', 'C032'],
+  claims: ['C028', 'C029', 'C027', 'C032'],
 });
 
 export const networkAttentionSample = (): SceneCopy => ({
@@ -205,8 +207,8 @@ export const optionsStrip = (v: { vocabulary: Sourced<number> | null }): SceneCo
 });
 
 export const optionsBars = (v: { chosen: Sourced<string>; pct: Sourced<number>; listed: Sourced<number> }): SceneCopy => ({
-  title: st`The real options for the first token`,
-  body: st`These are the real top options OpenAI returned for your reply's first token. ${slot('token', v.chosen)} was picked, at ${slot('pct', v.pct)}.`,
+  title: st`The real options for this token`,
+  body: st`These are the real top options OpenAI returned for this ${term('token', 'token')}. ${slot('token', v.chosen)} was picked, at ${slot('pct', v.pct)}.`,
   detail: st`OpenAI returned ${slot('int', v.listed)} alternatives here, each with a ${term('logprob', 'logprob')}; every other token shares the rest.`,
   claims: ['C034', 'C011'],
 });
@@ -252,13 +254,15 @@ export const loopMoment = (v: { pick: PickCopy; again: boolean }): SceneCopy => 
   claims: ['C012', 'C034'],
 });
 
-export const loopMontage = (v: { tokens: Sourced<number>; first: boolean }): SceneCopy =>
+export const loopMontage = (v: { tokens: Sourced<number>; first: boolean; gaps: boolean }): SceneCopy =>
   v.first
     ? {
         title: st`Token by token, to the end`,
-        body: st`This repeats for every token: ${slot('int', v.tokens)} in all. Sped up here, not real timing.`,
+        body: v.gaps
+          ? st`We have alternatives for ${slot('int', v.tokens)} ${term('token', 'tokens')}. OpenAI returned no alternatives for some text; its token boundaries are unavailable. Sped up here, not real timing.`
+          : st`This repeats for every token: ${slot('int', v.tokens)} in all. Sped up here, not real timing.`,
         detail: st`Measured arrival times include the network, and the time each token took to compute can't be observed.`,
-        claims: ['C040', 'C013'],
+        claims: ['C040', 'C013', 'C016'],
       }
     : { title: st`Carrying on`, body: st`The same loop continues, one token at a time. Still sped up, not real timing.`, claims: ['C040', 'C013'] };
 
@@ -290,7 +294,7 @@ export const followupPacking = (v: { included: Sourced<number>; dropped: Sourced
   body: v.dropped
     ? st`The model doesn't remember earlier messages. This app sent the ${term('context', 'conversation')} again, like handing over the whole transcript before each reply: ${slot('int', v.included)} messages. ${slot('int', v.dropped)} older ones were left out to fit.`
     : st`The model doesn't remember earlier messages. This app sent the ${term('context', 'conversation')} again, like handing over the whole transcript before each reply: ${slot('int', v.included)} messages, including this one.`,
-  detail: st`Stopped or unfinished replies aren't sent again. Chat apps with "memory" features save details and supply them as context in later chats: that's still context, not learning.`,
+  detail: st`Replies stopped by you or a lost connection aren't sent again. Provider-ended partial replies can be included. Chat apps with "memory" features save details and supply them as context in later chats: that's still context, not learning.`,
   claims: ['C044', 'C045', 'C054'],
 });
 

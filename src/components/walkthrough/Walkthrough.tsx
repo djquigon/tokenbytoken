@@ -7,6 +7,7 @@
 import { Fragment, memo, useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
 
 import { DecodeText } from '@/components/effects/DecodeText';
+import { Datum } from '@/components/provenance/Datum';
 import { usePrefs, useReducedMotion } from '@/components/prefs/hooks';
 import { ACTION_LABEL, SHORTCUT_ACTIONS, actionFor, keyLabel, keyName } from '@/components/prefs/keys';
 import { DEPTHS, SPEEDS, prefsStore, type Depth } from '@/components/prefs/store';
@@ -39,7 +40,6 @@ import { WhereFrom } from './WhereFrom';
 import { Transcript } from './Transcript';
 
 const DEPTH_LABEL: Record<Depth, string> = { simple: 'Simple', detailed: 'Detailed', technical: 'Technical' };
-const EXAMPLE_CHAPTERS = new Set(['network', 'options', 'pick', 'loop']);
 /** Deep dives offered beside each chapter; the last step offers all of them. */
 const DIVES_BY_CHAPTER: Partial<Record<ChapterId, readonly DeepDiveId[]>> = {
   context: ['context', 'learning'],
@@ -142,7 +142,16 @@ export const Walkthrough = memo(function Walkthrough({
   if (!script || !controller || !snapshot || !current) {
     return (
       <section className="walkthrough walkthrough-empty" aria-label="How this reply was made">
-        <p>There is no walkthrough for this reply: nothing came back to show.</p>
+        {!compiled.ok && (compiled.reason === 'hidden_reasoning' || compiled.reason === 'unknown_reasoning') ? (
+          <>
+            <h2>What we can show</h2>
+            <p className="panel">
+              {compiled.reason === 'hidden_reasoning' && trace.usage?.reasoningTokens ? <><Datum of={trace.usage.reasoningTokens} as="int" /> hidden tokens (count only).</> : 'Hidden-token count unavailable.'}
+            </p>
+            <p>OpenAI did not report zero hidden reasoning tokens. This app cannot show that hidden work, so the token-by-token walkthrough is unavailable for this reply.</p>
+            <button type="button" className="btn" onClick={() => onFinished('skipped')}>Continue chatting</button>
+          </>
+        ) : <p>There is no walkthrough for this reply: nothing came back to show.</p>}
       </section>
     );
   }
@@ -212,30 +221,8 @@ export const Walkthrough = memo(function Walkthrough({
       ) : (
         <>
           <Lanes trace={trace} lane={laneOf(scene)} detailed={depth !== 'simple'} />
-          {EXAMPLE_CHAPTERS.has(current.chapter) && scene.examples ? (
-            <p className="banner-examples">
-              <span className="example-tag-inline">Contains examples</span> <RichText text={EXAMPLE_BANNER} />
-            </p>
-          ) : null}
           {/* The step itself: what "Is this real?" reads its labels from. */}
           <div ref={stepView} className="step-view">
-            <div
-              className="stage"
-              data-stage={scene.stage}
-              data-view={scene.view}
-              data-step-mode={snapshot.stepMode ? 'true' : undefined}
-              key={current.key}
-            >
-              <StageView
-                scene={scene}
-                trace={trace}
-                onToken={(i) => {
-                  dispatch({ type: 'pause' });
-                  setDeepDive(null);
-                  setFocusToken(i);
-                }}
-              />
-            </div>
             <div className="caption">
               <h3 className="caption-title">
                 <RichText text={scene.copy.title} />
@@ -256,6 +243,29 @@ export const Walkthrough = memo(function Walkthrough({
                   </p>
                 </details>
               ) : null}
+            </div>
+            {scene.examples ? (
+              <details className="banner-examples">
+                <summary><span className="example-tag-inline">Contains examples</span> Teaching drawing; not this model’s hidden work.</summary>
+                <p><RichText text={EXAMPLE_BANNER} /></p>
+              </details>
+            ) : null}
+            <div
+              className="stage"
+              data-stage={scene.stage}
+              data-view={scene.view}
+              data-step-mode={snapshot.stepMode ? 'true' : undefined}
+              key={current.key}
+            >
+              <StageView
+                scene={scene}
+                trace={trace}
+                onToken={(i) => {
+                  dispatch({ type: 'pause' });
+                  setDeepDive(null);
+                  setFocusToken(i);
+                }}
+              />
             </div>
           </div>
           <div className="caption-tools">

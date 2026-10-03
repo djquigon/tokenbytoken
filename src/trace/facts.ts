@@ -162,7 +162,7 @@ export interface UsageFacts {
   readonly cachedInputTokens: Sourced<number, 'recorded'>;
   readonly cacheWriteTokens: Sourced<number, 'recorded'> | null;
   readonly outputTokens: Sourced<number, 'recorded'>;
-  readonly reasoningTokens: Sourced<number, 'recorded'>;
+  readonly reasoningTokens: Sourced<number, 'recorded'> | null;
   readonly totalTokens: Sourced<number, 'recorded'>;
 }
 

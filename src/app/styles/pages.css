@@ -314,3 +314,14 @@
     padding: var(--space-4);
   }
 }
+
+/* The full index stays beside desktop answers; phones start with the answers. */
+.faq-toc-desktop { display: none; }
+.faq-toc-mobile { display: block; }
+.faq-toc-mobile > summary { cursor: pointer; font-weight: 600; }
+.faq-toc-mobile nav { margin-top: var(--space-4); }
+.faq-back { display: inline-block; margin-top: var(--space-4); }
+@media (min-width: 64rem) {
+  .faq-toc-desktop { display: flex; }
+  .faq-toc-mobile, .faq-back { display: none; }
+}

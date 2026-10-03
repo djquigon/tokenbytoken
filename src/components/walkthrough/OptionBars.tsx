@@ -6,6 +6,7 @@
 // and the share left for every token OpenAI didn't list. Together they cover the whole 100%.
 
 import { Datum } from '@/components/provenance/Datum';
+import { Term } from '@/components/glossary/Term';
 import { deriveAll } from '@/shared/provenance';
 import { read } from '@/shared/provenance/read';
 import type { Alternative, OutputToken } from '@/trace/facts';
@@ -70,8 +71,8 @@ export function OptionBars({ token, shown, animate = true }: { token: OutputToke
         </li>
       </ol>
       <p className="option-legend">
-        Tokens: <span className="legend-word">Recorded</span> (reported by OpenAI). Percentages: <span className="legend-word">Calculated</span> from
-        its logprobs.
+        Chance of coming next, not chance of being true. Tokens: <span className="legend-word">Recorded</span> (reported by OpenAI).
+        Percentages: <span className="legend-word">Calculated</span> from its <Term id="logprob">logprobs</Term>.
         {chosenAt >= 0 ? null : ' The chosen token was not among the options OpenAI listed.'}
       </p>
     </div>

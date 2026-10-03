@@ -90,7 +90,8 @@ export const usageSchema = z.object({
   cachedInputTokens: count,
   cacheWriteTokens: count.nullable(),
   outputTokens: count,
-  reasoningTokens: count,
+  /** Null when the provider omitted this detail; absence does not establish zero hidden work. */
+  reasoningTokens: count.nullable(),
   totalTokens: count,
 });
 

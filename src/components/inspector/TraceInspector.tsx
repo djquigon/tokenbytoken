@@ -288,7 +288,7 @@ export function TraceInspector({ trace }: { trace: FinalizedTrace }) {
                 <Datum of={usage.outputTokens} as="int" />
               </Row>
               <Row label="Reasoning tokens">
-                <Datum of={usage.reasoningTokens} as="int" />
+                {usage.reasoningTokens ? <Datum of={usage.reasoningTokens} as="int" /> : 'Not reported'}
               </Row>
             </tbody>
           </table>

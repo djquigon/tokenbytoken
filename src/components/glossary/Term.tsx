@@ -4,7 +4,8 @@
 // It can be dismissed with Esc without moving focus or the pointer, stays open while the pointer is over
 // it, and never takes focus. Screen readers get the definition as the term's description.
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 import { GLOSSARY, type GlossaryId } from '@/content/glossary';
 
@@ -17,8 +18,40 @@ export function Term({ id, children }: { id: string; children: ReactNode }) {
   const tipId = useId();
   const [open, setOpen] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const tooltip = useRef<HTMLSpanElement>(null);
   const hide = useRef<number | undefined>(undefined);
   const reveal = useRef<number | undefined>(undefined);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place = () => {
+      if (!trigger.current || !tooltip.current) return;
+      const anchor = trigger.current.getBoundingClientRect();
+      const viewport = window.visualViewport;
+      const left = viewport?.offsetLeft ?? 0;
+      const top = viewport?.offsetTop ?? 0;
+      const width = viewport?.width ?? document.documentElement.clientWidth;
+      const height = viewport?.height ?? window.innerHeight;
+      tooltip.current.style.maxWidth = `${Math.max(0, width - 16)}px`;
+      tooltip.current.style.maxHeight = `${Math.max(0, height - 16)}px`;
+      const tip = tooltip.current.getBoundingClientRect();
+      tooltip.current.style.left = `${Math.max(left + 8, Math.min(anchor.left, left + width - tip.width - 8))}px`;
+      const below = anchor.bottom + 6;
+      tooltip.current.style.top = `${Math.max(top + 8, Math.min(below + tip.height <= top + height - 8 ? below : anchor.top - tip.height - 6, top + height - tip.height - 8))}px`;
+    };
+    place();
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    window.visualViewport?.addEventListener('resize', place);
+    window.visualViewport?.addEventListener('scroll', place);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+      window.visualViewport?.removeEventListener('resize', place);
+      window.visualViewport?.removeEventListener('scroll', place);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -60,6 +93,7 @@ export function Term({ id, children }: { id: string; children: ReactNode }) {
   return (
     <span className="term" onMouseEnter={showSoon} onMouseLeave={hideSoon}>
       <button
+        ref={trigger}
         type="button"
         className="term-button"
         aria-describedby={tipId}
@@ -73,15 +107,19 @@ export function Term({ id, children }: { id: string; children: ReactNode }) {
           setOpen(!pinned || !open);
         }}
         onKeyDown={(e) => {
-          if (e.key === 'Escape' && open) e.stopPropagation();
+          if (e.key === 'Escape' && open) {
+            e.stopPropagation();
+            setOpen(false);
+            setPinned(false);
+          }
         }}
       >
         {children}
       </button>
-      <span id={tipId} role="tooltip" className="term-tip" hidden={!open}>
+      {open ? createPortal(<span ref={tooltip} id={tipId} role="tooltip" className="term-tip" onMouseEnter={show} onMouseLeave={hideSoon}>
         <strong>{entry.term}:</strong> {entry.definition}
         {'analogy' in entry ? <span className="term-analogy"> {entry.analogy}</span> : null}
-      </span>
+      </span>, document.body) : null}
     </span>
   );
 }

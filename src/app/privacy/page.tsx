@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 // Keep in line with OpenAI's data-controls page and the privacy notice in the chat (CLAUDE.md §10).
 const OPENAI_DATA_PAGE = 'https://developers.openai.com/api/docs/guides/your-data';
 const OPENAI_CACHING_PAGE = 'https://developers.openai.com/api/docs/guides/prompt-caching';
-const REVIEWED = '2026-09-30';
+const REVIEWED = '2026-10-02';
 
 export default function PrivacyPage() {
   return (
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
       </p>
       <h1>Privacy</h1>
       <p className="muted">
-        Last reviewed <time dateTime={REVIEWED}>September 30, 2026</time>. {SITE.domain} is a personal, non-commercial
+        Last reviewed <time dateTime={REVIEWED}>October 2, 2026</time>. {SITE.domain} is a personal, non-commercial
         project. It is not directed at children.
       </p>
 
@@ -66,8 +66,8 @@ export default function PrivacyPage() {
       <ul>
         <li>Data sent to OpenAI&apos;s API isn&apos;t used to train its models unless the account owner opts in. This site hasn&apos;t.</li>
         <li>
-          OpenAI keeps abuse-monitoring logs, which can include prompts and replies, for up to 30 days, or longer where
-          the law requires it.
+          By default, OpenAI keeps abuse-monitoring logs, which can include prompts and replies, for up to 30 days.
+          Logs may be kept longer when legally required or reasonably needed to protect OpenAI&apos;s services or other parties from harm.
         </li>
         <li>
           Because this site sends <code>store: false</code>, OpenAI doesn&apos;t keep the reply as stored application

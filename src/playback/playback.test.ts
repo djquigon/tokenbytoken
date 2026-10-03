@@ -4,7 +4,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { CLAIMS } from '@/content/claims';
 import { createChatHandler } from '@/server/chat/handler';
 import { read } from '@/shared/provenance/read';
-import { wordCount } from '@/shared/sourced-text';
+import { plainText, wordCount } from '@/shared/sourced-text';
 import { body, fixtureUpstream, hello, KEYS, makeDeps, NOW, post, readStream, type Msg } from '@/test/chat-harness';
 import { signReply } from '@/server/signing/signing';
 import { finalizeTrace } from '@/trace/finalize';
@@ -71,6 +71,17 @@ describe('pacing', () => {
 });
 
 describe('compileScript', () => {
+  it.each([null, 12, 'absent_usage'] as const)('requires confirmed zero hidden reasoning (reported count: %s)', async (count) => {
+    const log = await record('stream-basic');
+    const entries = log.entries.map((e) => e.k === 'server' && e.ev.type === 'end' && e.ev.usage
+      ? { ...e, ev: { ...e.ev, usage: count === 'absent_usage' ? null : { ...e.ev.usage, reasoningTokens: count } } } : e);
+    const trace = finalizeTrace({ ...log, entries });
+    expect(trace.reasoningGate && read(trace.reasoningGate)).toBe(count === 12 ? false : null);
+    const result = compileScript(trace, { depth: 'simple' });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toBe(count === 12 ? 'hidden_reasoning' : 'unknown_reasoning');
+  });
+
   it('builds the chapters in order, within the cap', () => {
     const script = compiled(basic);
     expect(script.chapters.map((c) => c.id)).toEqual(['hook', 'context', 'tokenize', 'network', 'options', 'pick', 'loop']);
@@ -170,6 +181,31 @@ describe('compileScript', () => {
     const keys = script.script.steps.map((s) => s.key);
     expect(keys).toContain('options:unavailable');
     expect(keys.some((k) => k === 'hook' || k.startsWith('pick:') || k === 'options:bars')).toBe(false);
+    const montage = script.script.steps.find((s) => s.scene.view === 'montage')?.scene;
+    expect(montage?.view).toBe('montage');
+    if (montage?.view === 'montage') {
+      expect(read(montage.total)).toBe(0);
+      expect(plainText(montage.copy.body, read as never)).toContain('no alternatives for some text');
+    }
+  });
+
+  it('never presents segments or scored tokens as a full token count when only part of the reply has alternatives', async () => {
+    const log = await record('stream-basic');
+    let first = true;
+    const entries = log.entries.map((e) => {
+      if (e.k !== 'server' || e.ev.type !== 'delta' || !first) return e;
+      first = false;
+      return { ...e, ev: { ...e.ev, logprobs: [] } };
+    });
+    const trace = finalizeTrace({ ...log, entries });
+    expect(trace.output.segments.some((s) => s.kind === 'gap')).toBe(true);
+    const script = compiled(trace);
+    const hook = script.steps.find((s) => s.key === 'hook');
+    expect(hook && plainText(hook.scene.copy.body, read as never)).toContain('but not for all the text');
+    for (const { scene } of script.steps) {
+      if (scene.view === 'montage') expect(read(scene.total)).toBe(trace.output.tokens.length);
+      expect(wordCount(scene.copy.body)).toBeLessThanOrEqual(48);
+    }
   });
 
   it('keeps the viewer’s place when the depth changes: Detailed only adds steps', () => {

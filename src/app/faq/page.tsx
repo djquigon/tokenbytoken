@@ -83,6 +83,7 @@ function Answer({ entry }: { entry: FaqEntry }) {
           ))}
         </ul>
       </div>
+      <a className="faq-back" href="#faq-questions">Back to questions</a>
     </article>
   );
 }
@@ -105,23 +106,16 @@ export default function FaqPage() {
           </p>
         </header>
         <div className="faq-layout">
-          <nav className="faq-toc" aria-labelledby="faq-toc-title">
+          <nav className="faq-toc faq-toc-desktop" aria-labelledby="faq-toc-title">
             <h2 id="faq-toc-title" className="section-title">
               On this page
             </h2>
-            {FAQ.map((section) => (
-              <div key={section.id} className="faq-toc-group">
-                <p>{section.title}</p>
-                <ul>
-                  {section.entries.map((e) => (
-                    <li key={e.id}>
-                      <a href={`#${e.id}`}>{e.question}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            <QuestionLinks />
           </nav>
+          <details className="faq-toc faq-toc-mobile" id="faq-questions">
+            <summary>Choose a question</summary>
+            <nav aria-label="On this page"><QuestionLinks /></nav>
+          </details>
           <div className="faq-sections">
             {FAQ.map((section) => (
               <section key={section.id} className="faq-section" aria-labelledby={`${section.id}-title`}>
@@ -138,5 +132,24 @@ export default function FaqPage() {
       </main>
       <SiteFooter current="/faq" />
     </div>
+  );
+}
+
+function QuestionLinks() {
+  return (
+    <>
+      {FAQ.map((section) => (
+        <div key={section.id} className="faq-toc-group">
+          <p>{section.title}</p>
+          <ul>
+            {section.entries.map((e) => (
+              <li key={e.id}>
+                <a href={`#${e.id}`}>{e.question}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </>
   );
 }

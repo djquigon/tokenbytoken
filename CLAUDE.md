@@ -18,7 +18,7 @@
 > - The Trace Inspector, the privacy notice, and `/privacy`.
 > - The claims register (generated `content/claims.md`) and the content lint.
 > - The FAQ (`/faq`): nineteen sourced answers in four sections, including neural networks and a dated history of how they led to LLMs, every number a labeled Reference value (ADR 0010).
-> - The Phase 0 probe, fixtures, and ADRs 0001–0012.
+> - The Phase 0 probe, fixtures, and ADRs 0001–0013. ADR 0013 resolves the site audit: request isolation, reasoning/count safeguards, complete text-view controls, viewport-safe glossary definitions, caption-first scenes, and the mobile FAQ index.
 >
 > **Not built yet:** the few plan items ADR 0008 lists as still open (linked highlighting, the Hook's "pick
 > another close call", an "Instant" speed), and everything after Phase 2. Sections below that describe
