@@ -2,9 +2,10 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { finishAnimations, goToChapter, lastStep } from './navigation';
 
 async function axeSerious(page: Page) {
-  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'));
+  await finishAnimations(page);
   const results = await new AxeBuilder({ page }).analyze();
   return results.violations
     .filter((v) => v.impact === 'serious' || v.impact === 'critical')
@@ -140,10 +141,8 @@ test('the sample conversation replays both turns without calling the API', async
   await expect(page.getByText('A recorded sample conversation')).toBeVisible();
   await expect(page.locator('.turn')).toHaveCount(2);
   await expect(page.getByRole('textbox', { name: 'Your message' })).toHaveCount(0);
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
-  await page.keyboard.press('End');
-  await page.keyboard.press('Shift+ArrowLeft');
+  await lastStep(page);
+  await walkthrough(page).getByRole('button', { name: 'Previous section' }).click();
   await expect(walkthrough(page).getByRole('heading', { level: 2 })).toHaveText('Your next message: the chat so far is sent again');
   expect(await axeSerious(page)).toEqual([]);
   expect(calls).toEqual([]);
@@ -167,9 +166,7 @@ test('the live strip shows recorded events while a reply streams, and can be hid
 
 test('the temperature what-if recomputes on the page, keeps focus at its limits, and closes with Escape', async ({ page }) => {
   await page.goto('/sample');
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
-  await walkthrough(page).getByRole('button', { name: 'A weighted random pick' }).click();
+  await goToChapter(page, /A weighted random pick/);
   const open = walkthrough(page).getByRole('button', { name: 'What if the temperature were different?' });
   await open.click();
   const dive = walkthrough(page).getByRole('region', { name: 'What if the temperature were different?' });
@@ -187,9 +184,7 @@ test('the temperature what-if recomputes on the page, keeps focus at its limits,
 
 test('the fluent-answers deep dive shows the recorded wrong answer, labeled', async ({ page }) => {
   await page.goto('/sample');
-  await walkthrough(page).getByRole('button', { name: /Play the walkthrough/ }).click();
-  await walkthrough(page).getByRole('button', { name: 'Pause' }).click();
-  await page.keyboard.press('End');
+  await lastStep(page);
   await walkthrough(page).getByRole('button', { name: 'Why fluent answers can be wrong' }).click();
   const dive = walkthrough(page).getByRole('region', { name: 'Why fluent answers can be wrong' });
   await expect(dive).toContainText('bookkeeper');

@@ -18,10 +18,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 > - The label system (`src/shared/provenance/`), protocol v1, and the trace. The trace records every turn
 >   as a TraceLog and folds it into labeled facts.
 > - The walkthrough beside the chat:
->   - the Hook and chapters 1–7 at Simple and Detailed depth, with the player, chapter bar, and step mode;
+>   - the Hook and chapters 1–7 at Simple and Detailed depth, with manual step/section buttons and reduced motion;
 >   - the token card, five deep dives, two exercises, the Transcript view, and the live strip;
 >   - glossary popovers, "Is this real?" / "How do we know this?", the three lanes, and Detailed sub-scenes;
->   - remappable shortcuts, and the first-visit tour of the chat page.
+>   - native keyboard navigation buttons, and the first-visit tour of the chat page.
 > - The recorded sample conversation (`/sample`) and the landing page, with the token rain as its background.
 > - The Trace Inspector, the privacy notice, and `/privacy`.
 > - The claims register (generated `content/claims.md`) and the content lint.
@@ -29,7 +29,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 > - The Phase 0 probe, fixtures, and ADRs 0001–0013. ADR 0013 resolves the site audit: request isolation, reasoning/count safeguards, complete text-view controls, viewport-safe glossary definitions, caption-first scenes, and the mobile FAQ index.
 >
 > **Not built yet:** the few plan items ADR 0008 lists as still open (linked highlighting, the Hook's "pick
-> another close call", an "Instant" speed), and everything after Phase 2. Sections below that describe
+> another close call"), and everything after Phase 2. Sections below that describe
 > those describe intended structure.
 >
 > Items marked **PROVISIONAL** are proposals, not decisions. When one is decided, record an ADR in
@@ -59,8 +59,9 @@ prompt and response.
    wherever possible. Views of model internals are labeled examples.
 3. **Honesty over spectacle.** Every animation must teach something. Remove motion that doesn't.
 4. **One focal movement per step.** Motion shows cause and effect.
-5. **The user controls pace:** play, pause, step, scrub, speed, replay, skip. The walkthrough is offered,
-   not forced. The composer unlocks when it ends or is skipped, and skipping is one action.
+5. **The user controls pace (ADR 0014):** Next/Previous buttons for steps and sections, plus Skip walkthrough.
+   Each step animates on arrival, then waits indefinitely. No autoplay, play/pause, speed, or duration estimates.
+   The composer unlocks at the last step or when skipped, and skipping is one action.
 6. **Familiar chat first.** The real reply streams normally, and the walkthrough never blocks reading it.
 7. **Three lanes.** "This app" (Recorded app events), "OpenAI's service" (a black box: only what it reports),
    and "Inside a model like this" (Examples). Tools and retrieval appear only as real events.
@@ -349,15 +350,14 @@ Chapters group them (`src/playback/types.ts`):
   - The token card is a docked panel: Esc closes it and focus returns.
   - The token tape is a single tab stop, navigated with arrow keys, Home/End, and Esc.
   - Focusing a token never triggers playback; only activating it does (3.2.1).
-- **Shortcuts:** active only while the walkthrough has focus. They can be remapped or turned off (2.1.4),
-  and `?` lists them.
-- **Pointer input:** the scrubber and sliders have ± buttons, so nothing requires dragging (2.5.7). Targets
+- **Navigation:** native buttons support Tab and Enter/Space. Custom walkthrough shortcuts are removed (ADR 0014).
+- **Pointer input:** sliders have ± buttons, so nothing requires dragging (2.5.7). Targets
   are at least 24×24 px (2.5.8), and at least 44 px on touch.
 - **Motion and flashing**
   - Honor `prefers-reduced-motion`, plus an in-app toggle, by switching to step mode. The clock doesn't run,
     and fades last ≤200 ms.
-  - Play/pause is the first control (2.2.2). The walkthrough is offered, not autoplayed.
-  - Nothing flashes more than 3 times per second, including at 4× speed (2.3.1).
+  - Step animations complete once; the clock never advances to another step (ADR 0014).
+  - Nothing flashes more than 3 times per second (2.3.1).
   - **Visual effects** (token rain, glow, scanlines, decode reveals, glitches):
     - Decorative layers are `aria-hidden`.
     - Effects never sit behind body text.
@@ -657,6 +657,8 @@ type-only imports, and include the `.mts` extension on relative imports.
 - Verified on a Vercel Preview: Upstash, BotID under the CSP, signed follow-ups, and Stop (ADR 0006).
 
 **Phase 2 results (2026-09-30):** ADR 0007.
+The playback and timing behavior in this historical record is superseded by ADR 0014 (2026-10-02):
+manual Next/Previous navigation, automatic within-step animation, and no playback or speed controls.
 - The walkthrough runs beside the chat:
   - the Hook and chapters 1–7 at Simple and Detailed depth;
   - the player, chapter bar, step mode, and focus-scoped shortcuts;
@@ -685,7 +687,7 @@ type-only imports, and include the `.mts` extension on relative imports.
 
 **Open (proceeding on defaults):**
 - **Plan items still open** (ADR 0008): linked highlighting of a token across the chat and the walkthrough,
-  the Hook's "pick another close call", and an "Instant" playback speed.
+  and the Hook's "pick another close call". ADR 0014 removes the planned Instant speed.
 - A manual NVDA and VoiceOver pass (owner, before release).
 - **Production launch checklist** (owner approval required). Next.js is pinned to the 16.3.8 security
   release (exact, with `eslint-config-next` 16.3.8; 2026-09-30), so what remains is:

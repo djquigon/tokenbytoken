@@ -14,7 +14,7 @@ import type { TraceLogV1 } from '@/trace/log';
 import { compileScript } from './compile/compile';
 import { fitDurations, PACING, readingMs } from './compile/pacing';
 import { createPlaybackController } from './controller';
-import { initialState, reduce, type PlaybackState } from './machine';
+import { initialState, reduce, STEP_ANIMATION_MS, type PlaybackState } from './machine';
 import type { PlaybackScript } from './types';
 
 let basic: FinalizedTrace;
@@ -229,68 +229,70 @@ describe('machine', () => {
   const run = (s: PlaybackState, events: Parameters<typeof reduce>[1][], sc: PlaybackScript) =>
     events.reduce((st, e) => reduce(st, e, sc).state, s);
 
-  it('plays, advances by ticks, and ends with an ended effect', () => {
+  it('animates without advancing and ends only on explicit navigation', () => {
     const sc = script();
-    let s = reduce(initialState(1, false), { type: 'play' }, sc).state;
-    expect(s.status).toBe('playing');
-    const firstDuration = sc.steps[0]?.durationMs ?? 0;
+    let s = reduce(initialState(false), { type: 'animate' }, sc).state;
+    expect(s.status).toBe('active');
+    const firstDuration = STEP_ANIMATION_MS;
     s = reduce(s, { type: 'tick', dtMs: firstDuration / 2 }, sc).state;
     expect(s.step).toBe(0);
     expect(s.progress).toBeCloseTo(0.5, 5);
     let effects: string[] = [];
-    for (let i = 0; i < 10_000 && s.status === 'playing'; i += 1) {
-      const t = reduce(s, { type: 'tick', dtMs: 100 }, sc);
+    s = reduce(s, { type: 'tick', dtMs: 600_000 }, sc).state;
+    expect(s).toMatchObject({ step: 0, progress: 1, status: 'active' });
+    for (let i = 0; i < sc.steps.length && s.status !== 'ended'; i += 1) {
+      const t = reduce(s, { type: 'next' }, sc);
       s = t.state;
       effects = t.effects.map((e) => e.type);
-      if (s.status === 'paused') s = reduce(s, { type: 'play' }, sc).state; // resume after moments
     }
     expect(s.status).toBe('ended');
     expect(effects).toContain('ended');
   });
 
-  it('pauses at the end of a close-call moment and resumes with the next step', () => {
+  it('holds a close-call moment until Next is pressed', () => {
     const sc = script();
     const moment = sc.steps.find((s) => s.autoPause);
     if (!moment) return;
-    let s: PlaybackState = { ...initialState(1, false), status: 'playing', step: moment.index, progress: 0.99 };
+    let s: PlaybackState = { ...initialState(false), step: moment.index, progress: 0.99 };
     const t = reduce(s, { type: 'tick', dtMs: moment.durationMs }, sc);
-    expect(t.state).toMatchObject({ status: 'paused', pauseReason: 'moment', step: moment.index, progress: 1 });
+    expect(t.state).toMatchObject({ status: 'active', step: moment.index, progress: 1 });
     expect(t.effects).toEqual([{ type: 'stopClock' }]);
-    s = reduce(t.state, { type: 'play' }, sc).state;
-    expect(s).toMatchObject({ status: 'playing', step: moment.index + 1, progress: 0 });
+    s = reduce(t.state, { type: 'next' }, sc).state;
+    expect(s).toMatchObject({ status: 'active', step: moment.index + 1, progress: 0 });
   });
 
   it('never runs the clock in step mode', () => {
     const sc = script();
-    const t = reduce(initialState(1, true), { type: 'play' }, sc);
-    expect(t.effects).toEqual([]);
-    expect(t.state.step).toBe(1);
+    const t = reduce(initialState(true), { type: 'animate' }, sc);
+    expect(t.effects).toEqual([{ type: 'stopClock' }]);
+    expect(t.state.step).toBe(0);
     expect(t.state.progress).toBe(1);
   });
 
-  it('shows a step complete when moved to while stopped, and plays it from its start on Play', () => {
+  it('automatically animates each newly selected step from its start', () => {
     const sc = script();
-    let s = run(initialState(1, false), [{ type: 'next' }], sc);
-    expect(s).toMatchObject({ status: 'ready', step: 1, progress: 1 });
-    const t = reduce(s, { type: 'play' }, sc);
-    expect(t.state).toMatchObject({ status: 'playing', step: 1, progress: 0 });
+    let s = run(initialState(false), [{ type: 'next' }], sc);
+    expect(s).toMatchObject({ status: 'active', step: 1, progress: 0 });
+    const t = reduce(s, { type: 'next' }, sc);
+    expect(t.state).toMatchObject({ status: 'active', step: 2, progress: 0 });
     expect(t.effects).toEqual([{ type: 'startClock' }]);
-    // While playing, a moved-to step starts from the beginning.
-    s = run(t.state, [{ type: 'next' }], sc);
-    expect(s).toMatchObject({ status: 'playing', step: 2, progress: 0 });
+    // Previous also loads the animation from its beginning.
+    s = run(t.state, [{ type: 'prev' }], sc);
+    expect(s).toMatchObject({ status: 'active', step: 1, progress: 0 });
   });
 
-  it('navigates chapters like a music player, and pauses when the tab is hidden', () => {
+  it('navigates sections and finishes the current animation when the tab is hidden', () => {
     const sc = script();
     const loop = sc.chapters.find((c) => c.id === 'loop');
-    let s = run(initialState(1, false), [{ type: 'seekChapter', chapter: 'loop' }], sc);
+    let s = run(initialState(false), [{ type: 'seekChapter', chapter: 'loop' }], sc);
     expect(s.step).toBe(loop?.first);
     s = run(s, [{ type: 'next' }, { type: 'prevChapter' }], sc);
     expect(s.step).toBe(loop?.first);
     s = run(s, [{ type: 'prevChapter' }], sc);
     expect(s.step).toBe(sc.chapters.find((c) => c.id === 'pick')?.first);
-    s = run(s, [{ type: 'play' }, { type: 'hidden' }], sc);
-    expect(s).toMatchObject({ status: 'paused', pauseReason: 'hidden' });
+    const step = s.step;
+    s = run(s, [{ type: 'hidden' }], sc);
+    expect(s).toMatchObject({ status: 'active', step, progress: 1 });
   });
 });
 
@@ -302,7 +304,6 @@ describe('controller', () => {
     let now = 0;
     const controller = createPlaybackController({
       script: compiled(basic),
-      speed: 1,
       stepMode: false,
       clock: { requestFrame: (cb) => frames.push(cb), cancelFrame: () => undefined, now: () => now },
     });
@@ -310,23 +311,23 @@ describe('controller', () => {
     let progressUpdates = 0;
     controller.subscribe(() => (renders += 1));
     controller.subscribeProgress(() => (progressUpdates += 1));
-    controller.dispatch({ type: 'play' });
+    controller.dispatch({ type: 'animate' });
     renders = 0;
-    // 3 seconds of 60 fps frames inside the first step (longer than 3 s).
+    // Frames animate the first step, then stop; React never renders per frame.
     for (let i = 0; i < 180; i += 1) {
       now += 1000 / 60;
       frames.shift()?.(now);
     }
     expect(controller.getSnapshot().step).toBe(0);
     expect(renders).toBe(0);
-    expect(progressUpdates).toBeGreaterThan(150);
+    expect(progressUpdates).toBeGreaterThan(100);
+    expect(controller.getProgress()).toBe(1);
     controller.destroy();
   });
 
   it('keeps the viewer’s step when the script is recompiled', () => {
     const controller = createPlaybackController({
       script: compiled(basic, 'simple'),
-      speed: 1,
       stepMode: true,
       clock: { requestFrame: () => 0, cancelFrame: () => undefined, now: () => 0 },
     });
@@ -336,5 +337,25 @@ describe('controller', () => {
     const after = controller.getSnapshot();
     expect(after.script.steps[after.step]?.key).toBe(key);
     expect(after.script.depth).toBe('detailed');
+  });
+
+  it('animates the fallback step when changing depth removes the current step', () => {
+    const detailed = compiled(basic, 'detailed');
+    const requestFrame = vi.fn(() => 1);
+    const controller = createPlaybackController({
+      script: detailed,
+      stepMode: false,
+      clock: { requestFrame, cancelFrame: () => undefined, now: () => 0 },
+    });
+    controller.dispatch({ type: 'seek', step: detailed.steps.findIndex((s) => s.key === 'network:position') });
+    controller.dispatch({ type: 'tick', dtMs: STEP_ANIMATION_MS });
+    expect(controller.getProgress()).toBe(1);
+    requestFrame.mockClear();
+    controller.replaceScript(compiled(basic, 'simple'));
+    const snapshot = controller.getSnapshot();
+    expect(snapshot.script.steps[snapshot.step]?.chapter).toBe('network');
+    expect(controller.getProgress()).toBe(0);
+    expect(requestFrame).toHaveBeenCalledOnce();
+    controller.destroy();
   });
 });
