@@ -44,7 +44,7 @@ export function buildSample(ctx: BuildContext): SampleScene[] {
       stage: 'sample',
       view: 'draw',
       key: 'pick:draw',
-      chapter: 'pick',
+      chapter: 'generation',
       timing: timing(6_000, 4_500),
       copy: pickDraw({ chosen: token.text }),
       examples: true,
@@ -55,7 +55,7 @@ export function buildSample(ctx: BuildContext): SampleScene[] {
       stage: 'sample',
       view: 'settings',
       key: 'pick:settings',
-      chapter: 'pick',
+      chapter: 'generation',
       timing: timing(5_000),
       copy: pickSettings({
         temperature: read(t) === null ? null : (t as Sourced<number>),

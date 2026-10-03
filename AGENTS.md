@@ -18,7 +18,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 > - The label system (`src/shared/provenance/`), protocol v1, and the trace. The trace records every turn
 >   as a TraceLog and folds it into labeled facts.
 > - The walkthrough beside the chat:
->   - the Hook and chapters 1–7 at Simple and Detailed depth, with manual step/section buttons and reduced motion;
+>   - five conversational chapters covering one request and reply (ADR 0015), with manual step/section buttons and reduced motion;
 >   - the token card, five deep dives, two exercises, the Transcript view, and the live strip;
 >   - glossary popovers, "Is this real?" / "How do we know this?", the three lanes, and Detailed sub-scenes;
 >   - native keyboard navigation buttons, and the first-visit tour of the chat page.
@@ -334,14 +334,14 @@ Stage IDs:
 - `followup`
 
 Chapters group them (`src/playback/types.ts`):
-- hook (probs)
-- context
-- tokenize
-- network (embed + layers)
-- options (probs)
-- pick (sample)
-- loop (layers for the second pass + loop + stop)
-- followup (second turn onward)
+- context: What goes into the model
+- input: What happens to your message (tokenize + embed + prompt layers)
+- generation: How the model builds its reply (probs + sample + generation layers + loop)
+- ending: How the reply ends (stop)
+- review: A closer look at your reply (recorded token choices)
+
+ADR 0015 keeps each walkthrough scoped to one request and response. Included history belongs to its input;
+there is no separate follow-up chapter. Close calls appear after the ending, never before their concepts.
 
 ## 8. Accessibility (target: WCAG 2.2 AA)
 - **Keyboard and focus**

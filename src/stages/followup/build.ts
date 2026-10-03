@@ -33,7 +33,7 @@ export function buildFollowup(ctx: BuildContext): FollowupScene[] {
       stage: 'followup',
       view: 'packing',
       key: 'followup:packing',
-      chapter: 'followup',
+      chapter: 'context',
       timing: timing(5_500),
       copy: followupPacking({
         included: deriveAll('count', messages.map((m) => m.text), (xs) => xs.length),
@@ -47,7 +47,7 @@ export function buildFollowup(ctx: BuildContext): FollowupScene[] {
       stage: 'followup',
       view: 'gauge',
       key: 'followup:gauge',
-      chapter: 'followup',
+      chapter: 'context',
       timing: timing(5_500),
       copy: followupGauge({
         input: ctx.trace.usage?.inputTokens ?? null,

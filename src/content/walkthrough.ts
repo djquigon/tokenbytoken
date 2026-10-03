@@ -58,9 +58,13 @@ export const hook = (v: { tokens: Sourced<number>; pick: PickCopy; closeCall: bo
 
 // Chapter 1 · What gets sent -------------------------------------------------------------------------
 
-export const contextCards = (v: { earlier: Sourced<number> | null }): SceneCopy => ({
+export const contextCards = (v: { earlier: Sourced<number> | null; detailed: boolean }): SceneCopy => ({
   title: st`What gets sent`,
-  body: v.earlier
+  body: !v.detailed
+    ? v.earlier
+      ? st`The model receives your message along with ${slot('int', v.earlier)} earlier messages as part of its ${term('context', 'input')}. Those earlier messages give it context for this reply.`
+      : st`Before generating a reply, the model receives your message as part of its ${term('context', 'input')}. This is the text it will work from to begin building a response.`
+    : v.earlier
     ? st`Before anything is generated, this app assembles one ${term('context', 'input')}: its ${term('instructions', 'instructions')}, the ${slot('int', v.earlier)} earlier messages it re-sends, and your new message. It's like handing over the whole script so far before each new line.`
     : st`Before anything is generated, this app assembles one ${term('context', 'input')}: its own ${term('instructions', 'instructions')} and your message. Think of it as a script handed over in full: anything not in it, the model doesn't get.`,
   detail: st`Apps can add instructions you don't see. This app shows its own, word for word.`,
@@ -247,9 +251,9 @@ export const loopAppend = (): SceneCopy => ({
   claims: ['C040', 'C041'],
 });
 
-export const loopMoment = (v: { pick: PickCopy; again: boolean }): SceneCopy => ({
-  title: v.again ? st`The close call from the start` : st`Another close call`,
-  body: pickSentence(v.pick, 'Later,'),
+export const loopMoment = (v: { pick: PickCopy }): SceneCopy => ({
+  title: st`Another close call in your reply`,
+  body: pickSentence(v.pick, 'Here'),
   detail: st`Close calls describe wording, not correctness.`,
   claims: ['C012', 'C034'],
 });

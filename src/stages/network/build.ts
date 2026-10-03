@@ -1,4 +1,4 @@
-// Stages `embed` and `layers` for chapter 3, "Inside the network (example view)". Every drawing here is an
+// Stages `embed` and `layers` for "What happens to your message". Every drawing here is an
 // Example (CLAUDE.md A9, A10): the API exposes no internals. The token labels are your real tokens
 // (Calculated with the assumed tokenizer); the vectors, layers, and attention arcs are teaching patterns.
 // Detailed depth adds two sub-scenes (position, feed-forward) and more example attention patterns.
@@ -54,7 +54,7 @@ export function buildNetwork(ctx: BuildContext): NetworkScene[] {
       stage: 'embed',
       view: 'lookup',
       key: 'network:lookup',
-      chapter: 'network',
+      chapter: 'input',
       timing: timing(5_000),
       copy: networkLookup(),
       examples: true,
@@ -69,7 +69,7 @@ export function buildNetwork(ctx: BuildContext): NetworkScene[] {
       stage: 'embed',
       view: 'position',
       key: 'network:position',
-      chapter: 'network',
+      chapter: 'input',
       timing: timing(5_000),
       copy: networkPosition(),
       examples: true,
@@ -83,7 +83,7 @@ export function buildNetwork(ctx: BuildContext): NetworkScene[] {
       stage: 'layers',
       view: 'prefill',
       key: 'network:prefill',
-      chapter: 'network',
+      chapter: 'input',
       timing: timing(5_500),
       copy: networkLayers(),
       examples: true,
@@ -94,7 +94,7 @@ export function buildNetwork(ctx: BuildContext): NetworkScene[] {
       stage: 'layers',
       view: 'attention',
       key: 'network:attention-sample',
-      chapter: 'network',
+      chapter: 'input',
       timing: timing(5_000),
       copy: networkAttentionSample(),
       examples: true,
@@ -109,7 +109,7 @@ export function buildNetwork(ctx: BuildContext): NetworkScene[] {
       stage: 'layers',
       view: 'attention',
       key: 'network:attention-yours',
-      chapter: 'network',
+      chapter: 'input',
       timing: timing(4_500),
       copy: networkAttentionYours(),
       examples: true,
@@ -127,7 +127,7 @@ export function buildNetwork(ctx: BuildContext): NetworkScene[] {
       stage: 'layers',
       view: 'feedforward',
       key: 'network:feedforward',
-      chapter: 'network',
+      chapter: 'input',
       timing: timing(4_500),
       copy: networkFeedForward(),
       examples: true,
