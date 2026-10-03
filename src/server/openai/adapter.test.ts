@@ -75,6 +75,14 @@ describe('mapUpstreamError', () => {
 describe('mapStreamEvent', () => {
   const ev = (e: Record<string, unknown>) => e as unknown as ResponseStreamEvent;
 
+  it('does not invent zero reasoning tokens when that usage detail is absent', () => {
+    const result = mapStreamEvent(ev({ type: 'response.completed', response: {
+      status: 'completed', output: [],
+      usage: { input_tokens: 10, output_tokens: 6, total_tokens: 16 },
+    } }), true);
+    expect(result).toMatchObject({ kind: 'terminal', usage: { inputTokens: 10, outputTokens: 6, reasoningTokens: null } });
+  });
+
   it('relays refusals on their own channel, without logprobs', () => {
     expect(mapStreamEvent(ev({ type: 'response.refusal.delta', delta: 'No.', sequence_number: 4 }), true)).toEqual({
       kind: 'delta',

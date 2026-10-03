@@ -414,7 +414,7 @@ function usageFacts(end: EndEventV1 | undefined): UsageFacts | null {
     cachedInputTokens: recordedWith(PROV.usage.cachedInputTokens, u.cachedInputTokens),
     cacheWriteTokens: u.cacheWriteTokens === null ? null : recordedWith(PROV.usage.cacheWriteTokens, u.cacheWriteTokens),
     outputTokens: recordedWith(PROV.usage.outputTokens, u.outputTokens),
-    reasoningTokens: recordedWith(PROV.usage.reasoningTokens, u.reasoningTokens),
+    reasoningTokens: u.reasoningTokens === null ? null : recordedWith(PROV.usage.reasoningTokens, u.reasoningTokens),
     totalTokens: recordedWith(PROV.usage.totalTokens, u.totalTokens),
   };
 }
@@ -547,7 +547,7 @@ export function finalizeTrace(log: TraceLogV1): FinalizedTrace {
     output,
     usage,
     timing,
-    reasoningGate: usage ? derive('reasoning-gate', [usage.reasoningTokens], (r) => r === 0) : null,
+    reasoningGate: usage?.reasoningTokens ? derive('reasoning-gate', [usage.reasoningTokens], (r) => r === 0) : null,
     reconciliation: lines,
     closeCalls,
     cost: costFacts(request, usage, output, start),

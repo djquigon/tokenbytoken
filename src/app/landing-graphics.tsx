@@ -3,6 +3,7 @@
 // charts do. Server components: nothing here runs in the browser.
 
 import { Datum } from '@/components/provenance/Datum';
+import { Term } from '@/components/glossary/Term';
 import { LabelChip } from '@/components/provenance/ProvBadge';
 import type { Sourced } from '@/shared/provenance';
 import { read } from '@/shared/provenance/read';
@@ -63,11 +64,12 @@ export function OptionRows({ options, label }: { options: readonly Alternative[]
 export function OptionsLegend() {
   return (
     <>
+      <span>Chance this piece comes next, not chance it is true.</span>
       <span>
         <LabelChip kind="recorded" /> tokens, reported by OpenAI
       </span>
       <span>
-        <LabelChip kind="calculated" /> percentages, from its logprobs
+        <LabelChip kind="calculated" /> percentages, from its <Term id="logprob">logprobs</Term>
       </span>
     </>
   );

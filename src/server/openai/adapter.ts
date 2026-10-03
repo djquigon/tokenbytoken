@@ -150,7 +150,7 @@ function mapUsage(u: ResponseUsage | undefined): WireUsage | null {
     cachedInputTokens: u.input_tokens_details?.cached_tokens ?? 0,
     cacheWriteTokens: u.input_tokens_details?.cache_write_tokens ?? null,
     outputTokens: u.output_tokens,
-    reasoningTokens: u.output_tokens_details?.reasoning_tokens ?? 0,
+    reasoningTokens: u.output_tokens_details?.reasoning_tokens ?? null,
     totalTokens: u.total_tokens,
   };
 }

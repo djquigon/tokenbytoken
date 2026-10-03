@@ -36,7 +36,7 @@ export function buildHook(ctx: BuildContext): ProbsScene[] {
       key: 'hook',
       chapter: 'hook',
       timing: timing(7_000, 5_000),
-      copy: hook({ tokens: ctx.trace.output.providerTokenCount, pick: pickCopy(token), closeCall: moment.closeCall }),
+      copy: hook({ tokens: ctx.trace.output.providerTokenCount, pick: pickCopy(token), closeCall: moment.closeCall, gaps: ctx.trace.output.segments.some((s) => s.kind === 'gap') }),
       examples: false,
       moment: { token, before: textBefore(ctx.trace, token.index), shown: 5 },
       closeCall: moment.closeCall,
@@ -52,7 +52,7 @@ export function buildOptions(ctx: BuildContext): ProbsScene[] {
     ];
   }
   const vocab = ctx.trace.request?.reference.tokenizerVocabulary ?? null;
-  const view: OptionsView = { token, before: null, shown: ctx.depth === 'simple' ? 5 : 10 };
+  const view: OptionsView = { token, before: textBefore(ctx.trace, token.index), shown: ctx.depth === 'simple' ? 5 : 10 };
   return [
     {
       stage: 'probs',

@@ -77,7 +77,7 @@ export function MontageView({
   return (
     <div className="montage" data-from={scene.from} data-to={scene.to}>
       <p className="montage-counter">
-        Sped up, not real timing · reply length: <Datum of={scene.total} as="int" compact />
+        Sped up, not real timing · tokens with alternatives: <Datum of={scene.total} as="int" compact />
       </p>
       <TokenTape
         tokens={tape.slice(0, scene.to)}

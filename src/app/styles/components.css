@@ -338,12 +338,12 @@ button.token-chip {
   text-decoration-color: var(--text);
 }
 .term-tip {
-  position: absolute;
-  top: calc(100% + 0.35rem);
-  left: 0;
+  position: fixed;
   z-index: 30;
-  width: max-content;
-  max-width: min(20rem, 80vw);
+  width: 20rem;
+  max-width: calc(100vw - 1rem);
+  max-height: calc(100dvh - 1rem);
+  overflow-y: auto;
   padding: 0.5rem 0.65rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);

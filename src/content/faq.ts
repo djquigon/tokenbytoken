@@ -537,7 +537,7 @@ const neuralNetwork: FaqEntry = {
 const training: FaqEntry = {
     id: 'training',
     question: 'How does a neural network learn?',
-    short: st`By trial and error at enormous scale. It makes a prediction, measures how wrong it was, and nudges every weight a little toward a better answer, then repeats over vast numbers of examples.`,
+    short: st`It makes a prediction, compares it with an example's answer, and adjusts its ${term('parameters', 'learned numbers')} to reduce the error. Repeating this across many examples is ${term('training', 'training')}.`,
     answer: [
         st`Training starts from random weights. For each example, the network's output is compared with the right answer, and the gap is measured as a single number: the error, or “loss”.`,
         st`Then every weight is nudged slightly in the direction that lowers the error, a method called ${term('gradient-descent', 'gradient descent')}. It's like walking downhill in thick fog: you can't see the bottom, but you can feel which way the ground slopes. Working out that direction for every weight at once is the job of ${term('backpropagation', 'backpropagation')}, which works backwards through the layers. A landmark paper by Rumelhart, Hinton and Williams showed that this lets a network's hidden layers learn useful features on their own.`,
@@ -887,7 +887,7 @@ const history: FaqEntry = {
 const transformer: FaqEntry = {
     id: 'transformer',
     question: 'What made the transformer such a big deal?',
-    short: st`It let every position in a text draw directly on earlier positions through attention, and it could be trained in parallel on graphics chips. That made it practical to train far bigger language models on far more text.`,
+    short: st`It let a training text be processed all at once on graphics chips. In a next-token model, ${term('attention', 'attention')} lets each token's ${term('position', 'position')} draw directly on itself and earlier positions. This made much bigger language models practical.`,
     answer: [
         st`Earlier language networks read text one token at a time, passing a running summary along, like a message whispered down a line of people. That made training slow, because each step had to wait for the one before.`,
         st`The transformer dropped that step-by-step reading for ${term('attention', 'attention')} alone. In a language model, each position can draw on itself and earlier positions, never later ones, in every layer.`,
@@ -996,7 +996,7 @@ const understanding: FaqEntry = {
     question: 'Does a chatbot understand what it’s saying?',
     short: st`Researchers disagree, partly about what “understand” should mean. What's known is how the text gets made: one token at a time, from scores the network computes, using internal patterns that track concepts.`,
     answer: [
-        st`In a survey of ${slot('int', FACTS.surveyRespondents)} researchers who study language technology, ${slot('percent', FACTS.surveyAgreedPct)} agreed that a model trained only on text could understand language in some nontrivial sense, and ${slot('percent', FACTS.surveyDisagreedPct)} disagreed.`,
+        st`Among the ${slot('int', FACTS.surveyRespondents)} language-technology researchers who met a survey's publication criteria, ${slot('percent', FACTS.surveyAgreedPct)} agreed that a model trained only on text could understand language in some nontrivial sense, and ${slot('percent', FACTS.surveyDisagreedPct)} disagreed.`,
         st`Skeptics argue that such a model stitches together patterns of words from its training text without any connection to their meaning: the “stochastic parrots” argument.`,
         st`Others point to what's inside. A model trained only to predict moves in the board game Othello built an internal map of the board, and editing that map changed its moves. Large models contain internal features for concepts, like the Golden Gate Bridge, that respond to the concept in many languages and in images.`,
         st`This site avoids saying that a model “understands” or “knows” anything, and describes what it computes instead.`,

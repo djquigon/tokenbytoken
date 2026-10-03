@@ -68,6 +68,35 @@ function makeStore(send: StoreDeps['sendTurn'], storage: KeyValueStorage | null 
 }
 
 describe('conversation store', () => {
+  it('isolates a new send from callbacks and cleanup of a cleared request', async () => {
+    const pending: { options: SendTurnOptions; finish: () => void }[] = [];
+    const storage = new MemoryStorage();
+    const store = makeStore((options) => new Promise<void>((finish) => pending.push({ options, finish })), storage);
+    store.getState().hydrate();
+    const old = store.getState().send('Old question');
+    const a = pending[0]!;
+    a.options.onEntry({ k: 'request_sent', tc: a.options.now(), messageIds: [], logprobs: true });
+    store.getState().clear();
+    const next = store.getState().send('New question');
+    const b = pending[1]!;
+    a.options.onEntry({ k: 'user_abort', tc: a.options.now() });
+    a.finish();
+    await old;
+    expect(a.options.signal.aborted).toBe(true);
+    expect(store.getState().streaming).toBe(true);
+    expect(store.getState().turns).toHaveLength(1);
+    expect(store.getState().turns[0]?.done).toBe(false);
+    expect(storage.getItem(CONVERSATION_KEY)).toBeNull();
+    store.getState().stop();
+    expect(b.options.signal.aborted).toBe(true);
+    b.options.onEntry({ k: 'user_abort', tc: b.options.now() });
+    b.finish();
+    await next;
+    expect(store.getState().streaming).toBe(false);
+    expect(store.getState().turns[0]?.user.content).toBe('New question');
+    expect(store.getState().turns[0]?.done).toBe(true);
+  });
+
   it('sends a turn, keeps the signed reply, and re-sends it next turn', async () => {
     const { sendTurn, requests } = replaySend();
     const store = makeStore(sendTurn);

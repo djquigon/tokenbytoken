@@ -30,10 +30,10 @@ export const CLAIMS = {
     checked: '2026-09-30',
   },
   C003: {
-    text: 'OpenAI keeps abuse-monitoring logs, which can include prompts and replies, for up to 30 days, or longer where the law requires it.',
+    text: 'By default, OpenAI keeps abuse-monitoring logs, which can include prompts and replies, for up to 30 days. Longer retention can be required by law or reasonably necessary to protect its services or third parties from harm.',
     where: 'Privacy notice, /privacy',
     sources: [OPENAI_YOUR_DATA],
-    checked: '2026-09-30',
+    checked: '2026-10-02',
   },
   C004: {
     text: "Data sent to OpenAI's API isn't used to train its models unless the account owner opts in.",
@@ -266,10 +266,10 @@ export const CLAIMS = {
     checked: '2026-09-30',
   },
   C044: {
-    text: "The model doesn't remember your earlier messages. This app sends the conversation so far with each new one.",
+    text: "The model doesn't remember your earlier messages. This app sends signed conversation history with each new message. Replies stopped by the user or a lost connection are not sent again; signed partial replies ended by the provider can be included.",
     where: 'Chapter "Your next message"; landing page, "Does it learn from me?", "Context limits and history"; FAQ',
-    sources: ['This app: stateless server; history is re-sent (docs/PLAN.md §3.6)', 'CLAUDE.md A8'],
-    checked: '2026-09-30',
+    sources: ['This app: src/generation/conversation-store.ts (historyFor), src/server/chat/handler.ts (signReply)', 'CLAUDE.md A8'],
+    checked: '2026-10-02',
   },
   C045: {
     text: "When a conversation outgrows this app's budget, it drops the oldest turns. The model's own documented limit is much larger.",
@@ -562,13 +562,13 @@ export const CLAIMS = {
     checked: '2026-09-30',
   },
   C080: {
-    text: "Researchers disagree about whether language models understand language: in a survey of 480 NLP researchers, 51% agreed a model trained only on text could understand language in some nontrivial sense, and 49% disagreed.",
+    text: "Researchers disagree about whether language models understand language: among 327 NLP researchers meeting a survey’s publication criteria, 51% agreed a model trained only on text could understand language in some nontrivial sense, and 49% disagreed.",
     where: "FAQ (“Does a chatbot understand what it’s saying?”)",
     sources: [
       "Mitchell & Krakauer, \"The debate over understanding in AI’s large language models\" (PNAS, 2023-03-21): https://www.pnas.org/doi/10.1073/pnas.2215907120",
       "Michael et al., \"What Do NLP Researchers Believe? Results of the NLP Community Metasurvey\" (2022-08-26; respondents \"split almost exactly in half\"): https://arxiv.org/abs/2208.12852",
     ],
-    checked: '2026-09-30',
+    checked: '2026-10-02',
   },
   C081: {
     text: "Skeptics argue a language model stitches together word patterns without connection to meaning; others point to internal representations, such as a model trained on Othello moves building an internal map of the board, and concept features that work across languages and images.",
@@ -899,6 +899,12 @@ export const CLAIMS = {
       "Anthropic, OpenAI SDK compatibility (\"logprobs\" and \"top_logprobs\" ignored): https://platform.claude.com/docs/en/cli-sdks-libraries/libraries/openai-sdk",
     ],
     checked: '2026-10-01',
+  },
+  C111: {
+    text: 'This app only offers the token-by-token walkthrough when OpenAI reports zero hidden reasoning tokens. A nonzero count is shown as a count only; missing usage leaves that count unknown.',
+    where: 'Walkthrough fallback',
+    sources: ['CLAUDE.md A4', 'This app: src/trace/finalize.ts (reasoningGate), src/playback/compile/compile.ts'],
+    checked: '2026-10-02',
   },
 } as const satisfies Record<string, Claim>;
 

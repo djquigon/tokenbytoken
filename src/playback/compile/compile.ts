@@ -8,6 +8,7 @@ import type { Depth } from '@/components/prefs/store';
 import { joinText, wordCount, type SourcedText } from '@/shared/sourced-text';
 import { playbackMs } from '@/shared/units';
 import type { FinalizedTrace } from '@/trace/facts';
+import { read } from '@/shared/provenance/read';
 
 import { buildContext } from '@/stages/context/build';
 import { buildFollowup } from '@/stages/followup/build';
@@ -25,7 +26,7 @@ export interface CompileOptions {
   readonly depth: Depth;
 }
 
-export type CompileResult = { readonly ok: true; readonly script: PlaybackScript } | { readonly ok: false; readonly reason: 'no_request' | 'no_reply' };
+export type CompileResult = { readonly ok: true; readonly script: PlaybackScript } | { readonly ok: false; readonly reason: 'no_request' | 'no_reply' | 'hidden_reasoning' | 'unknown_reasoning' };
 
 /** A step never plays faster than its caption can be read (the montage's repeated caption counts once). */
 function withReadingTime(scene: Scene, depth: Depth, captionAlreadyShown: boolean): Timing {
@@ -46,7 +47,7 @@ export function describeScene(scene: Scene, depth: Depth): SourcedText {
   return joinText(...parts.map((p, i) => (i === 0 ? [...p, '.'] : p)));
 }
 
-/** Whether a walkthrough can be compiled for this trace (the same checks compileScript starts with). */
+/** Whether there is reply data to explain, including the opaque reasoning fallback. */
 export function canCompile(trace: FinalizedTrace): boolean {
   return trace.request !== null && (trace.output.segments.length > 0 || trace.output.tokens.length > 0);
 }
@@ -54,6 +55,8 @@ export function canCompile(trace: FinalizedTrace): boolean {
 export function compileScript(trace: FinalizedTrace, options: CompileOptions): CompileResult {
   if (!trace.request) return { ok: false, reason: 'no_request' };
   if (!canCompile(trace)) return { ok: false, reason: 'no_reply' };
+  if (!trace.reasoningGate) return { ok: false, reason: 'unknown_reasoning' };
+  if (!read(trace.reasoningGate)) return { ok: false, reason: 'hidden_reasoning' };
   const ctx = { trace, depth: options.depth, seed: trace.turnId };
   const scenes: Scene[] = [
     ...buildHook(ctx),
