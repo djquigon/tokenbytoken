@@ -18,7 +18,7 @@ export interface ChapterInfo {
 
 export const CHAPTERS: Readonly<Record<ChapterId, ChapterInfo>> = {
   context: { id: 'context', title: 'What goes into the model', short: 'What goes in', subtitle: 'Context assembly' },
-  input: { id: 'input', title: 'What happens to your message', short: 'Your message', subtitle: 'Input processing: tokenization and the prompt pass' },
+  input: { id: 'input', title: 'What happens to your message', short: 'Processing your message', subtitle: 'Input processing: tokenization and the prompt pass' },
   generation: { id: 'generation', title: 'How the model builds its reply', short: 'Building the reply', subtitle: 'Output generation: scores, selection, and repeated model passes' },
   ending: { id: 'ending', title: 'How the reply ends', short: 'End', subtitle: 'The recorded stop reason' },
   review: { id: 'review', title: 'A closer look at your reply', short: 'Review', subtitle: 'Recorded token choices' },
