@@ -3,7 +3,7 @@
 // toggle, the real-speed replay, and the first-visit tour. Most run on /sample, which never calls the API.
 
 import { expect, test, type Page } from '@playwright/test';
-import { finishAnimations, goToChapter, lastStep } from './navigation';
+import { finishAnimations, goToChapter, goToStep, lastStep } from './navigation';
 
 const walkthrough = (page: Page) => page.locator('.walkthrough');
 const stepCount = (page: Page) => page.locator('.step-count');
@@ -32,6 +32,7 @@ test('legacy playback settings cannot restore autoplay or navigation shortcuts',
 
 test('glossary terms show their definition on hover and focus, and Escape dismisses it', async ({ page }) => {
   await page.goto('/sample');
+  await goToChapter(page, /What happens to your message/);
   const term = walkthrough(page).locator('.caption').getByRole('button', { name: 'tokens' }).first();
   await term.hover();
   const tip = page.getByRole('tooltip').filter({ hasText: 'Token:' });
@@ -51,7 +52,7 @@ test('“Is this real?” lists the kinds of values each step shows, with source
   const panel = walkthrough(page).getByRole('region', { name: 'Is this real?' });
   await expect(panel).toContainText('Real, from this conversation (Recorded)');
   await expect(panel).toContainText('Worked out by this app from real values (Calculated)');
-  await goToChapter(page, /Inside the network/);
+  await goToStep(page, 'Each token becomes a list of numbers');
   await expect(panel).toContainText('Teaching drawings');
   await walkthrough(page).getByRole('button', { name: 'Detailed', exact: true }).click();
   const detailed = walkthrough(page).getByRole('region', { name: 'How do we know this?' });
@@ -61,8 +62,8 @@ test('“Is this real?” lists the kinds of values each step shows, with source
 
 test('the lanes: a ticker at Simple depth, three lanes at Detailed', async ({ page }) => {
   await openSample(page);
-  await expect(walkthrough(page).locator('.lane-ticker [aria-current="true"]')).toContainText('OpenAI');
-  await goToChapter(page, /What gets sent/);
+  await expect(walkthrough(page).locator('.lane-ticker [aria-current="true"]')).toContainText('This app');
+  await goToChapter(page, /What goes into the model/);
   await expect(walkthrough(page).locator('.lane-ticker [aria-current="true"]')).toContainText('This app');
   await walkthrough(page).getByRole('button', { name: 'Detailed', exact: true }).click();
   const lanes = walkthrough(page).getByRole('group', { name: 'Where each part happens' });
@@ -74,7 +75,7 @@ test('the lanes: a ticker at Simple depth, three lanes at Detailed', async ({ pa
 test('Detailed depth adds the position and feed-forward steps; attention shows other example patterns', async ({ page }) => {
   await openSample(page);
   await walkthrough(page).getByRole('button', { name: 'Detailed', exact: true }).click();
-  await goToChapter(page, /Inside the network/);
+  await goToStep(page, 'Each token becomes a list of numbers');
   await expect(walkthrough(page).locator('.caption-title')).toHaveText('Each token becomes a list of numbers');
   await walkthrough(page).getByRole('button', { name: 'Next step' }).click();
   await expect(walkthrough(page).locator('.caption-title')).toHaveText('Where each token sits');
@@ -92,7 +93,7 @@ test('Detailed depth adds the position and feed-forward steps; attention shows o
 
 test('simulated picks add up to twenty and are marked as simulated', async ({ page }) => {
   await openSample(page);
-  await goToChapter(page, /A weighted random pick/);
+  await goToStep(page, 'A weighted random pick');
   await walkthrough(page).getByRole('button', { name: 'What if the temperature were different?' }).click();
   const dive = walkthrough(page).getByRole('region', { name: 'What if the temperature were different?' });
   await dive.getByRole('button', { name: /Simulate 20 picks/ }).click();
@@ -107,7 +108,7 @@ test('simulated picks add up to twenty and are marked as simulated', async ({ pa
 
 test('guess the likely option, then see the real options', async ({ page }) => {
   await openSample(page);
-  await goToChapter(page, /The options for the next token/);
+  await goToChapter(page, /How the model builds its reply/);
   await walkthrough(page).getByRole('button', { name: 'Guess the likely option' }).click();
   const dive = walkthrough(page).getByRole('region', { name: 'Guess the likely option' });
   await dive.getByRole('group', { name: 'Which option did the model score highest?' }).getByRole('button').first().click();
@@ -127,9 +128,8 @@ test('the real-or-example check scores all seven items', async ({ page }) => {
 
 test('the end step shows the reply formatted or as written', async ({ page }) => {
   await openSample(page);
-  // In the two-turn sample, the reply's end step comes just before the follow-up chapter.
-  await goToChapter(page, /next message/);
-  await walkthrough(page).getByRole('button', { name: 'Previous step' }).click();
+  // The ending has its own chapter before the retrospective token examples.
+  await goToChapter(page, /How the reply ends/);
   await expect(walkthrough(page).locator('.caption-title')).toHaveText('How the reply ended');
   await expect(walkthrough(page).getByRole('region', { name: 'The reply, formatted' })).toBeVisible();
   await walkthrough(page).getByRole('button', { name: 'As written' }).click();
@@ -174,7 +174,7 @@ test('the new panels have no serious accessibility violations', async ({ page })
   await openSample(page);
   await walkthrough(page).getByRole('button', { name: 'Detailed', exact: true }).click();
   await walkthrough(page).getByRole('button', { name: 'How do we know this?' }).click();
-  await goToChapter(page, /A weighted random pick/);
+  await goToStep(page, 'A weighted random pick');
   await walkthrough(page).getByRole('button', { name: 'What if the temperature were different?' }).click();
   await page.getByRole('button', { name: /Simulate 20 picks/ }).click();
   expect(await serious()).toEqual([]);

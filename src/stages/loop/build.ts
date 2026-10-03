@@ -1,4 +1,4 @@
-// Stages `layers` (the second pass), `loop` (moments and the montage), and `stop` for chapter 6. The reply's
+// Scenes for generation, the ending, and the final review. The reply's
 // tokens and how it ended are Recorded; the second-pass drawing is an Example; the montage pacing is
 // teaching time, labeled "sped up, not real timing" (CLAUDE.md A6).
 
@@ -12,7 +12,7 @@ import { montageDurationMs } from '@/playback/compile/pacing';
 import { hookMoment, pickCopy, textBefore } from '../common';
 import { timing, type BuildContext, type SceneMeta } from '../contract';
 
-/** The most close calls the montage pauses at (docs/PLAN.md §1). */
+/** At most two featured close calls; the compiler moves their review after the ending. */
 const MAX_MOMENTS = 2;
 
 export type LoopScene =
@@ -38,7 +38,7 @@ export function buildLoop(ctx: BuildContext): LoopScene[] {
       stage: 'layers',
       view: 'decode',
       key: 'loop:decode',
-      chapter: 'loop',
+      chapter: 'generation',
       timing: timing(6_000, 4_000),
       copy: loopAppend(),
       examples: true,
@@ -63,7 +63,7 @@ export function buildLoop(ctx: BuildContext): LoopScene[] {
         stage: 'loop',
         view: 'montage',
         key: `loop:montage:${i}`,
-        chapter: 'loop',
+        chapter: 'generation',
         // The montage is never compressed by pacing: its speed is fixed by the per-token rule.
         timing: timing(Math.max(400, Math.round((to - from) * perToken)), 300, false),
         copy: loopMontage({ tokens: total, first: i === 0, gaps }),
@@ -75,15 +75,15 @@ export function buildLoop(ctx: BuildContext): LoopScene[] {
     }
     const momentIndex = moments[i];
     const token = momentIndex === undefined ? undefined : trace.output.tokens[momentIndex];
-    if (token && i < cuts.length) {
+    if (token && i < cuts.length && token.index !== hookIndex) {
       scenes.push({
         stage: 'loop',
         view: 'moment',
         key: `loop:moment:${token.index}`,
-        chapter: 'loop',
+        chapter: 'review',
         timing: timing(5_000, 3_500),
         autoPause: true,
-        copy: loopMoment({ pick: pickCopy(token), again: token.index === hookIndex }),
+        copy: loopMoment({ pick: pickCopy(token) }),
         examples: false,
         token,
         before: textBefore(trace, token.index),
@@ -96,7 +96,7 @@ export function buildLoop(ctx: BuildContext): LoopScene[] {
     stage: 'stop',
     view: 'end',
     key: 'loop:end',
-    chapter: 'loop',
+    chapter: 'ending',
     timing: timing(5_500, 4_000),
     copy: stopCopy(reason, trace.request?.limits.maxOutputTokens ?? null),
     examples: false,

@@ -1,4 +1,4 @@
-// Stage `probs`: the Hook (chapter 0) and "The options for the next token" (chapter 4). The options are
+// Stage `probs`: the final recorded-choice review and generation's next-token options. The options are
 // Recorded (OpenAI's top alternatives) with Calculated percentages; the vocabulary strip is an Example.
 
 import { hook, optionsBars, optionsMeaning, optionsStrip, optionsUnavailable } from '@/content/walkthrough';
@@ -27,14 +27,14 @@ const listedCount = (t: OutputToken) => deriveAll('count', t.alternatives.map((a
 
 export function buildHook(ctx: BuildContext): ProbsScene[] {
   const moment = hookMoment(ctx.trace);
-  if (!moment) return [];
+  if (!moment) return [{ stage: 'probs', view: 'unavailable', key: 'review:unavailable', chapter: 'review', timing: timing(5_000), copy: optionsUnavailable(), examples: false }];
   const token = moment.token;
   return [
     {
       stage: 'probs',
       view: 'hook',
       key: 'hook',
-      chapter: 'hook',
+      chapter: 'review',
       timing: timing(7_000, 5_000),
       copy: hook({ tokens: ctx.trace.output.providerTokenCount, pick: pickCopy(token), closeCall: moment.closeCall, gaps: ctx.trace.output.segments.some((s) => s.kind === 'gap') }),
       examples: false,
@@ -48,7 +48,7 @@ export function buildOptions(ctx: BuildContext): ProbsScene[] {
   const token = firstToken(ctx.trace);
   if (!token) {
     return [
-      { stage: 'probs', view: 'unavailable', key: 'options:unavailable', chapter: 'options', timing: timing(5_000), copy: optionsUnavailable(), examples: false },
+      { stage: 'probs', view: 'unavailable', key: 'options:unavailable', chapter: 'generation', timing: timing(5_000), copy: optionsUnavailable(), examples: false },
     ];
   }
   const vocab = ctx.trace.request?.reference.tokenizerVocabulary ?? null;
@@ -58,7 +58,7 @@ export function buildOptions(ctx: BuildContext): ProbsScene[] {
       stage: 'probs',
       view: 'strip',
       key: 'options:strip',
-      chapter: 'options',
+      chapter: 'generation',
       timing: timing(4_500),
       copy: optionsStrip({ vocabulary: vocab ? derive('round', [vocab], (v) => Math.round(v / 1000) * 1000) : null }),
       examples: true,
@@ -69,7 +69,7 @@ export function buildOptions(ctx: BuildContext): ProbsScene[] {
       stage: 'probs',
       view: 'bars',
       key: 'options:bars',
-      chapter: 'options',
+      chapter: 'generation',
       timing: timing(6_000, 4_500),
       copy: optionsBars({ chosen: token.text, pct: token.pct, listed: listedCount(token) }),
       examples: false,
@@ -79,7 +79,7 @@ export function buildOptions(ctx: BuildContext): ProbsScene[] {
       stage: 'probs',
       view: 'meaning',
       key: 'options:meaning',
-      chapter: 'options',
+      chapter: 'generation',
       timing: timing(4_000, 3_000),
       copy: optionsMeaning(),
       examples: false,

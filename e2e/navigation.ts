@@ -32,3 +32,17 @@ export async function lastStep(page: Page) {
   for (let i = 0; i < 20 && await next.isEnabled(); i += 1) await next.click();
   await expect(next).toBeDisabled();
 }
+
+/** Locate a teaching scene within the broader conversational chapters. */
+export async function goToStep(page: Page, title: string) {
+  const view = page.locator('.walkthrough');
+  await goToChapter(page, /What goes into the model/);
+  const caption = view.locator('.caption-title');
+  for (let i = 0; i < 100; i += 1) {
+    if (await caption.innerText() === title) return;
+    const next = view.getByRole('button', { name: 'Next step', exact: true });
+    if (!await next.isEnabled()) break;
+    await next.click();
+  }
+  await expect(caption).toHaveText(title);
+}

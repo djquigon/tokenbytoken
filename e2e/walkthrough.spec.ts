@@ -3,7 +3,7 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { finishAnimations, lastStep } from './navigation';
+import { finishAnimations, goToChapter } from './navigation';
 
 const REPLY_START = 'Sunlight contains all colors';
 
@@ -53,7 +53,7 @@ test('navigation buttons work from the keyboard without playback shortcuts', asy
   await expect(next).toBeFocused();
   await walkthrough(page).getByRole('button', { name: 'Next section' }).focus();
   await page.keyboard.press('Space');
-  await expect(walkthrough(page).getByRole('heading', { level: 2 })).toHaveText('Text becomes tokens');
+  await expect(walkthrough(page).getByRole('heading', { level: 2 })).toHaveText('What happens to your message');
   await walkthrough(page).getByRole('button', { name: 'Previous section' }).focus();
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
@@ -68,7 +68,7 @@ test('navigation buttons work from the keyboard without playback shortcuts', asy
 
 test('a token card opens from the reply, closes with Escape, and returns focus', async ({ page }) => {
   await askAndWait(page);
-  await lastStep(page);
+  await goToChapter(page, /How the reply ends/);
   const tape = walkthrough(page).getByRole('list', { name: /The whole reply as tokens/ });
   const first = tape.getByRole('button').first();
   await first.click();
@@ -163,6 +163,6 @@ test('the walkthrough has no serious accessibility violations', async ({ page })
   await walkthrough(page).getByRole('button', { name: 'Next section' }).click();
   expect(await axeSerious(page)).toEqual([]);
   await walkthrough(page).getByRole('button', { name: 'Read as text' }).click();
-  await expect(walkthrough(page).getByRole('heading', { name: 'What gets sent', level: 3 })).toBeVisible();
+  await expect(walkthrough(page).getByRole('heading', { name: 'What goes into the model', level: 3 })).toBeVisible();
   expect(await axeSerious(page)).toEqual([]);
 });

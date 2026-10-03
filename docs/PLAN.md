@@ -20,6 +20,8 @@ cheapest one that gives the best visualization outcomes. There is no formal expe
 
 ## Decisions at a glance
 
+**Chapter update (2026-10-03):** [ADR 0015](decisions/0015-conversational-chapters.md) replaces the earlier chapter grouping with five chronological chapters: What goes into the model → What happens to your message → How the model builds its reply → How the reply ends → A closer look at your reply. Input processing and output generation are separate. Close calls are reviewed last; no follow-up chapter is included. Controls and timeline styling remain unchanged.
+
 **Manual navigation update (2026-10-02):** [ADR 0014](decisions/0014-manual-walkthrough.md) supersedes playback pacing and shortcut requirements below. Readers navigate with Next/Previous icon buttons and the original section timeline, with Skip walkthrough retained. The original control layout and styling remain. Each step animates automatically and then waits for the reader; reduced motion reveals it immediately. No play/pause, speed controls, autoplay preference, or duration estimates remain.
 
 **Audit update (2026-10-02):** [ADR 0013](decisions/0013-audit-remediation.md) records the owner-authorized accuracy, accessibility, and layout fixes. A nonzero or unknown hidden-reasoning count now yields an opaque fallback instead of the per-token walkthrough. Captions precede graphics, and the text alternative includes the actual options and controls.

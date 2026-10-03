@@ -1,8 +1,8 @@
 // compileScript (docs/PLAN.md §3.5): FinalizedTrace + preferences → PlaybackScript. Pure: no Date,
 // randomness, DOM, or fetch (a test runs it with those rigged to throw).
 //
-// Order: Hook → what gets sent → tokens → the prompt pass (example) → options and pick for the first token
-// → the second pass and the rest of the reply (with close-call moments) → how it ended → the follow-up.
+// Order: request context → input processing → output generation → stop reason → recorded choices.
+// Each walkthrough explains one request and its response, including when history was part of its input.
 
 import type { Depth } from '@/components/prefs/store';
 import { joinText, wordCount, type SourcedText } from '@/shared/sourced-text';
@@ -11,7 +11,6 @@ import type { FinalizedTrace } from '@/trace/facts';
 import { read } from '@/shared/provenance/read';
 
 import { buildContext } from '@/stages/context/build';
-import { buildFollowup } from '@/stages/followup/build';
 import { buildLoop } from '@/stages/loop/build';
 import { buildNetwork } from '@/stages/network/build';
 import { buildHook, buildOptions } from '@/stages/probs/build';
@@ -58,15 +57,17 @@ export function compileScript(trace: FinalizedTrace, options: CompileOptions): C
   if (!trace.reasoningGate) return { ok: false, reason: 'unknown_reasoning' };
   if (!read(trace.reasoningGate)) return { ok: false, reason: 'hidden_reasoning' };
   const ctx = { trace, depth: options.depth, seed: trace.turnId };
+  const loop = buildLoop(ctx);
   const scenes: Scene[] = [
-    ...buildHook(ctx),
     ...buildContext(ctx),
     ...buildTokenize(ctx),
     ...buildNetwork(ctx),
     ...buildOptions(ctx),
     ...buildSample(ctx),
-    ...buildLoop(ctx),
-    ...buildFollowup(ctx),
+    ...loop.filter((s) => s.chapter === 'generation'),
+    ...loop.filter((s) => s.chapter === 'ending'),
+    ...buildHook(ctx),
+    ...loop.filter((s) => s.chapter === 'review'),
   ];
   const timings = scenes.map((s, i) =>
     withReadingTime(s, options.depth, s.view === 'montage' && scenes.slice(0, i).some((earlier) => earlier.view === 'montage')),

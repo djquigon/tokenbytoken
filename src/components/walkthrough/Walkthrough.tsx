@@ -39,11 +39,10 @@ const DEPTH_LABEL: Record<Depth, string> = { simple: 'Simple', detailed: 'Detail
 /** Deep dives offered beside each chapter; the last step offers all of them. */
 const DIVES_BY_CHAPTER: Partial<Record<ChapterId, readonly DeepDiveId[]>> = {
   context: ['context', 'learning'],
-  network: ['learning'],
-  options: ['fluent', 'guess'],
-  pick: ['temperature'],
-  loop: ['timing', 'fluent'],
-  followup: ['context', 'learning'],
+  input: ['learning'],
+  generation: ['temperature', 'fluent', 'guess'],
+  ending: ['timing'],
+  review: ['fluent', 'temperature', 'context', 'learning', 'timing', 'guess', 'check'],
 };
 const ALL_DIVES: readonly DeepDiveId[] = ['fluent', 'temperature', 'context', 'learning', 'timing', 'guess', 'check'];
 

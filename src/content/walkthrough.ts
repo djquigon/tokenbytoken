@@ -247,9 +247,9 @@ export const loopAppend = (): SceneCopy => ({
   claims: ['C040', 'C041'],
 });
 
-export const loopMoment = (v: { pick: PickCopy; again: boolean }): SceneCopy => ({
-  title: v.again ? st`The close call from the start` : st`Another close call`,
-  body: pickSentence(v.pick, 'Later,'),
+export const loopMoment = (v: { pick: PickCopy }): SceneCopy => ({
+  title: st`Another close call in your reply`,
+  body: pickSentence(v.pick, 'Here'),
   detail: st`Close calls describe wording, not correctness.`,
   claims: ['C012', 'C034'],
 });

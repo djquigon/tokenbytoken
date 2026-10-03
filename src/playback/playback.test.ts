@@ -84,9 +84,26 @@ describe('compileScript', () => {
 
   it('builds the chapters in order, within the cap', () => {
     const script = compiled(basic);
-    expect(script.chapters.map((c) => c.id)).toEqual(['hook', 'context', 'tokenize', 'network', 'options', 'pick', 'loop']);
+    expect(script.chapters.map((c) => c.id)).toEqual(['context', 'input', 'generation', 'ending', 'review']);
     expect(script.totalMs).toBeLessThanOrEqual(PACING.capMs);
     expect(script.totalMs).toBeGreaterThan(60_000);
+  });
+
+  it('separates input from generation and leaves recorded close calls until after the ending', () => {
+    for (const depth of ['simple', 'detailed', 'technical'] as const) {
+      const script = compiled(basic, depth);
+      expect(script.steps[0]?.key).toBe('context:cards');
+      for (const step of script.steps) {
+        if (step.scene.stage === 'tokenize' || step.key.startsWith('network:')) expect(step.chapter).toBe('input');
+        if (step.key.startsWith('options:') || step.key.startsWith('pick:') || step.scene.view === 'decode' || step.scene.view === 'montage') expect(step.chapter).toBe('generation');
+        if (step.scene.view === 'hook' || step.scene.view === 'moment') expect(step.chapter).toBe('review');
+      }
+      const end = script.steps.findIndex((s) => s.key === 'loop:end');
+      const review = script.chapters.find((c) => c.id === 'review');
+      expect(review?.first).toBeGreaterThan(end);
+      expect(script.chapters.map((c) => c.id)).toEqual(['context', 'input', 'generation', 'ending', 'review']);
+      expect(new Set(script.steps.map((s) => s.key)).size).toBe(script.steps.length);
+    }
   });
 
   it('never plays a step faster than its caption can be read', () => {
@@ -109,9 +126,10 @@ describe('compileScript', () => {
     expect(total).toBeLessThanOrEqual(PACING.montageMaxMs + caption + 400 * montage.length);
   });
 
-  it('adds the follow-up chapter from the second turn', () => {
+  it('explains only the selected request and response even when its input includes history', () => {
     const script = compiled(followup);
-    expect(script.chapters.at(-1)?.id).toBe('followup');
+    expect(script.chapters.map((c) => c.id)).toEqual(['context', 'input', 'generation', 'ending', 'review']);
+    expect(script.steps.some((s) => s.scene.stage === 'followup')).toBe(false);
   });
 
   it('pauses at close calls, and never at more than two', () => {
@@ -178,6 +196,8 @@ describe('compileScript', () => {
     const script = compileScript(finalizeTrace(stripped), { depth: 'simple' });
     expect(script.ok).toBe(true);
     if (!script.ok) return;
+    expect(script.script.chapters.map((c) => c.id)).toEqual(['context', 'input', 'generation', 'ending', 'review']);
+    expect(script.script.steps.at(-1)?.key).toBe('review:unavailable');
     const keys = script.script.steps.map((s) => s.key);
     expect(keys).toContain('options:unavailable');
     expect(keys.some((k) => k === 'hook' || k.startsWith('pick:') || k === 'options:bars')).toBe(false);
@@ -249,7 +269,7 @@ describe('machine', () => {
     expect(effects).toContain('ended');
   });
 
-  it('holds a close-call moment until Next is pressed', () => {
+  it('holds a close-call moment until the reader navigates, including the final step', () => {
     const sc = script();
     const moment = sc.steps.find((s) => s.autoPause);
     if (!moment) return;
@@ -257,8 +277,10 @@ describe('machine', () => {
     const t = reduce(s, { type: 'tick', dtMs: moment.durationMs }, sc);
     expect(t.state).toMatchObject({ status: 'active', step: moment.index, progress: 1 });
     expect(t.effects).toEqual([{ type: 'stopClock' }]);
-    s = reduce(t.state, { type: 'next' }, sc).state;
-    expect(s).toMatchObject({ status: 'active', step: moment.index + 1, progress: 0 });
+    s = reduce(t.state, { type: 'prev' }, sc).state;
+    expect(s).toMatchObject({ status: 'active', step: moment.index - 1, progress: 0 });
+    s = reduce(s, { type: 'next' }, sc).state;
+    expect(s).toMatchObject({ status: moment.index === sc.steps.length - 1 ? 'ended' : 'active', step: moment.index, progress: 0 });
   });
 
   it('never runs the clock in step mode', () => {
@@ -283,13 +305,13 @@ describe('machine', () => {
 
   it('navigates sections and finishes the current animation when the tab is hidden', () => {
     const sc = script();
-    const loop = sc.chapters.find((c) => c.id === 'loop');
-    let s = run(initialState(false), [{ type: 'seekChapter', chapter: 'loop' }], sc);
+    const loop = sc.chapters.find((c) => c.id === 'generation');
+    let s = run(initialState(false), [{ type: 'seekChapter', chapter: 'generation' }], sc);
     expect(s.step).toBe(loop?.first);
     s = run(s, [{ type: 'next' }, { type: 'prevChapter' }], sc);
     expect(s.step).toBe(loop?.first);
     s = run(s, [{ type: 'prevChapter' }], sc);
-    expect(s.step).toBe(sc.chapters.find((c) => c.id === 'pick')?.first);
+    expect(s.step).toBe(sc.chapters.find((c) => c.id === 'input')?.first);
     const step = s.step;
     s = run(s, [{ type: 'hidden' }], sc);
     expect(s).toMatchObject({ status: 'active', step, progress: 1 });
@@ -331,7 +353,7 @@ describe('controller', () => {
       stepMode: true,
       clock: { requestFrame: () => 0, cancelFrame: () => undefined, now: () => 0 },
     });
-    controller.dispatch({ type: 'seekChapter', chapter: 'pick' });
+    controller.dispatch({ type: 'seekChapter', chapter: 'generation' });
     const key = controller.getSnapshot().script.steps[controller.getSnapshot().step]?.key;
     controller.replaceScript(compiled(basic, 'detailed'));
     const after = controller.getSnapshot();
@@ -353,7 +375,7 @@ describe('controller', () => {
     requestFrame.mockClear();
     controller.replaceScript(compiled(basic, 'simple'));
     const snapshot = controller.getSnapshot();
-    expect(snapshot.script.steps[snapshot.step]?.chapter).toBe('network');
+    expect(snapshot.script.steps[snapshot.step]?.chapter).toBe('input');
     expect(controller.getProgress()).toBe(0);
     expect(requestFrame).toHaveBeenCalledOnce();
     controller.destroy();

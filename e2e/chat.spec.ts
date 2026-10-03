@@ -2,6 +2,7 @@
 
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { finishAnimations } from './navigation';
 
 const REPLY_START = 'Sunlight contains all colors';
 
@@ -139,6 +140,7 @@ test('the chat has no serious accessibility violations', async ({ page }) => {
   await send(page, 'Why is the sky blue?');
   await expect(chat(page).getByText(REPLY_START)).toBeVisible();
   await page.getByRole('button', { name: 'Inspect data' }).click();
+  await finishAnimations(page);
   const results = await new AxeBuilder({ page }).analyze();
   const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
   expect(serious.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);

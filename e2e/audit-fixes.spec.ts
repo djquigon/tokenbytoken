@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { goToChapter } from './navigation';
+import { goToStep } from './navigation';
 
 test('text view contains real option tables, the temperature control, and exercises', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -71,7 +71,7 @@ test('phone FAQ index is collapsed and desktop index remains visible', async ({ 
 test('caption and visible Example warning precede the graphic', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/sample');
-  await goToChapter(page, /Inside/);
+  await goToStep(page, 'Each token becomes a list of numbers');
   const step = page.locator('.step-view');
   expect(await step.evaluate((el) => [...el.children].map((c) => c.className))).toEqual(['caption', 'banner-examples', 'stage']);
   const caveat = step.locator('.banner-examples');

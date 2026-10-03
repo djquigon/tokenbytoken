@@ -21,7 +21,7 @@ describe('recorded sample conversation', () => {
     expect(restored?.turns).toHaveLength(2);
   });
 
-  it('is two complete, token-by-token replies, the second a follow-up with a walkthrough chapter for it', () => {
+  it('is two complete replies, with the same single-response chapter sequence for the second', () => {
     const traces = (restored?.turns ?? []).map((t) => (t.log ? finalizeTrace(t.log) : null));
     for (const trace of traces) {
       expect(trace).not.toBeNull();
@@ -34,7 +34,8 @@ describe('recorded sample conversation', () => {
     const second = traces[1];
     if (!second) throw new Error('missing second turn');
     const compiled = compileScript(second, { depth: 'simple' });
-    expect(compiled.ok && compiled.script.chapters.map((c) => c.id)).toContain('followup');
+    expect(compiled.ok && compiled.script.chapters.map((c) => c.id)).toEqual(['context', 'input', 'generation', 'ending', 'review']);
+    expect(second.request?.inputRuns.filter((run) => run.role !== 'instructions').length).toBeGreaterThan(1);
   });
 
   it('carries no reply signatures', () => {

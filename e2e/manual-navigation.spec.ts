@@ -23,9 +23,9 @@ test('steps animate on arrival and wait indefinitely for navigation', async ({ p
   await expect(view.getByRole('group', { name: 'Speed' })).toHaveCount(0);
   const timeline = view.getByRole('navigation', { name: 'Chapters' });
   await expect(timeline).toBeVisible();
-  await timeline.getByRole('button', { name: /Text becomes tokens/ }).click();
-  await expect(view.getByRole('heading', { level: 2 })).toHaveText('Text becomes tokens');
-  await expect(timeline.getByRole('button', { name: /Text becomes tokens/ })).toHaveAttribute('aria-current', 'step');
+  await timeline.getByRole('button', { name: /What happens to your message/ }).click();
+  await expect(view.getByRole('heading', { level: 2 })).toHaveText('What happens to your message');
+  await expect(timeline.getByRole('button', { name: /What happens to your message/ })).toHaveAttribute('aria-current', 'step');
   await expect.poll(progress).toBe(1);
   const position = await count.innerText();
   await page.waitForTimeout(2_000);
