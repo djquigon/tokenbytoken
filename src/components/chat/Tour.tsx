@@ -16,7 +16,7 @@ const STEPS = [
   },
   {
     title: 'Then see how it was made',
-    body: 'When the reply finishes, “How it works” walks through it step by step, at your pace. Play, pause, step, or skip at any time.',
+    body: 'When the reply finishes, “How it works” walks through it step by step, at your pace. Use Next and Previous to move through the steps and sections, or skip at any time.',
   },
   {
     title: 'Know what’s real',

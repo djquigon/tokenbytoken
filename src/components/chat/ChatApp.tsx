@@ -12,7 +12,6 @@ import { useStore } from 'zustand';
 import { Term } from '@/components/glossary/Term';
 import { useHydratePrefs, usePrefs } from '@/components/prefs/hooks';
 import { PrefsMenu } from '@/components/prefs/PrefsMenu';
-import { prefsStore } from '@/components/prefs/store';
 import { Datum } from '@/components/provenance/Datum';
 import { LabelChip } from '@/components/provenance/ProvBadge';
 import { Brand } from '@/components/site/Brand';
@@ -69,7 +68,6 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [tab, setTab] = useState<'chat' | 'walkthrough'>('chat');
-  const [autoplayId, setAutoplayId] = useState<string | null>(null);
 
   useEffect(() => {
     store.getState().hydrate();
@@ -87,7 +85,6 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
         if (!last || !hasWalkthrough(last)) return;
         setSelectedId(last.id);
         setPendingId(last.id);
-        if (prefsStore.getState().autoplay) setAutoplayId(last.id);
       }),
     [store],
   );
@@ -198,7 +195,6 @@ export function ChatApp({ sample }: { sample?: { conversation: unknown } } = {})
             <Walkthrough
               key={selected.id}
               trace={selectedTrace}
-              autoplay={autoplayId === selected.id}
               onFinished={onFinished}
             />
           ) : (
